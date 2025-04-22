@@ -3,6 +3,8 @@ const express = require('express');
 const connectDB = require('./Server/Connection');
 const userRoutes = require("./routes/userRoutes");
 const EnquireyRoutes = require("./routes/enquireyRoutes");
+const agencies = require("./routes/agencieRoutes");
+const goldenvisa = require("./routes/goldenvisaRoutes");
 
 
 const app = express();
@@ -16,5 +18,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/enquirey", EnquireyRoutes);
+app.use("/api/agencies",agencies);
+app.use("/api/goldenvisa",goldenvisa);
 
-app.listen(process.env.PORT || 8005, () => console.log("Server started"));
+app.listen(process.env.PORT || 8001, () => console.log("Server started 8001"));
