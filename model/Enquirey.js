@@ -15,6 +15,10 @@ const Enquirey = new mongoose.Schema({
     },
     phoneNo:{
         type:String
+    },
+    date:{
+        type: Date,
+        default: Date.now
     }
 })
 

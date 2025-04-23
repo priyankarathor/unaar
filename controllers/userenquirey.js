@@ -2,8 +2,8 @@ const Enquirey = require('../model/Enquirey');
 
 exports.userEnquirey = async (req, res) => {
     try {
-        const { inquire, fullname, email, phoneNo } = req.body;
-        const Enquireydata = new Enquirey({ inquire, fullname, email, phoneNo });
+        const { inquire, fullname, email, phoneNo , date} = req.body;
+        const Enquireydata = new Enquirey({ inquire, fullname, email, phoneNo , date});
         await Enquireydata.save();
 
         res.status(201).send('Inquiry generated successfully');
