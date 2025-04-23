@@ -5,10 +5,11 @@ const userRoutes = require("./routes/userRoutes");
 const EnquireyRoutes = require("./routes/enquireyRoutes");
 const agencies = require("./routes/agencieRoutes");
 const goldenvisa = require("./routes/goldenvisaRoutes");
-
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 connectDB();
 
