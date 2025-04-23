@@ -1,25 +1,45 @@
 const agencies = require("../model/Agencie");
 
+// ADD
 exports.agenciesadd = async (req, res) => {
     try {
         const { image, link, agenciename } = req.body;
         const agenciedata = new agencies({ image, link, agenciename });
         await agenciedata.save();
-        res.status(201).send("Agency saved successfully");
+
+        res.status(201).json({
+            status: true,
+            message: "Agency saved successfully",
+            data: agenciedata
+        });
     } catch (error) {
-        res.status(500).send("Something went wrong: " + error.message);
+        res.status(500).json({
+            status: false,
+            message: "Something went wrong: " + error.message,
+            data: null
+        });
     }
 };
 
-exports.agenciesget = async (req,res) =>{
-    try{
+// GET ALL
+exports.agenciesget = async (req, res) => {
+    try {
         const agenciedata = await agencies.find();
-        res.status(201).json(agenciedata);
-    }catch(error){
-        res.status(500).send("something want wrong " + error.message);
+        res.status(200).json({
+            status: true,
+            message: "Agencies fetched successfully",
+            data: agenciedata
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            message: "Something went wrong: " + error.message,
+            data: []
+        });
     }
-}
+};
 
+// EDIT
 exports.agenciesedit = async (req, res) => {
     try {
         const { image, link, agenciename } = req.body;
@@ -31,21 +51,52 @@ exports.agenciesedit = async (req, res) => {
             { new: true }
         );
 
-        if (!editagencies) return res.status(404).send('Agency not found');
-        
-        res.status(200).json({ message: "Agency updated successfully", updatedAgency: editagencies });
+        if (!editagencies) {
+            return res.status(404).json({
+                status: false,
+                message: "Agency not found",
+                data: null
+            });
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "Agency updated successfully",
+            data: editagencies
+        });
     } catch (error) {
-        res.status(400).send('Something went wrong: ' + error.message);
+        res.status(400).json({
+            status: false,
+            message: "Something went wrong: " + error.message,
+            data: null
+        });
     }
 };
 
+// DELETE
 exports.agenciesdelete = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedUser = await agencies.findByIdAndDelete(id);
-    if (!deletedUser) return res.status(404).send("User not found");
-    res.status(200).json({ message: "agencies deleted successfully", deletedUser });
-  } catch (error) {
-    res.status(500).send("Something went wrong: " + error.message);
-  }
+    try {
+        const { id } = req.params;
+        const deletedUser = await agencies.findByIdAndDelete(id);
+
+        if (!deletedUser) {
+            return res.status(404).json({
+                status: false,
+                message: "Agency not found",
+                data: null
+            });
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "Agency deleted successfully",
+            data: deletedUser
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            message: "Something went wrong: " + error.message,
+            data: null
+        });
+    }
 };
