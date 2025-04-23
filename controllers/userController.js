@@ -1,44 +1,28 @@
 const User = require("../model/user");
 
-// POST - Register User
+//post 
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
     const user = new User({ name, email, password, role });
     await user.save();
-    res.status(201).json({
-      status: true,
-      message: "User created successfully",
-      data: user,
-    });
+    res.status(201).send("User created successfully");
   } catch (error) {
-    res.status(400).json({
-      status: false,
-      message: "Something went wrong: " + error.message,
-      data: null,
-    });
+    res.status(400).send("Something went wrong: " + error.message);
   }
 };
 
-// GET - All Users
+//get
 exports.registerUserdata = async (req, res) => {
   try {
-    const usersdata = await User.find();
-    res.status(200).json({
-      status: true,
-      message: "Users fetched successfully",
-      data: usersdata,
-    });
+    const usersdata = await User.find(); 
+    res.status(200).json(usersdata);
   } catch (error) {
-    res.status(500).json({
-      status: false,
-      message: "Something went wrong: " + error.message,
-      data: [],
-    });
+    res.status(404).send("Something went wrong: " + error.message);
   }
 };
 
-// PUT - Edit User
+//edit
 exports.registerUseredit = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -48,51 +32,21 @@ exports.registerUseredit = async (req, res) => {
       { name, email, password, role },
       { new: true }
     );
-    if (!updatedUser) {
-      return res.status(404).json({
-        status: false,
-        message: "User not found",
-        data: null,
-      });
-    }
-
-    res.status(200).json({
-      status: true,
-      message: "User updated successfully",
-      data: updatedUser,
-    });
+    if (!updatedUser) return res.status(404).send("User not found");
+    res.status(200).json({ message: "User updated successfully", updatedUser });
   } catch (error) {
-    res.status(500).json({
-      status: false,
-      message: "Something went wrong: " + error.message,
-      data: null,
-    });
+    res.status(500).send("Something went wrong: " + error.message);
   }
 };
 
-// DELETE - Delete User
+//delete
 exports.registerUserdelete = async (req, res) => {
   try {
     const { id } = req.params;
     const deletedUser = await User.findByIdAndDelete(id);
-    if (!deletedUser) {
-      return res.status(404).json({
-        status: false,
-        message: "User not found",
-        data: null,
-      });
-    }
-
-    res.status(200).json({
-      status: true,
-      message: "User deleted successfully",
-      data: deletedUser,
-    });
+    if (!deletedUser) return res.status(404).send("User not found");
+    res.status(200).json({ message: "User deleted successfully", deletedUser });
   } catch (error) {
-    res.status(500).json({
-      status: false,
-      message: "Something went wrong: " + error.message,
-      data: null,
-    });
+    res.status(500).send("Something went wrong: " + error.message);
   }
 };
