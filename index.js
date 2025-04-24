@@ -18,6 +18,9 @@ app.get("/", (req, res) => {
   res.send("API is working");
 });
 
+app.use('/uploads', express.static('uploads'));
+
+
 app.use("/api/users", userRoutes);
 app.use("/api/enquirey", EnquireyRoutes);
 app.use("/api/agencies",agencies);
