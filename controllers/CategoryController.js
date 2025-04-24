@@ -1,97 +1,104 @@
-const category = require('../model/category');
+const Category = require('../model/category'); // Capitalized model name for convention
 const fs = require('fs');
 const path = require('path');
 
 // INSERT
-exports.categoryinsert = async (req, res) => {
+exports.categoryInsert = async (req, res) => {
     try {
         const { categorytype, categoryvalue, action } = req.body;
-        const image = req.file ? req.file.path : '';
+        const imagePath = req.file ? req.file.path : '';
 
-        const categorydata = new category({ categorytype, categoryvalue, image, action });
-        await categorydata.save();
+        const categoryData = new Category({
+            categorytype,
+            categoryvalue,
+            image: imagePath,
+            action
+        });
+
+        await categoryData.save();
 
         res.status(200).json({
             status: true,
-            message: "Category data inserted",
-            categoryinsert: categorydata
+            message: "Category inserted successfully",
+            data: categoryData
         });
     } catch (error) {
         res.status(500).json({
             status: false,
-            message: "Category data not inserted",
+            message: "Failed to insert category",
             error: error.message,
-            categoryinsert: null
+            data: null
         });
     }
 };
 
 // READ
-exports.categoryget = async (req, res) => {
+exports.categoryGet = async (req, res) => {
     try {
-        const categorydataget = await category.find().sort({ _id: -1 });
+        const categories = await Category.find().sort({ _id: -1 });
         res.status(200).json({
             status: true,
-            message: "Category data fetched",
-            categoryfatch: categorydataget
+            message: "Category data fetched successfully",
+            data: categories
         });
     } catch (error) {
         res.status(500).json({
             status: false,
-            message: "Category data not fetched",
+            message: "Failed to fetch category data",
             error: error.message,
-            categoryfatch: null
+            data: null
         });
     }
 };
 
 // EDIT
-exports.categoryedit = async (req, res) => {
+exports.categoryEdit = async (req, res) => {
     try {
         const { id } = req.params;
         const { categorytype, categoryvalue, action } = req.body;
 
-        const existingCategory = await category.findById(id);
+        const existingCategory = await Category.findById(id);
         if (!existingCategory) {
             return res.status(404).json({ status: false, message: "Category not found", data: null });
         }
 
-        // If new image, delete old one
-        let updatedImage = existingCategory.image;
+        let imagePath = existingCategory.image;
         if (req.file) {
-            if (existingCategory.image && fs.existsSync(existingCategory.image)) {
-                fs.unlinkSync(existingCategory.image);
+            // Delete old image
+            if (imagePath && fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
             }
-            updatedImage = req.file.path;
+            imagePath = req.file.path;
         }
 
-        const updatedData = await category.findByIdAndUpdate(
+        const updatedCategory = await Category.findByIdAndUpdate(
             id,
-            { categorytype, categoryvalue, image: updatedImage, action },
+            { categorytype, categoryvalue, image: imagePath, action },
             { new: true }
         );
 
         res.status(200).json({
             status: true,
             message: "Category updated successfully",
-            data: updatedData
+            data: updatedCategory
         });
     } catch (error) {
         res.status(500).json({
             status: false,
-            message: "Something went wrong: " + error.message,
+            message: "Failed to update category",
+            error: error.message,
             data: null
         });
     }
 };
 
 // DELETE
-exports.categorydelete = async (req, res) => {
+exports.categoryDelete = async (req, res) => {
     try {
         const { id } = req.params;
-        const deletedcategory = await category.findByIdAndDelete(id);
+        const deletedCategory = await Category.findByIdAndDelete(id);
 
-        if (!deletedcategory) {
+        if (!deletedCategory) {
             return res.status(404).json({
                 status: false,
                 message: "Category not found",
@@ -99,20 +106,21 @@ exports.categorydelete = async (req, res) => {
             });
         }
 
-        // Delete image from server
-        if (deletedcategory.image && fs.existsSync(deletedcategory.image)) {
-            fs.unlinkSync(deletedcategory.image);
+        // Delete associated image
+        if (deletedCategory.image && fs.existsSync(deletedCategory.image)) {
+            fs.unlinkSync(deletedCategory.image);
         }
 
         res.status(200).json({
             status: true,
             message: "Category deleted successfully",
-            data: deletedcategory
+            data: deletedCategory
         });
     } catch (error) {
         res.status(500).json({
             status: false,
-            message: "Something went wrong: " + error.message,
+            message: "Failed to delete category",
+            error: error.message,
             data: null
         });
     }

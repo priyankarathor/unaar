@@ -17,8 +17,7 @@ connectDB();
 app.get("/", (req, res) => {
   res.send("API is working");
 });
-
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static('uploads')); 
 
 
 app.use("/api/users", userRoutes);
