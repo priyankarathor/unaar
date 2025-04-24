@@ -1,4 +1,4 @@
-const Category = require('../model/category'); // Capitalized model name for convention
+const Category = require('../model/category'); 
 const fs = require('fs');
 const path = require('path');
 

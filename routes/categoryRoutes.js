@@ -1,17 +1,18 @@
-const express = require("express");
+const express = require('express');
+const upload = require('../middleware/multer'); 
 const router = express.Router();
-const upload = require("../middleware/multer");
+const {categoryInsert, categoryGet, categoryEdit, categoryDelete} = require("../controllers/CategoryController");
 
-const {
-  categoryinsert,
-  categoryget,
-  categoryedit,
-  categorydelete
-} = require("../controllers/CategoryController");
+// Route to insert category
+router.post('/insertcategory', upload.single('image'), categoryInsert);
 
-router.post("/categoryinsertdata", upload.single("image"), categoryinsert);
-router.get("/categoryget", categoryget);
-router.put("/editcategory/:id", upload.single("image"), categoryedit);
-router.delete("/deletecategory/:id", categorydelete);
+// Route to get all categories
+router.get('/getcategory', categoryGet);
+
+// Route to edit category
+router.put('/editcategory/:id', upload.single('image'), categoryEdit);
+
+// Route to delete category
+router.delete('/deletecategory/:id', categoryDelete);
 
 module.exports = router;
