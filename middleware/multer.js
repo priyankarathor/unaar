@@ -2,24 +2,31 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Ensure uploads folder exists
+// Set upload directory
 const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-}
 
-// Multer storage config
+// Ensure uploads folder exists
+fs.mkdir(uploadDir, { recursive: true }, (err) => {
+    if (err) {
+        console.error('❌ Failed to create uploads folder:', err);
+    } else {
+        console.log('✅ Uploads folder is ready.');
+    }
+});
+
+// Multer storage configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-        const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname);
-        cb(null, uniqueName);
+        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+        const extName = path.extname(file.originalname).toLowerCase();
+        cb(null, `${uniqueSuffix}${extName}`);
     }
 });
 
-// File filter for images only
+// File filter: Only allow images
 const fileFilter = (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|webp/;
     const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -28,11 +35,15 @@ const fileFilter = (req, file, cb) => {
     if (extName && mimeType) {
         cb(null, true);
     } else {
-        cb(new Error('Only JPEG, JPG, PNG, and WEBP images are allowed'));
+        cb(new Error('Only JPEG, JPG, PNG, and WEBP images are allowed!'));
     }
 };
 
-// Export upload middleware
-const upload = multer({ storage, fileFilter });
+// Create multer upload middleware
+const upload = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 } // Optional: Limit file size to 5MB
+});
 
 module.exports = upload;
