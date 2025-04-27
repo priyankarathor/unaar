@@ -6,7 +6,7 @@ const path = require('path');
 exports.categoryInsert = async (req, res) => {
     try {
         const { categorytype, categoryvalue, action } = req.body;
-        const image = req.file ? req.file.filename : '';
+        const image = req.file ? req.file.filename : null;
 
         const newCategory = new Category({
             categorytype,
@@ -23,6 +23,7 @@ exports.categoryInsert = async (req, res) => {
             data: newCategory
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({
             status: false,
             message: "Failed to insert category",
@@ -42,6 +43,7 @@ exports.categoryGet = async (req, res) => {
             data: categories
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({
             status: false,
             message: "Failed to fetch categories",
@@ -64,11 +66,11 @@ exports.categoryEdit = async (req, res) => {
             });
         }
 
-        // If a new image is uploaded
+        // Handle image replacement
         if (req.file) {
-            // Delete old image
+            // Delete old image if exists
             if (category.image) {
-                const oldImagePath = path.join(__dirname, '../uploads/', category.image);
+                const oldImagePath = path.join(__dirname, '..', 'uploads', category.image);
                 if (fs.existsSync(oldImagePath)) {
                     fs.unlinkSync(oldImagePath);
                 }
@@ -88,6 +90,7 @@ exports.categoryEdit = async (req, res) => {
             data: updatedCategory
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({
             status: false,
             message: "Failed to update category",
@@ -100,6 +103,7 @@ exports.categoryEdit = async (req, res) => {
 exports.categoryDelete = async (req, res) => {
     try {
         const { id } = req.params;
+
         const category = await Category.findByIdAndDelete(id);
 
         if (!category) {
@@ -111,7 +115,7 @@ exports.categoryDelete = async (req, res) => {
 
         // Delete associated image
         if (category.image) {
-            const imagePath = path.join(__dirname, '../uploads/', category.image);
+            const imagePath = path.join(__dirname, '..', 'uploads', category.image);
             if (fs.existsSync(imagePath)) {
                 fs.unlinkSync(imagePath);
             }
@@ -123,6 +127,7 @@ exports.categoryDelete = async (req, res) => {
             data: category
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({
             status: false,
             message: "Failed to delete category",
