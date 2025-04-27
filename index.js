@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require('express');
+const path = require('path'); // <<== ADD THIS
 const connectDB = require('./Server/Connection');
 const userRoutes = require("./routes/userRoutes");
 const EnquireyRoutes = require("./routes/enquireyRoutes");
@@ -19,13 +20,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get("/", (req, res) => {
   res.send("API is working");
 });
-app.use('/uploads', express.static('uploads')); 
-
 
 app.use("/api/users", userRoutes);
 app.use("/api/enquirey", EnquireyRoutes);
-app.use("/api/agencies",agencies);
-app.use("/api/goldenvisa",goldenvisa);
-app.use("/api/category",categoryRoutes);
+app.use("/api/agencies", agencies);
+app.use("/api/goldenvisa", goldenvisa);
+app.use("/api/category", categoryRoutes);
 
-app.listen(process.env.PORT || 8001, () => console.log("Server started 8001"));
+app.listen(process.env.PORT || 8001, () => console.log("Server started on port 8001"));
