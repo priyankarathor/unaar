@@ -4,7 +4,7 @@ const { categoryInsert, categoryGet, categoryEdit, categoryDelete } = require(".
 
 const router = express.Router();
 
-// Routes
+// Route
 router.post('/insertcategory', upload.single('image'), categoryInsert);
 router.get('/getcategory', categoryGet);
 router.put('/editcategory/:id', upload.single('image'), categoryEdit);
