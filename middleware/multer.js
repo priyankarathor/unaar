@@ -6,9 +6,14 @@ const fs = require('fs');
 const uploadDir = path.join(__dirname, 'uploads');
 
 // Ensure the uploads folder exists
-fs.mkdirSync(uploadDir, { recursive: true });
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
 
-// Multer Storage
+    // Create a .gitkeep file inside uploads/ to make sure GitHub tracks the folder
+    fs.writeFileSync(path.join(uploadDir, '.gitkeep'), '');
+}
+
+// Multer storage configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadDir);
@@ -20,7 +25,7 @@ const storage = multer.diskStorage({
     }
 });
 
-// File filter (Only images)
+// File filter to allow only image files
 const fileFilter = (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|webp/;
     const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -29,15 +34,17 @@ const fileFilter = (req, file, cb) => {
     if (extName && mimeType) {
         cb(null, true);
     } else {
-        cb(new Error('Only JPEG, JPG, PNG, and WEBP images are allowed!'));
+        cb(new Error('Only JPEG, JPG, PNG, and WEBP image files are allowed!'));
     }
 };
 
-// Upload middleware
+// Multer upload middleware
 const upload = multer({
     storage,
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // Max 5MB
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB file size limit
+    }
 });
 
 module.exports = upload;

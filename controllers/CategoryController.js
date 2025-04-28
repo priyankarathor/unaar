@@ -33,7 +33,6 @@ exports.categoryInsert = async (req, res) => {
     }
 };
 
-
 // GET ALL CATEGORIES
 exports.categoryGet = async (req, res) => {
     try {

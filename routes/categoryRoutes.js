@@ -1,5 +1,6 @@
 const express = require('express');
 const upload = require('../middleware/multer'); 
+// const upload = require('../middleware/uploads');
 const { categoryInsert, categoryGet, categoryEdit, categoryDelete } = require("../controllers/CategoryController");
 
 const router = express.Router();
