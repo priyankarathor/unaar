@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // INSERT CATEGORY
+
 exports.categoryInsert = async (req, res) => {
     try {
         const { categorytype, categoryvalue, action } = req.body;
@@ -23,7 +24,7 @@ exports.categoryInsert = async (req, res) => {
             data: newCategory
         });
     } catch (error) {
-        console.error(error);
+        console.error('❌ Error inserting category:', error);
         res.status(500).json({
             status: false,
             message: "Failed to insert category",
@@ -31,6 +32,7 @@ exports.categoryInsert = async (req, res) => {
         });
     }
 };
+
 
 // GET ALL CATEGORIES
 exports.categoryGet = async (req, res) => {

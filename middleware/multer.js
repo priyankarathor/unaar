@@ -1,20 +1,15 @@
+// uploadConfig.js
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Set upload directory
+// Upload directory
 const uploadDir = path.join(__dirname, 'uploads');
 
-// Ensure uploads folder exists
-fs.mkdir(uploadDir, { recursive: true }, (err) => {
-    if (err) {
-        console.error('❌ Failed to create uploads folder:', err);
-    } else {
-        console.log('✅ Uploads folder is ready.');
-    }
-});
+// Ensure the uploads folder exists
+fs.mkdirSync(uploadDir, { recursive: true });
 
-// Multer storage configuration
+// Multer Storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadDir);
@@ -26,7 +21,7 @@ const storage = multer.diskStorage({
     }
 });
 
-// File filter: Only allow images
+// File filter (Only images)
 const fileFilter = (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|webp/;
     const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -39,11 +34,11 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Create multer upload middleware
+// Upload middleware
 const upload = multer({
     storage,
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // Optional: Limit file size to 5MB
+    limits: { fileSize: 5 * 1024 * 1024 } // Max 5MB
 });
 
 module.exports = upload;
