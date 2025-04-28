@@ -7,6 +7,8 @@ const EnquireyRoutes = require("./routes/enquireyRoutes");
 const agencies = require("./routes/agencieRoutes");
 const goldenvisa = require("./routes/goldenvisaRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
+const herosectionRoutes = require("./routes/herosectionRoutes");
+
 const cors = require("cors");
 
 const app = express();
@@ -27,5 +29,6 @@ app.use("/api/enquirey", EnquireyRoutes);
 app.use("/api/agencies", agencies);
 app.use("/api/goldenvisa", goldenvisa);
 app.use("/api/category", categoryRoutes);
+app.use("/api/herosection" , herosectionRoutes);
 
 app.listen(process.env.PORT || 8001, () => console.log("Server started on port 8001"));
