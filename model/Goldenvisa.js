@@ -17,6 +17,9 @@ const Goldenvisa =  new mongoose.Schema({
     buttontitle:{
         type:String,
         require:true
+    },
+    link:{
+        tyep:String
     }
 })
 

@@ -5,7 +5,7 @@ const GoldenVisa = require("../model/Goldenvisa");
 // ADD
 exports.goldenvisaadd = async (req, res) => {
     try {
-        const { title, subtitle, description, buttontitle } = req.body;
+        const { title, subtitle, description, buttontitle, link } = req.body;
         let imageFilename = null;
 
         if (req.file) {
@@ -28,6 +28,7 @@ exports.goldenvisaadd = async (req, res) => {
             description,
             image: imageFilename,
             buttontitle,
+            link,
         });
 
         await newGoldenVisa.save();
@@ -68,7 +69,7 @@ exports.goldenvisaget = async (req, res) => {
 // EDIT
 exports.goldenvisaedit = async (req, res) => {
     try {
-        const { title, subtitle, description, buttontitle } = req.body;
+        const { title, subtitle, description, buttontitle,link } = req.body;
         const { id } = req.params;
 
         const goldenVisa = await GoldenVisa.findById(id);
@@ -110,6 +111,7 @@ exports.goldenvisaedit = async (req, res) => {
         goldenVisa.subtitle = subtitle;
         goldenVisa.description = description;
         goldenVisa.buttontitle = buttontitle;
+        goldenVisa.link = link;
 
         const updatedGoldenVisa = await goldenVisa.save();
 
