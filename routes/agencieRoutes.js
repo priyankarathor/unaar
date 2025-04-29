@@ -1,11 +1,18 @@
 const express = require("express");
-const  router = express.Router();
+const router = express.Router();
+const upload = require('../middleware/multer'); // memory storage multer
+const { agenciesadd, agenciesget, agenciesedit, agenciesdelete } = require("../controllers/agencieController");
 
-const {agenciesadd , agenciesget, agenciesedit, agenciesdelete} = require("../controllers/agencieController");
+// POST - Add new agency
+router.post("/agencieinsert", upload.single('image'), agenciesadd);
 
-//post data
-router.post("/agencieinsert",agenciesadd);
-router.get("/agenciesgetdata",agenciesget);
-router.put("/agenciesEdit/:id",agenciesedit);
-router.delete("/agenciedelete/:id",agenciesdelete);
+// GET - Fetch all agencies
+router.get("/agenciesgetdata", agenciesget);
+
+// PUT - Update agency by ID
+router.put("/agenciesEdit/:id", upload.single('image'), agenciesedit);
+
+// DELETE - Delete agency by ID
+router.delete("/agenciedelete/:id", agenciesdelete);
+
 module.exports = router;
