@@ -3,6 +3,7 @@ const fs = require('fs');
 const GoldenVisa = require("../model/Goldenvisa");
 
 // ADD
+//add link also
 exports.goldenvisaadd = async (req, res) => {
     try {
         const { title, subtitle, description, buttontitle, link } = req.body;
