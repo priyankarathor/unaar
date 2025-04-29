@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const { goldenvisaadd, goldenvisaget, goldenvisaedit,goldenvisadelete } = require('../controllers/goldenvisa');
+const upload = require('../middleware/multer');
+const { goldenvisaadd, goldenvisaget, goldenvisaedit, goldenvisadelete } = require("../controllers/goldenvisa");
 
-router.post("/goldenvisainsert", goldenvisaadd);
+router.post("/goldenvisaadd", upload.single('image'), goldenvisaadd);
 router.get("/goldenvisaget", goldenvisaget);
-router.put("/goldenvisaedit/:id", goldenvisaedit);
-router.delete("/deletegoldenvisa/:id", goldenvisadelete); 
+router.put("/goldenvisaedit/:id", upload.single('image'), goldenvisaedit);
+router.delete("/goldenvisadelete/:id", goldenvisadelete);
 
 module.exports = router;

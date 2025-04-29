@@ -1,11 +1,12 @@
-const path = require('path');
+const Offers = require('../model/Offersection');
 const fs = require('fs');
-const GoldenVisa = require("../model/Goldenvisa");
+const path = require('path');
+const { Blob } = require('buffer');
 
-// ADD
-exports.goldenvisaadd = async (req, res) => {
+// INSERT OFFER
+exports.offerInsert = async (req, res) => {
     try {
-        const { title, subtitle, description, buttontitle } = req.body;
+        const { startdate, enddate, title, subtitle, buttonfirst, buttonseconed, link } = req.body;
         let imageFilename = null;
 
         if (req.file) {
@@ -20,77 +21,81 @@ exports.goldenvisaadd = async (req, res) => {
 
             imageFilename = Date.now() + '-' + req.file.originalname;
             fs.writeFileSync(path.join(uploadsDir, imageFilename), buffer);
+        } else {
+            return res.status(400).json({ status: false, message: "Image is required" });
         }
 
-        const newGoldenVisa = new GoldenVisa({
+        const newOffer = new Offers({
+            image: imageFilename,
+            startdate,
+            enddate,
             title,
             subtitle,
-            description,
-            image: imageFilename,
-            buttontitle,
+            buttonfirst,
+            buttonseconed,
+            link
         });
 
-        await newGoldenVisa.save();
+        await newOffer.save();
 
         res.status(201).json({
             status: true,
-            message: "Golden Visa saved successfully",
-            data: newGoldenVisa
+            message: "Offer inserted successfully",
+            data: newOffer
+        });
+    } catch (error) {
+        console.error('Error inserting offer:', error);
+        res.status(500).json({
+            status: false,
+            message: "Failed to insert offer",
+            error: error.message
+        });
+    }
+};
+
+// GET ALL OFFERS
+exports.offersGet = async (req, res) => {
+    try {
+        const offers = await Offers.find().sort({ createdAt: -1 });
+
+        res.status(200).json({
+            status: true,
+            message: "Offers fetched successfully",
+            data: offers
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({
             status: false,
-            message: "Something went wrong: " + error.message,
-            data: null
+            message: "Failed to fetch offers",
+            error: error.message
         });
     }
 };
 
-// GET
-exports.goldenvisaget = async (req, res) => {
+// EDIT OFFER
+exports.offerEdit = async (req, res) => {
     try {
-        const goldenVisas = await GoldenVisa.find().sort({ createdAt: -1 });
-        res.status(200).json({
-            status: true,
-            message: "Golden Visa records fetched successfully",
-            data: goldenVisas
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: false,
-            message: "Something went wrong: " + error.message,
-            data: []
-        });
-    }
-};
-
-// EDIT
-exports.goldenvisaedit = async (req, res) => {
-    try {
-        const { title, subtitle, description, buttontitle } = req.body;
         const { id } = req.params;
+        const { startdate, enddate, title, subtitle, buttonfirst, buttonseconed, link } = req.body;
 
-        const goldenVisa = await GoldenVisa.findById(id);
-
-        if (!goldenVisa) {
+        const offer = await Offers.findById(id);
+        if (!offer) {
             return res.status(404).json({
                 status: false,
-                message: "Golden Visa not found",
-                data: null
+                message: "Offer not found"
             });
         }
 
         if (req.file) {
             // Delete old image
-            if (goldenVisa.image) {
-                const oldImagePath = path.join(__dirname, '..', 'uploads', goldenVisa.image);
+            if (offer.image) {
+                const oldImagePath = path.join(__dirname, '..', 'uploads', offer.image);
                 if (fs.existsSync(oldImagePath)) {
                     fs.unlinkSync(oldImagePath);
                 }
             }
 
-            // Save new image
             const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
             const arrayBuffer = await blob.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
@@ -103,49 +108,51 @@ exports.goldenvisaedit = async (req, res) => {
             const newImageFilename = Date.now() + '-' + req.file.originalname;
             fs.writeFileSync(path.join(uploadsDir, newImageFilename), buffer);
 
-            goldenVisa.image = newImageFilename;
+            offer.image = newImageFilename;
         }
 
-        goldenVisa.title = title;
-        goldenVisa.subtitle = subtitle;
-        goldenVisa.description = description;
-        goldenVisa.buttontitle = buttontitle;
+        offer.startdate = startdate;
+        offer.enddate = enddate;
+        offer.title = title;
+        offer.subtitle = subtitle;
+        offer.buttonfirst = buttonfirst;
+        offer.buttonseconed = buttonseconed;
+        offer.link = link;
 
-        const updatedGoldenVisa = await goldenVisa.save();
+        const updatedOffer = await offer.save();
 
         res.status(200).json({
             status: true,
-            message: "Golden Visa updated successfully",
-            data: updatedGoldenVisa
+            message: "Offer updated successfully",
+            data: updatedOffer
         });
     } catch (error) {
         console.error(error);
-        res.status(400).json({
+        res.status(500).json({
             status: false,
-            message: "Something went wrong: " + error.message,
-            data: null
+            message: "Failed to update offer",
+            error: error.message
         });
     }
 };
 
-// DELETE
-exports.goldenvisadelete = async (req, res) => {
+// DELETE OFFER
+exports.offerDelete = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const goldenVisa = await GoldenVisa.findByIdAndDelete(id);
+        const offer = await Offers.findByIdAndDelete(id);
 
-        if (!goldenVisa) {
+        if (!offer) {
             return res.status(404).json({
                 status: false,
-                message: "Golden Visa not found",
-                data: null
+                message: "Offer not found"
             });
         }
 
-        // Delete associated image
-        if (goldenVisa.image) {
-            const imagePath = path.join(__dirname, '..', 'uploads', goldenVisa.image);
+        // Delete image
+        if (offer.image) {
+            const imagePath = path.join(__dirname, '..', 'uploads', offer.image);
             if (fs.existsSync(imagePath)) {
                 fs.unlinkSync(imagePath);
             }
@@ -153,15 +160,15 @@ exports.goldenvisadelete = async (req, res) => {
 
         res.status(200).json({
             status: true,
-            message: "Golden Visa deleted successfully",
-            data: goldenVisa
+            message: "Offer deleted successfully",
+            data: offer
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({
             status: false,
-            message: "Something went wrong: " + error.message,
-            data: null
+            message: "Failed to delete offer",
+            error: error.message
         });
     }
 };
