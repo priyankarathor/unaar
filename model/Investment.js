@@ -16,7 +16,10 @@ const Investment = new mongoose.Schema({
     buttontitle:{
         type:String
     },
-    Image:{
+    image:{
+       type:String
+    },
+    data:{
         type: Date,
         default: Date.now
     }
