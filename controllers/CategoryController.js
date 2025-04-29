@@ -1,18 +1,32 @@
 const Category = require('../model/category');
 const fs = require('fs');
 const path = require('path');
+const { Blob } = require('buffer'); // ⬅️ Add Blob from Node.js
 
 // INSERT CATEGORY
-
 exports.categoryInsert = async (req, res) => {
     try {
         const { categorytype, categoryvalue, action } = req.body;
-        const image = req.file ? req.file.filename : null;
+        let imageFilename = null;
+
+        if (req.file) {
+            const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
+            const arrayBuffer = await blob.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
+            const uploadsDir = path.join(__dirname, '..', 'uploads');
+            if (!fs.existsSync(uploadsDir)) {
+                fs.mkdirSync(uploadsDir);
+            }
+
+            imageFilename = Date.now() + '-' + req.file.originalname;
+            fs.writeFileSync(path.join(uploadsDir, imageFilename), buffer);
+        }
 
         const newCategory = new Category({
             categorytype,
             categoryvalue,
-            image,
+            image: imageFilename,
             action
         });
 
@@ -24,7 +38,7 @@ exports.categoryInsert = async (req, res) => {
             data: newCategory
         });
     } catch (error) {
-        console.error('❌ Error inserting category:', error);
+        console.error('Error inserting category:', error);
         res.status(500).json({
             status: false,
             message: "Failed to insert category",
@@ -67,16 +81,29 @@ exports.categoryEdit = async (req, res) => {
             });
         }
 
-        // Handle image replacement
         if (req.file) {
-            // Delete old image if exists
+            // Delete old image
             if (category.image) {
                 const oldImagePath = path.join(__dirname, '..', 'uploads', category.image);
                 if (fs.existsSync(oldImagePath)) {
                     fs.unlinkSync(oldImagePath);
                 }
             }
-            category.image = req.file.filename;
+
+            // Save new image using Blob
+            const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
+            const arrayBuffer = await blob.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
+            const uploadsDir = path.join(__dirname, '..', 'uploads');
+            if (!fs.existsSync(uploadsDir)) {
+                fs.mkdirSync(uploadsDir);
+            }
+
+            const newImageFilename = Date.now() + '-' + req.file.originalname;
+            fs.writeFileSync(path.join(uploadsDir, newImageFilename), buffer);
+
+            category.image = newImageFilename;
         }
 
         category.categorytype = categorytype;
