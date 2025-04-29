@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const Offersection =  new mongoose.Schema({
-    Image:{
+    image:{
         type : String,
         require : true
     },
