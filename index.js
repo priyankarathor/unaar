@@ -8,6 +8,7 @@ const agencies = require("./routes/agencieRoutes");
 const goldenvisa = require("./routes/goldenvisaRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const herosectionRoutes = require("./routes/herosectionRoutes");
+const offersectionRoutes = require("./routes/offerRouter");
 
 const cors = require("cors");
 
@@ -30,5 +31,6 @@ app.use("/api/agencies", agencies);
 app.use("/api/goldenvisa", goldenvisa);
 app.use("/api/category", categoryRoutes);
 app.use("/api/herosection" , herosectionRoutes);
+app.use("/api/offer",offersectionRoutes);
 
 app.listen(process.env.PORT || 8001, () => console.log("Server started on port 8001"));
