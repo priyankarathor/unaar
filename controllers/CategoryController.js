@@ -124,3 +124,21 @@ exports.categoryDelete = async (req, res) => {
         });
     }
 };
+
+// Serve the image as a blob
+exports.getcategoryImage = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const Category = await Category.findById(id);
+
+        if (!Category || !Category.image) {
+            return res.status(404).send('Image not found');
+        }
+
+        res.set('Content-Type', Category.imageType || 'image/png');
+        res.send(Category.image); // Sends the binary image data
+    } catch (error) {
+        console.error('Error serving image:', error);
+        res.status(500).send('Server error');
+    }
+};
