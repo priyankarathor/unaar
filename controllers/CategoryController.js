@@ -39,7 +39,6 @@ exports.categoryInsert = async (req, res) => {
     }
 };
 
-// GET CATEGORIES AND IMAGE (optional based on categoryvalue query)
 exports.categoryGet = async (req, res) => {
     try {
         const { categoryvalue } = req.query;
@@ -59,10 +58,19 @@ exports.categoryGet = async (req, res) => {
         // If categoryvalue is not provided, return all categories
         const categories = await Category.find().sort({ createdAt: -1 });
 
+        // Map categories to include the base64 encoded image if available
+        const categoriesWithImage = categories.map(category => {
+            if (category.image) {
+                // Convert the binary image data to base64
+                category.imageBase64 = `data:${category.imageType || 'image/png'};base64,${category.image.toString('base64')}`;
+            }
+            return category;
+        });
+
         res.status(200).json({
             status: true,
             message: "Categories fetched successfully",
-            data: categories
+            data: categoriesWithImage
         });
     } catch (error) {
         console.error('Error fetching categories or image:', error);
