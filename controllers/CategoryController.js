@@ -7,7 +7,10 @@ exports.categoryInsert = async (req, res) => {
 
         // Check if image is uploaded
         if (!req.file) {
-            return res.status(400).json({ status: false, message: "Image is required" });
+            return res.status(400).json({ 
+                status: false, 
+                message: "Image is required" 
+            });
         }
 
         // Create a new category with image buffer
@@ -129,14 +132,14 @@ exports.categoryDelete = async (req, res) => {
 exports.getcategoryImage = async (req, res) => {
     try {
         const { id } = req.params;
-        const Category = await Category.findById(id);
+        const category = await Category.findById(id);
 
-        if (!Category || !Category.image) {
+        if (!category || !category.image) {
             return res.status(404).send('Image not found');
         }
 
-        res.set('Content-Type', Category.imageType || 'image/png');
-        res.send(Category.image); // Sends the binary image data
+        res.set('Content-Type', category.imageType || 'image/png');
+        res.send(category.image); // Sends the binary image data
     } catch (error) {
         console.error('Error serving image:', error);
         res.status(500).send('Server error');
