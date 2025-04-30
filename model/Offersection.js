@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const offerSchema = new mongoose.Schema({
-    image: Buffer, // Store binary data
-    imageType: String, // Store MIME type
+    image: Buffer,
+    imageType: String,
     startdate: String,
     enddate: String,
     title: String,
@@ -10,6 +10,8 @@ const offerSchema = new mongoose.Schema({
     buttonfirst: String,
     buttonseconed: String,
     link: String
-}, { timestamps: true });
+}, {
+    timestamps: true
+});
 
-module.exports = mongoose.model('Offersection', offerSchema);
+module.exports = mongoose.model('Offer', offerSchema);

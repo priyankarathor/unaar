@@ -10,8 +10,8 @@ exports.offerInsert = async (req, res) => {
         }
 
         const newOffer = new Offers({
-            image: req.file.buffer,
-            imageType: req.file.mimetype,
+            image: req.file.buffer,            
+            imageType: req.file.mimetype,    
             startdate,
             enddate,
             title,
@@ -66,10 +66,7 @@ exports.offerEdit = async (req, res) => {
 
         const offer = await Offers.findById(id);
         if (!offer) {
-            return res.status(404).json({
-                status: false,
-                message: "Offer not found"
-            });
+            return res.status(404).json({ status: false, message: "Offer not found" });
         }
 
         if (req.file) {
@@ -108,12 +105,8 @@ exports.offerDelete = async (req, res) => {
         const { id } = req.params;
 
         const offer = await Offers.findByIdAndDelete(id);
-
         if (!offer) {
-            return res.status(404).json({
-                status: false,
-                message: "Offer not found"
-            });
+            return res.status(404).json({ status: false, message: "Offer not found" });
         }
 
         res.status(200).json({
@@ -131,7 +124,7 @@ exports.offerDelete = async (req, res) => {
     }
 };
 
-// SERVE IMAGE
+// SERVE IMAGE AS BLOB
 exports.getOfferImage = async (req, res) => {
     try {
         const { id } = req.params;
@@ -142,8 +135,9 @@ exports.getOfferImage = async (req, res) => {
         }
 
         res.set('Content-Type', offer.imageType || 'image/png');
-        res.send(offer.image);
+        res.send(offer.image); // Sends Blob (binary image)
     } catch (error) {
+        console.error('Error serving image:', error);
         res.status(500).send('Server error');
     }
 };
