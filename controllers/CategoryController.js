@@ -41,52 +41,28 @@ exports.categoryInsert = async (req, res) => {
 
 exports.categoryGet = async (req, res) => {
     try {
-        const { categoryvalue } = req.query;
-
-        // If categoryvalue is provided, return the image of that category
-        if (categoryvalue) {
-            const category = await Category.findOne({ categoryvalue });
-
-            if (!category || !category.image || !category.image.data) {
-                return res.status(404).send('Image not found');
-            }
-
-            // Convert the Buffer to a base64 string
-            const imageBase64 = `data:${category.imageType || 'image/png'};base64,${category.image.data.toString('base64')}`;
-
-            // Return the image as base64 along with the category data
-            return res.status(200).json({
-                status: true,
-                message: "Category fetched successfully",
-                data: {
-                    ...category.toObject(), // spread existing category fields
-                    imageBase64 // Add the base64-encoded image
-                }
-            });
-        }
-
-        // If categoryvalue is not provided, return all categories
         const categories = await Category.find().sort({ createdAt: -1 });
 
-        // Map categories to include base64 encoded images if available
-        const categoriesWithImage = categories.map(category => {
-            if (category.image && category.image.data) {
-                // Convert the binary image data to base64
-                category.imageBase64 = `data:${category.imageType || 'image/png'};base64,${category.image.data.toString('base64')}`;
-            }
-            return category;
-        });
+        // Convert image Buffer to base64 for each category
+        const categoryWithImages = categories.map(cat => ({
+            _id: cat._id,
+            name: cat.name,
+            // Include other fields if needed
+            image: cat.image ? `data:${cat.imageType};base64,${cat.image.toString('base64')}` : null,
+            createdAt: cat.createdAt,
+            updatedAt: cat.updatedAt
+        }));
 
         res.status(200).json({
             status: true,
             message: "Categories fetched successfully",
-            data: categoriesWithImage
+            data: categoryWithImages
         });
     } catch (error) {
-        console.error('Error fetching categories or image:', error);
+        console.error('Error fetching categories:', error);
         res.status(500).json({
             status: false,
-            message: "Failed to fetch categories or image",
+            message: "Failed to fetch categories",
             error: error.message
         });
     }
