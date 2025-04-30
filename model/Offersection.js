@@ -1,36 +1,15 @@
 const mongoose = require('mongoose');
 
-const Offersection =  new mongoose.Schema({
-    image:{
-        type : String,
-        require : true
-    },
-    startdate:{
-        type:String
-    },
-    enddate:{
-        type:String
-    },
-    title:{
-        type:String,
-        require:true
-    },
-    subtitle:{
-        type:String,
-        require:true
-    },
-    buttonfirst:{
-        type:String,
-        require:true
-    },
-    link:{
-        type:String
-    },
-    buttonseconed:{
-        type:String,
-        require:true
-    }
-})
+const offerSchema = new mongoose.Schema({
+    image: Buffer, // Store binary data
+    imageType: String, // Store MIME type
+    startdate: String,
+    enddate: String,
+    title: String,
+    subtitle: String,
+    buttonfirst: String,
+    buttonseconed: String,
+    link: String
+}, { timestamps: true });
 
-const offersection = mongoose.model('Offersection',Offersection);
-module.exports = offersection;
+module.exports = mongoose.model('Offersection', offerSchema);

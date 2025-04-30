@@ -1,23 +1,15 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const upload = require('../middleware/multer');
-const {
-    offerInsert,
-    offersGet,
-    offerEdit,
-    offerDelete
-} = require("../controllers/offercontroller");
+const offerController = require('../controllers/offercontroller');
+const multer = require('multer');
 
-// POST - Add new offer
-router.post("/offerinsert", upload.single('image'), offerInsert);
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-// GET - Get all offers
-router.get("/offersget", offersGet);
-
-// PUT - Update offer
-router.put("/offeredit/:id", upload.single('image'), offerEdit);
-
-// DELETE - Delete offer
-router.delete("/offerdelete/:id", offerDelete);
+router.post('/offerinsert', upload.single('image'), offerController.offerInsert);
+router.get('/offerget', offerController.offersGet);
+router.put('/offeredit/:id', upload.single('image'), offerController.offerEdit);
+router.delete('/offerdelete/:id', offerController.offerDelete);
+router.get('/offerimage/:id', offerController.getOfferImage); // Serve image by ID
 
 module.exports = router;

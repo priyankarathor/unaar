@@ -1,32 +1,17 @@
 const Offers = require('../model/Offersection');
-const fs = require('fs');
-const path = require('path');
-const { Blob } = require('buffer');
 
 // INSERT OFFER
 exports.offerInsert = async (req, res) => {
     try {
         const { startdate, enddate, title, subtitle, buttonfirst, buttonseconed, link } = req.body;
-        let imageFilename = null;
 
-        if (req.file) {
-            const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
-            const arrayBuffer = await blob.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-
-            const uploadsDir = path.join(__dirname, '..', 'uploads');
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir);
-            }
-
-            imageFilename = Date.now() + '-' + req.file.originalname;
-            fs.writeFileSync(path.join(uploadsDir, imageFilename), buffer);
-        } else {
+        if (!req.file) {
             return res.status(400).json({ status: false, message: "Image is required" });
         }
 
         const newOffer = new Offers({
-            image: imageFilename,
+            image: req.file.buffer,
+            imageType: req.file.mimetype,
             startdate,
             enddate,
             title,
@@ -88,27 +73,8 @@ exports.offerEdit = async (req, res) => {
         }
 
         if (req.file) {
-            // Delete old image
-            if (offer.image) {
-                const oldImagePath = path.join(__dirname, '..', 'uploads', offer.image);
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
-            }
-
-            const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
-            const arrayBuffer = await blob.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-
-            const uploadsDir = path.join(__dirname, '..', 'uploads');
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir);
-            }
-
-            const newImageFilename = Date.now() + '-' + req.file.originalname;
-            fs.writeFileSync(path.join(uploadsDir, newImageFilename), buffer);
-
-            offer.image = newImageFilename;
+            offer.image = req.file.buffer;
+            offer.imageType = req.file.mimetype;
         }
 
         offer.startdate = startdate;
@@ -150,14 +116,6 @@ exports.offerDelete = async (req, res) => {
             });
         }
 
-        // Delete image
-        if (offer.image) {
-            const imagePath = path.join(__dirname, '..', 'uploads', offer.image);
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
-            }
-        }
-
         res.status(200).json({
             status: true,
             message: "Offer deleted successfully",
@@ -170,5 +128,22 @@ exports.offerDelete = async (req, res) => {
             message: "Failed to delete offer",
             error: error.message
         });
+    }
+};
+
+// SERVE IMAGE
+exports.getOfferImage = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const offer = await Offers.findById(id);
+
+        if (!offer || !offer.image) {
+            return res.status(404).send('Image not found');
+        }
+
+        res.set('Content-Type', offer.imageType || 'image/png');
+        res.send(offer.image);
+    } catch (error) {
+        res.status(500).send('Server error');
     }
 };
