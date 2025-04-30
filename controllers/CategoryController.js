@@ -47,22 +47,32 @@ exports.categoryGet = async (req, res) => {
         if (categoryvalue) {
             const category = await Category.findOne({ categoryvalue });
 
-            if (!category || !category.image) {
+            if (!category || !category.image || !category.image.data) {
                 return res.status(404).send('Image not found');
             }
 
-            res.set('Content-Type', category.imageType || 'image/png');
-            return res.send(category.image); // Sends the binary image data
+            // Convert the Buffer to a base64 string
+            const imageBase64 = `data:${category.imageType || 'image/png'};base64,${category.image.data.toString('base64')}`;
+
+            // Return the image as base64 along with the category data
+            return res.status(200).json({
+                status: true,
+                message: "Category fetched successfully",
+                data: {
+                    ...category.toObject(), // spread existing category fields
+                    imageBase64 // Add the base64-encoded image
+                }
+            });
         }
 
         // If categoryvalue is not provided, return all categories
         const categories = await Category.find().sort({ createdAt: -1 });
 
-        // Map categories to include the base64 encoded image if available
+        // Map categories to include base64 encoded images if available
         const categoriesWithImage = categories.map(category => {
-            if (category.image) {
+            if (category.image && category.image.data) {
                 // Convert the binary image data to base64
-                category.imageBase64 = `data:${category.imageType || 'image/png'};base64,${category.image.toString('base64')}`;
+                category.imageBase64 = `data:${category.imageType || 'image/png'};base64,${category.image.data.toString('base64')}`;
             }
             return category;
         });
@@ -81,6 +91,7 @@ exports.categoryGet = async (req, res) => {
         });
     }
 };
+
 
 // EDIT CATEGORY
 exports.categoryEdit = async (req, res) => {
