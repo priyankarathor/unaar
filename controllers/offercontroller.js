@@ -39,24 +39,38 @@ exports.offerInsert = async (req, res) => {
 };
 
 // Get all offers
-exports.offersGet = async (req, res) => {
-    try {
-        const offers = await Offers.find().sort({ createdAt: -1 });
-
-        res.status(200).json({
-            status: true,
-            message: "Offers fetched successfully",
-            data: offers
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            status: false,
-            message: "Failed to fetch offers",
-            error: error.message
-        });
-    }
-};
+    exports.offersGet = async (req, res) => {
+        try {
+            const offers = await Offers.find().sort({ createdAt: -1 });
+    
+            const offersWithImage = offers.map(offer => ({
+                _id: offer._id,
+                title: offer.title,
+                description: offer.description,
+                createdAt: offer.createdAt,
+                updatedAt: offer.updatedAt,
+                image: offer.image ? {
+                    data: offer.image, // Buffer
+                    contentType: offer.imageType || 'image/png'
+                } : null
+            }));
+    
+            res.status(200).json({
+                status: true,
+                message: "Offers fetched successfully",
+                data: offersWithImage
+            });
+        } catch (error) {
+            console.error('Fetch error:', error);
+            res.status(500).json({
+                status: false,
+                message: "Failed to fetch offers",
+                error: error.message
+            });
+        }
+    };
+    
+    
 
 // Edit an offer
 exports.offerEdit = async (req, res) => {
@@ -121,23 +135,5 @@ exports.offerDelete = async (req, res) => {
             message: "Failed to delete offer",
             error: error.message
         });
-    }
-};
-
-// Serve the image as a blob
-exports.getOfferImage = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const offer = await Offers.findById(id);
-
-        if (!offer || !offer.image) {
-            return res.status(404).send('Image not found');
-        }
-
-        res.set('Content-Type', offer.imageType || 'image/png');
-        res.send(offer.image); // Sends the binary image data
-    } catch (error) {
-        console.error('Error serving image:', error);
-        res.status(500).send('Server error');
     }
 };

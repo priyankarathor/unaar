@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const offerSchema = new mongoose.Schema({
-    image: Buffer,         // Storing image as a Buffer (binary data)
-    imageType: String,     // MIME type of the image
+    image: Buffer,         
+    imageType: String,     
     startdate: String,
     enddate: String,
     title: String,
