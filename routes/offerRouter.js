@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const upload = multer(); // No diskStorage — using memoryStorage (default)
 
-const offerController = require('../controllers/offerController');
+const offerController = require('../controllers/offercontroller');
 
 router.post('/offerinsert', upload.single('image'), offerController.offerInsert);
 router.get('/offerget', offerController.offersGet);
