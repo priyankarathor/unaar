@@ -1,6 +1,6 @@
-const Offers = require('../model/Offersection');
+const Offers = require('../model/Offersection'); // Model to interact with the database
 
-// INSERT OFFER
+// Insert a new offer
 exports.offerInsert = async (req, res) => {
     try {
         const { startdate, enddate, title, subtitle, buttonfirst, buttonseconed, link } = req.body;
@@ -10,8 +10,8 @@ exports.offerInsert = async (req, res) => {
         }
 
         const newOffer = new Offers({
-            image: req.file.buffer,            
-            imageType: req.file.mimetype,    
+            image: req.file.buffer,  // Storing image buffer (binary data)
+            imageType: req.file.mimetype, // Storing MIME type of the image
             startdate,
             enddate,
             title,
@@ -38,7 +38,7 @@ exports.offerInsert = async (req, res) => {
     }
 };
 
-// GET ALL OFFERS
+// Get all offers
 exports.offersGet = async (req, res) => {
     try {
         const offers = await Offers.find().sort({ createdAt: -1 });
@@ -58,7 +58,7 @@ exports.offersGet = async (req, res) => {
     }
 };
 
-// EDIT OFFER
+// Edit an offer
 exports.offerEdit = async (req, res) => {
     try {
         const { id } = req.params;
@@ -99,7 +99,7 @@ exports.offerEdit = async (req, res) => {
     }
 };
 
-// DELETE OFFER
+// Delete an offer
 exports.offerDelete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -124,7 +124,7 @@ exports.offerDelete = async (req, res) => {
     }
 };
 
-// SERVE IMAGE AS BLOB
+// Serve the image as a blob
 exports.getOfferImage = async (req, res) => {
     try {
         const { id } = req.params;
@@ -135,7 +135,7 @@ exports.getOfferImage = async (req, res) => {
         }
 
         res.set('Content-Type', offer.imageType || 'image/png');
-        res.send(offer.image); // Sends Blob (binary image)
+        res.send(offer.image); // Sends the binary image data
     } catch (error) {
         console.error('Error serving image:', error);
         res.status(500).send('Server error');

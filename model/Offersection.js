@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const offerSchema = new mongoose.Schema({
-    image: Buffer,
-    imageType: String,
+    image: Buffer,         // Storing image as a Buffer (binary data)
+    imageType: String,     // MIME type of the image
     startdate: String,
     enddate: String,
     title: String,
@@ -14,4 +14,4 @@ const offerSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('Offer', offerSchema);
+module.exports = mongoose.model('Offersection', offerSchema);
