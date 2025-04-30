@@ -39,9 +39,24 @@ exports.categoryInsert = async (req, res) => {
     }
 };
 
-// GET ALL CATEGORIES
+// GET CATEGORIES AND IMAGE (optional based on categoryvalue query)
 exports.categoryGet = async (req, res) => {
     try {
+        const { categoryvalue } = req.query;
+
+        // If categoryvalue is provided, return the image of that category
+        if (categoryvalue) {
+            const category = await Category.findOne({ categoryvalue });
+
+            if (!category || !category.image) {
+                return res.status(404).send('Image not found');
+            }
+
+            res.set('Content-Type', category.imageType || 'image/png');
+            return res.send(category.image); // Sends the binary image data
+        }
+
+        // If categoryvalue is not provided, return all categories
         const categories = await Category.find().sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -50,10 +65,10 @@ exports.categoryGet = async (req, res) => {
             data: categories
         });
     } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error fetching categories or image:', error);
         res.status(500).json({
             status: false,
-            message: "Failed to fetch categories",
+            message: "Failed to fetch categories or image",
             error: error.message
         });
     }
@@ -125,23 +140,5 @@ exports.categoryDelete = async (req, res) => {
             message: "Failed to delete category",
             error: error.message
         });
-    }
-};
-
-// Serve the image as a blob
-exports.getcategoryImage = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const category = await Category.findById(id);
-
-        if (!category || !category.image) {
-            return res.status(404).send('Image not found');
-        }
-
-        res.set('Content-Type', category.imageType || 'image/png');
-        res.send(category.image); // Sends the binary image data
-    } catch (error) {
-        console.error('Error serving image:', error);
-        res.status(500).send('Server error');
     }
 };

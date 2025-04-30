@@ -5,8 +5,7 @@ const {
     categoryInsert, 
     categoryGet, 
     categoryEdit, 
-    categoryDelete, 
-    getcategoryImage 
+    categoryDelete 
 } = require("../controllers/CategoryController");
 
 // Use multer for parsing multipart/form-data
@@ -15,9 +14,8 @@ const upload = multer({ storage: storage });
 
 // Routes
 router.post('/insertcategory', upload.single('image'), categoryInsert);
-router.get('/getcategory', categoryGet);
+router.get('/getcategory', categoryGet);  // Get all categories or image based on categoryvalue query
 router.put('/editcategory/:id', upload.single('image'), categoryEdit);
 router.delete('/deletecategory/:id', categoryDelete);
-router.get('/getcategoryimage/:id', getcategoryImage);
 
 module.exports = router;
