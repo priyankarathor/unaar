@@ -1,18 +1,22 @@
 const mongoose = require('mongoose');
 
 const Agencies = new mongoose.Schema({
-    image:{
-        type:String,
-        require:true
+    image: {
+        type: Buffer,
+        required: true 
     },
-    link:{
-        type:String,
-        require:true
+    imageType: {
+        type : String 
     },
-    agenciename:{
-        type:String
+    link: {
+        type: String,
+        required: true 
+    },
+    agenciename: {
+        type: String,
     }
-})
+});
 
-const agencies = mongoose.model('agencies',Agencies);
+const agencies = mongoose.model('agencies', Agencies);
+
 module.exports = agencies;

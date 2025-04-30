@@ -1,14 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const upload = require('../middleware/multer'); // memory storage multer
-const { Testimonialadd, TestimonialGet, TestimonialEdit, TestimonialDelete } = require("../controllers/testimonialController");
+const upload = require("../middleware/multer");
+const {
+    Testimonialadd,
+    TestimonialGet,
+    TestimonialEdit,
+    TestimonialDelete,
+    getTestimonialImage
+} =  require("../controllers/testimonialController");
 
-router.post("/Testimonialadd", upload.single('image'), Testimonialadd);
-
-router.get("/TestimonialGet", TestimonialGet);
-
-router.put("/TestimonialEdit/:id", upload.single('image'), TestimonialEdit);
-
-router.delete("/TestimonialDelete/:id", TestimonialDelete);
+router.post("/testimonialinsert", upload.single('image'), Testimonialadd);
+router.get("/testimonialget", TestimonialGet);
+router.put("/testimonialedit/:id", upload.single('image'), TestimonialEdit);
+router.delete("/testimonialdelete/:id", TestimonialDelete);
+router.get("/testimonial/image/:id", getTestimonialImage);
 
 module.exports = router;

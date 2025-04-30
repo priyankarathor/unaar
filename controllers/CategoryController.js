@@ -1,32 +1,21 @@
 const Category = require('../model/category');
-const fs = require('fs');
-const path = require('path');
-const { Blob } = require('buffer'); // ⬅️ Add Blob from Node.js
 
 // INSERT CATEGORY
 exports.categoryInsert = async (req, res) => {
     try {
         const { categorytype, categoryvalue, action } = req.body;
-        let imageFilename = null;
 
-        if (req.file) {
-            const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
-            const arrayBuffer = await blob.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-
-            const uploadsDir = path.join(__dirname, '..', 'uploads');
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir);
-            }
-
-            imageFilename = Date.now() + '-' + req.file.originalname;
-            fs.writeFileSync(path.join(uploadsDir, imageFilename), buffer);
+        // Check if image is uploaded
+        if (!req.file) {
+            return res.status(400).json({ status: false, message: "Image is required" });
         }
 
+        // Create a new category with image buffer
         const newCategory = new Category({
+            image: req.file.buffer,        // Store image as buffer
+            imageType: req.file.mimetype,  // Store MIME type
             categorytype,
             categoryvalue,
-            image: imageFilename,
             action
         });
 
@@ -58,7 +47,7 @@ exports.categoryGet = async (req, res) => {
             data: categories
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error fetching categories:', error);
         res.status(500).json({
             status: false,
             message: "Failed to fetch categories",
@@ -81,29 +70,10 @@ exports.categoryEdit = async (req, res) => {
             });
         }
 
+        // If a new image is uploaded, update it
         if (req.file) {
-            // Delete old image
-            if (category.image) {
-                const oldImagePath = path.join(__dirname, '..', 'uploads', category.image);
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
-            }
-
-            // Save new image using Blob
-            const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
-            const arrayBuffer = await blob.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-
-            const uploadsDir = path.join(__dirname, '..', 'uploads');
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir);
-            }
-
-            const newImageFilename = Date.now() + '-' + req.file.originalname;
-            fs.writeFileSync(path.join(uploadsDir, newImageFilename), buffer);
-
-            category.image = newImageFilename;
+            category.image = req.file.buffer;
+            category.imageType = req.file.mimetype;
         }
 
         category.categorytype = categorytype;
@@ -118,7 +88,7 @@ exports.categoryEdit = async (req, res) => {
             data: updatedCategory
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error updating category:', error);
         res.status(500).json({
             status: false,
             message: "Failed to update category",
@@ -133,20 +103,11 @@ exports.categoryDelete = async (req, res) => {
         const { id } = req.params;
 
         const category = await Category.findByIdAndDelete(id);
-
         if (!category) {
             return res.status(404).json({
                 status: false,
                 message: "Category not found"
             });
-        }
-
-        // Delete associated image
-        if (category.image) {
-            const imagePath = path.join(__dirname, '..', 'uploads', category.image);
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
-            }
         }
 
         res.status(200).json({
@@ -155,7 +116,7 @@ exports.categoryDelete = async (req, res) => {
             data: category
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error deleting category:', error);
         res.status(500).json({
             status: false,
             message: "Failed to delete category",

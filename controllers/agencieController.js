@@ -1,26 +1,20 @@
-const path = require("path");
-const fs = require("fs");
-const Agencies = require("../model/Agencie"); // Make sure the model file name is correct
+const Agencies = require("../model/Agencie"); // Make sure the model path is correct
 
-// ADD
+// ADD AGENCY
 exports.agenciesadd = async (req, res) => {
     try {
         const { link, agenciename } = req.body;
-        let imageFilename = null;
 
-        if (req.file) {
-            const uploadsDir = path.join(__dirname, '..', 'uploads');
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir);
-            }
-
-            imageFilename = Date.now() + '-' + req.file.originalname;
-            const imagePath = path.join(uploadsDir, imageFilename);
-            fs.writeFileSync(imagePath, req.file.buffer);
+        if (!req.file) {
+            return res.status(400).json({
+                status: false,
+                message: "Image is required"
+            });
         }
 
         const newAgency = new Agencies({
-            image: imageFilename,
+            image: req.file.buffer,        // Store image as buffer
+            imageType: req.file.mimetype,  // Store image MIME type
             link,
             agenciename,
         });
@@ -33,7 +27,7 @@ exports.agenciesadd = async (req, res) => {
             data: newAgency
         });
     } catch (error) {
-        console.error('Error inserting agency:', error);
+        console.error("Error inserting agency:", error);
         res.status(500).json({
             status: false,
             message: "Failed to insert agency",
@@ -42,7 +36,7 @@ exports.agenciesadd = async (req, res) => {
     }
 };
 
-// GET ALL
+// GET ALL AGENCIES
 exports.agenciesget = async (req, res) => {
     try {
         const agenciesList = await Agencies.find().sort({ createdAt: -1 });
@@ -53,7 +47,7 @@ exports.agenciesget = async (req, res) => {
             data: agenciesList
         });
     } catch (error) {
-        console.error('Error fetching agencies:', error);
+        console.error("Error fetching agencies:", error);
         res.status(500).json({
             status: false,
             message: "Something went wrong",
@@ -63,7 +57,7 @@ exports.agenciesget = async (req, res) => {
     }
 };
 
-// EDIT
+// EDIT AGENCY
 exports.agenciesedit = async (req, res) => {
     try {
         const { id } = req.params;
@@ -77,26 +71,10 @@ exports.agenciesedit = async (req, res) => {
             });
         }
 
+        // Update image if new one is uploaded
         if (req.file) {
-            // Delete old image if exists
-            if (agency.image) {
-                const oldImagePath = path.join(__dirname, '..', 'uploads', agency.image);
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
-            }
-
-            // Save new image
-            const uploadsDir = path.join(__dirname, '..', 'uploads');
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir);
-            }
-
-            const newImageFilename = Date.now() + '-' + req.file.originalname;
-            const imagePath = path.join(uploadsDir, newImageFilename);
-            fs.writeFileSync(imagePath, req.file.buffer);
-
-            agency.image = newImageFilename;
+            agency.image = req.file.buffer;
+            agency.imageType = req.file.mimetype;
         }
 
         agency.link = link;
@@ -110,7 +88,7 @@ exports.agenciesedit = async (req, res) => {
             data: updatedAgency
         });
     } catch (error) {
-        console.error('Error updating agency:', error);
+        console.error("Error updating agency:", error);
         res.status(500).json({
             status: false,
             message: "Failed to update agency",
@@ -119,7 +97,7 @@ exports.agenciesedit = async (req, res) => {
     }
 };
 
-// DELETE
+// DELETE AGENCY
 exports.agenciesdelete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -132,24 +110,39 @@ exports.agenciesdelete = async (req, res) => {
             });
         }
 
-        // Delete associated image
-        if (agency.image) {
-            const imagePath = path.join(__dirname, '..', 'uploads', agency.image);
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
-            }
-        }
-
         res.status(200).json({
             status: true,
             message: "Agency deleted successfully",
             data: agency
         });
     } catch (error) {
-        console.error('Error deleting agency:', error);
+        console.error("Error deleting agency:", error);
         res.status(500).json({
             status: false,
             message: "Failed to delete agency",
+            error: error.message
+        });
+    }
+};
+
+// SERVE IMAGE
+exports.agenciesImage = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const agency = await Agencies.findById(id);
+
+        if (!agency || !agency.image) {
+            return res.status(404).json({
+                message: "Image not found"
+            });
+        }
+
+        res.set('Content-Type', agency.imageType);  // Set the correct MIME type
+        res.send(agency.image);  // Send the image buffer as response
+    } catch (error) {
+        console.error("Error fetching image:", error);
+        res.status(500).json({
+            message: "Error retrieving image",
             error: error.message
         });
     }

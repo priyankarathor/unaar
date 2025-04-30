@@ -1,34 +1,17 @@
 const Investment = require('../model/Investment');
-const fs = require('fs');
-const path = require('path');
-const { Blob } = require('buffer');
 
 // INSERT Investment
 exports.Investeradd = async (req, res) => {
     try {
         const { title, subtitle, description, buttontitle, date } = req.body;
-        let imageFilename = null;
-
-        if (req.file) {
-            const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
-            const arrayBuffer = await blob.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-
-            const uploadsDir = path.join(__dirname, '..', 'uploads');
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir);
-            }
-
-            imageFilename = `${Date.now()}-${req.file.originalname}`;
-            fs.writeFileSync(path.join(uploadsDir, imageFilename), buffer);
-        }
 
         const newInvestment = new Investment({
+            image: req.file?.buffer,
+            imageType: req.file?.mimetype,
             title,
             subtitle,
             description,
             buttontitle,
-            image: imageFilename,
             date
         });
 
@@ -73,7 +56,7 @@ exports.InvestmentGet = async (req, res) => {
 exports.InvestmentEdit = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, subtitle, description, buttontitle, data } = req.body;
+        const { title, subtitle, description, buttontitle, date } = req.body;
 
         const investment = await Investment.findById(id);
         if (!investment) {
@@ -83,34 +66,18 @@ exports.InvestmentEdit = async (req, res) => {
             });
         }
 
-        if (req.file) {
-            // Delete old image
-            if (investment.image) {
-                const oldImagePath = path.join(__dirname, '..', 'uploads', investment.image);
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
-            }
-
-            const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
-            const arrayBuffer = await blob.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-
-            const uploadsDir = path.join(__dirname, '..', 'uploads');
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir);
-            }
-
-            const newImageFilename = `${Date.now()}-${req.file.originalname}`;
-            fs.writeFileSync(path.join(uploadsDir, newImageFilename), buffer);
-            investment.image = newImageFilename;
-        }
-
+        // Update fields
         investment.title = title;
         investment.subtitle = subtitle;
         investment.description = description;
         investment.buttontitle = buttontitle;
         investment.date = date;
+
+        // Update image if new one is uploaded
+        if (req.file) {
+            investment.image = req.file.buffer;
+            investment.imageType = req.file.mimetype;
+        }
 
         const updatedInvestment = await investment.save();
 
@@ -135,19 +102,11 @@ exports.InvestmentDelete = async (req, res) => {
         const { id } = req.params;
 
         const investment = await Investment.findByIdAndDelete(id);
-
         if (!investment) {
             return res.status(404).json({
                 status: false,
                 message: "Investment not found"
             });
-        }
-
-        if (investment.image) {
-            const imagePath = path.join(__dirname, '..', 'uploads', investment.image);
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
-            }
         }
 
         res.status(200).json({
@@ -162,5 +121,23 @@ exports.InvestmentDelete = async (req, res) => {
             message: "Failed to delete Investment",
             error: error.message
         });
+    }
+};
+
+// GET Investment Image (Serve image buffer)
+exports.getInvestmentImage = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const investment = await Investment.findById(id);
+
+        if (!investment || !investment.image) {
+            return res.status(404).send("Image not found");
+        }
+
+        res.set("Content-Type", investment.imageType);
+        res.send(investment.image);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Failed to retrieve image");
     }
 };

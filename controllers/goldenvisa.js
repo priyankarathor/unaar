@@ -1,33 +1,16 @@
-const path = require('path');
-const fs = require('fs');
 const GoldenVisa = require("../model/Goldenvisa");
 
 // ADD
-//add link also
 exports.goldenvisaadd = async (req, res) => {
     try {
         const { title, subtitle, description, buttontitle, link } = req.body;
-        let imageFilename = null;
-
-        if (req.file) {
-            const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
-            const arrayBuffer = await blob.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-
-            const uploadsDir = path.join(__dirname, '..', 'uploads');
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir);
-            }
-
-            imageFilename = Date.now() + '-' + req.file.originalname;
-            fs.writeFileSync(path.join(uploadsDir, imageFilename), buffer);
-        }
 
         const newGoldenVisa = new GoldenVisa({
+            image: req.file.buffer,
+            imageType: req.file.mimetype,
             title,
             subtitle,
             description,
-            image: imageFilename,
             buttontitle,
             link,
         });
@@ -70,7 +53,7 @@ exports.goldenvisaget = async (req, res) => {
 // EDIT
 exports.goldenvisaedit = async (req, res) => {
     try {
-        const { title, subtitle, description, buttontitle,link } = req.body;
+        const { title, subtitle, description, buttontitle, link } = req.body;
         const { id } = req.params;
 
         const goldenVisa = await GoldenVisa.findById(id);
@@ -78,34 +61,13 @@ exports.goldenvisaedit = async (req, res) => {
         if (!goldenVisa) {
             return res.status(404).json({
                 status: false,
-                message: "Golden Visa not found",
-                data: null
+                message: "Golden Visa not found"
             });
         }
 
         if (req.file) {
-            // Delete old image
-            if (goldenVisa.image) {
-                const oldImagePath = path.join(__dirname, '..', 'uploads', goldenVisa.image);
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
-            }
-
-            // Save new image
-            const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
-            const arrayBuffer = await blob.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-
-            const uploadsDir = path.join(__dirname, '..', 'uploads');
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir);
-            }
-
-            const newImageFilename = Date.now() + '-' + req.file.originalname;
-            fs.writeFileSync(path.join(uploadsDir, newImageFilename), buffer);
-
-            goldenVisa.image = newImageFilename;
+            goldenVisa.image = req.file.buffer;
+            goldenVisa.imageType = req.file.mimetype;
         }
 
         goldenVisa.title = title;
@@ -126,7 +88,6 @@ exports.goldenvisaedit = async (req, res) => {
         res.status(400).json({
             status: false,
             message: "Something went wrong: " + error.message,
-            data: null
         });
     }
 };
@@ -141,17 +102,8 @@ exports.goldenvisadelete = async (req, res) => {
         if (!goldenVisa) {
             return res.status(404).json({
                 status: false,
-                message: "Golden Visa not found",
-                data: null
+                message: "Golden Visa not found"
             });
-        }
-
-        // Delete associated image
-        if (goldenVisa.image) {
-            const imagePath = path.join(__dirname, '..', 'uploads', goldenVisa.image);
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
-            }
         }
 
         res.status(200).json({
@@ -164,7 +116,24 @@ exports.goldenvisadelete = async (req, res) => {
         res.status(500).json({
             status: false,
             message: "Something went wrong: " + error.message,
-            data: null
         });
+    }
+};
+
+// Serve the image as a blob
+exports.getGoldenVisaImage = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const goldenVisa = await GoldenVisa.findById(id);
+
+        if (!goldenVisa || !goldenVisa.image) {
+            return res.status(404).send('Image not found');
+        }
+
+        res.set('Content-Type', goldenVisa.imageType || 'image/png');
+        res.send(goldenVisa.image); // Sends the binary image data
+    } catch (error) {
+        console.error('Error serving image:', error);
+        res.status(500).send('Server error');
     }
 };

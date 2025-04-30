@@ -17,7 +17,10 @@ const Investment = new mongoose.Schema({
         type:String
     },
     image:{
-       type:String
+       type:Buffer
+    },
+    imageType: {
+        type : String 
     },
     data:{
         type: Date,

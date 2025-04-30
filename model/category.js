@@ -4,7 +4,10 @@ const mongoose = require('mongoose');
 const CategorySchema = new mongoose.Schema({
     categorytype: { type: String, required: true },
     categoryvalue: { type: String, required: true },
-    image: { type: String },
+    image: { type: Buffer },
+    imageType: {
+        type : String 
+    },
     action: { type: String }
 }, { timestamps: true });
 

@@ -12,7 +12,10 @@ const Goldenvisa =  new mongoose.Schema({
         type:String
     },
     image:{
-        type:String
+        type:Buffer
+    },
+    imageType: {
+        type : String 
     },
     buttontitle:{
         type:String,

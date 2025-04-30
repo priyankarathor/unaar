@@ -1,18 +1,15 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const upload = require('../middleware/multer'); // memory storage multer
-const { agenciesadd, agenciesget, agenciesedit, agenciesdelete } = require("../controllers/agencieController");
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+const { agenciesadd, agenciesget, agenciesedit, agenciesdelete, agenciesImage } = require("../controllers/agencieController");
 
-// POST - Add new agency
-router.post("/agencieinsert", upload.single('image'), agenciesadd);
-
-// GET - Fetch all agencies
-router.get("/agenciesgetdata", agenciesget);
-
-// PUT - Update agency by ID
-router.put("/agenciesEdit/:id", upload.single('image'), agenciesedit);
-
-// DELETE - Delete agency by ID
-router.delete("/agenciedelete/:id", agenciesdelete);
+// Define your routes
+router.post('/agencieinsert', upload.single('image'), agenciesadd);
+router.get('/agenciesgetdata', agenciesget);
+router.put('/agenciesEdit/:id', upload.single('image'), agenciesedit);
+router.delete('/agenciedelete/:id', agenciesdelete);
+router.get("/agencieimage/:id", agenciesImage);  // <-- New image route
 
 module.exports = router;

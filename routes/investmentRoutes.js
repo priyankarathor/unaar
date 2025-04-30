@@ -1,24 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const upload = require('../middleware/multer'); // Middleware for handling multipart/form-data
-
+const upload = require("../middleware/multer");
 const {
-  Investeradd,
-  InvestmentGet,
-  InvestmentEdit,
-  InvestmentDelete
+    Investeradd,
+    InvestmentGet,
+    InvestmentEdit,
+    InvestmentDelete,
+    getInvestmentImage
 } = require("../controllers/investmentController");
 
-// POST - Create new investment with image
 router.post("/investment", upload.single('image'), Investeradd);
-
-// GET - Get all investments
 router.get("/investments", InvestmentGet);
-
-// PUT - Update investment by ID with optional image
-router.put("/investment/:id", upload.single('image'), InvestmentEdit);
-
-// DELETE - Delete investment by ID
+router.put("/investmentedit/:id", upload.single('image'), InvestmentEdit);
 router.delete("/investment/:id", InvestmentDelete);
+router.get("/investment/image/:id", getInvestmentImage);
 
 module.exports = router;
