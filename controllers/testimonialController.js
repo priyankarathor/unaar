@@ -139,21 +139,3 @@ exports.TestimonialDelete = async (req, res) => {
         });
     }
 };
-
-// GET Testimonial Image
-exports.getTestimonialImage = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const testimonial = await Testimonial.findById(id);
-
-        if (!testimonial || !testimonial.image) {
-            return res.status(404).send("Image not found");
-        }
-
-        res.set("Content-Type", testimonial.imageType);
-        res.send(testimonial.image);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Failed to retrieve image");
-    }
-};
