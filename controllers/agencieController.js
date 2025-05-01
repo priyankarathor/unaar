@@ -3,7 +3,7 @@ const Agencies = require("../model/Agencie"); // Make sure the model path is cor
 // ADD AGENCY
 exports.agenciesadd = async (req, res) => {
     try {
-        const { link, agenciename } = req.body;
+        const { link, agenciename, status } = req.body;
 
         if (!req.file) {
             return res.status(400).json({
@@ -17,6 +17,7 @@ exports.agenciesadd = async (req, res) => {
             imageType: req.file.mimetype,  // Store image MIME type
             link,
             agenciename,
+            status
         });
 
         await newAgency.save();
@@ -49,7 +50,7 @@ exports.agenciesget = async (req, res) => {
         } : null,
         link: agency.link,
         agenciename: agency.agenciename,
-        
+        status : agency.status
       }));
   
       res.status(200).json({
@@ -73,7 +74,7 @@ exports.agenciesget = async (req, res) => {
 exports.agenciesedit = async (req, res) => {
     try {
         const { id } = req.params;
-        const { link, agenciename } = req.body;
+        const { link, agenciename, status } = req.body; // Make sure to include 'status'
 
         const agency = await Agencies.findById(id);
         if (!agency) {
@@ -83,14 +84,16 @@ exports.agenciesedit = async (req, res) => {
             });
         }
 
-        // Update image if new one is uploaded
+        // Update image if a new one is uploaded
         if (req.file) {
             agency.image = req.file.buffer;
             agency.imageType = req.file.mimetype;
         }
 
-        agency.link = link;
-        agency.agenciename = agenciename;
+        // Update other fields
+        agency.link = link || agency.link;
+        agency.agenciename = agenciename || agency.agenciename;
+        agency.status = status || agency.status;
 
         const updatedAgency = await agency.save();
 
@@ -99,6 +102,7 @@ exports.agenciesedit = async (req, res) => {
             message: "Agency updated successfully",
             data: updatedAgency
         });
+
     } catch (error) {
         console.error("Error updating agency:", error);
         res.status(500).json({
@@ -108,6 +112,7 @@ exports.agenciesedit = async (req, res) => {
         });
     }
 };
+
 
 // DELETE AGENCY
 exports.agenciesdelete = async (req, res) => {

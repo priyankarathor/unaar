@@ -14,6 +14,9 @@ const Agencies = new mongoose.Schema({
     },
     agenciename: {
         type: String,
+    },
+    status:{
+        type:String
     }
 });
 
