@@ -46,15 +46,17 @@ exports.offerInsert = async (req, res) => {
             const offersWithImage = offers.map(offer => ({
                 _id: offer._id,
                 title: offer.title,
-                description: offer.description,
-                createdAt: offer.createdAt,
-                updatedAt: offer.updatedAt,
+                subtitle: offer.subtitle,
+                buttonfirst: offer.buttonfirst,
+                buttonseconed: offer.buttonseconed,
+                link: offer.link,
+                startdate: offer.startdate,
+                enddate: offer.enddate,
                 image: offer.image ? {
                     data: offer.image, // Buffer
                     contentType: offer.imageType || 'image/png'
                 } : null
             }));
-    
             res.status(200).json({
                 status: true,
                 message: "Offers fetched successfully",
