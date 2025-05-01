@@ -37,34 +37,37 @@ exports.agenciesadd = async (req, res) => {
 };
 
 // GET ALL AGENCIES
-    exports.agenciesget = async (req, res) => {
-        try {
-            const agenciesList = await Agencies.find().sort({ createdAt: -1 });
-    
-            const agenciesListWithImage = agenciesList.map(offer => ({
-                _id: agenciesList._id,
-                link: agenciesList.link,
-                agenciename: agenciesList.agenciename,
-                image: agenciesList.image ? {
-                    data: agenciesList.image, // Buffer
-                    contentType: agenciesList.imageType || 'image/png'
-                } : null
-            }));
-    
-            res.status(200).json({
-                status: true,
-                message: "Agencies fetched successfully",
-                data: agenciesListWithImage
-            });
-        } catch (error) {
-            console.error('Fetch error:', error);
-            res.status(500).json({
-                status: false,
-                message: "Failed to fetch Agencies",
-                error: error.message
-            });
-        }
-    };
+exports.agenciesget = async (req, res) => {
+    try {
+      const agenciesList = await Agencies.find().sort({ createdAt: -1 });
+  
+      const agenciesListWithImage = agenciesList.map(agency => ({
+        _id: agency._id,
+        link: agency.link,
+        agenciename: agency.agenciename,
+        image: agency.image
+          ? {
+              data: agency.image.toString('base64'), // Convert buffer to base64 string
+              contentType: agency.imageType || 'image/png',
+            }
+          : null,
+      }));
+  
+      res.status(200).json({
+        status: true,
+        message: "Agencies fetched successfully",
+        data: agenciesListWithImage,
+      });
+    } catch (error) {
+      console.error('Fetch error:', error);
+      res.status(500).json({
+        status: false,
+        message: "Failed to fetch Agencies",
+        error: error.message,
+      });
+    }
+  };
+  
     
 
 // EDIT AGENCY
@@ -135,25 +138,4 @@ exports.agenciesdelete = async (req, res) => {
     }
 };
 
-// SERVE IMAGE
-exports.agenciesImage = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const agency = await Agencies.findById(id);
 
-        if (!agency || !agency.image) {
-            return res.status(404).json({
-                message: "Image not found"
-            });
-        }
-
-        res.set('Content-Type', agency.imageType);  // Set the correct MIME type
-        res.send(agency.image);  // Send the image buffer as response
-    } catch (error) {
-        console.error("Error fetching image:", error);
-        res.status(500).json({
-            message: "Error retrieving image",
-            error: error.message
-        });
-    }
-};

@@ -3,13 +3,12 @@ const router = express.Router();
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-const { agenciesadd, agenciesget, agenciesedit, agenciesdelete, agenciesImage } = require("../controllers/agencieController");
+const { agenciesadd, agenciesget, agenciesedit, agenciesdelete } = require("../controllers/agencieController");
 
 // Define your routes
 router.post('/agencieinsert', upload.single('image'), agenciesadd);
 router.get('/agenciesgetdata', agenciesget);
 router.put('/agenciesEdit/:id', upload.single('image'), agenciesedit);
 router.delete('/agenciedelete/:id', agenciesdelete);
-router.get("/agencieimage/:id", agenciesImage);  // <-- New image route
 
 module.exports = router;
