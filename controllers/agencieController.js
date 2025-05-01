@@ -43,14 +43,13 @@ exports.agenciesget = async (req, res) => {
   
       const agenciesListWithImage = agenciesList.map(agency => ({
         _id: agency._id,
+        image: agency.image ? {
+            data: agency.image, 
+            contentType: agency.imageType || 'image/png'
+        } : null,
         link: agency.link,
         agenciename: agency.agenciename,
-        image: agency.image
-          ? {
-              data: agency.image.toString('base64'), // Convert buffer to base64 string
-              contentType: agency.imageType || 'image/png',
-            }
-          : null,
+        
       }));
   
       res.status(200).json({

@@ -5,14 +5,12 @@ const {
     Investeradd,
     InvestmentGet,
     InvestmentEdit,
-    InvestmentDelete,
-    getInvestmentImage
+    InvestmentDelete
 } = require("../controllers/investmentController");
 
 router.post("/investment", upload.single('image'), Investeradd);
 router.get("/investments", InvestmentGet);
 router.put("/investmentedit/:id", upload.single('image'), InvestmentEdit);
 router.delete("/investment/:id", InvestmentDelete);
-router.get("/investment/image/:id", getInvestmentImage);
 
 module.exports = router;

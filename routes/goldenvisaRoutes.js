@@ -6,13 +6,11 @@ const {
     goldenvisaadd,
     goldenvisaget,
     goldenvisaedit,
-    goldenvisadelete,
-    getGoldenVisaImage
+    goldenvisadelete
 } = require("../controllers/goldenvisa");
 
 router.post("/goldenvisainsert", upload.single('image'), goldenvisaadd);
 router.get("/goldenvisaget", goldenvisaget);
-router.get("/goldenvisaimage/:id", getGoldenVisaImage); // <-- New image route
 router.put("/goldenvisaedit/:id", upload.single('image'), goldenvisaedit);
 router.delete("/goldenvisadelete/:id", goldenvisadelete);
 

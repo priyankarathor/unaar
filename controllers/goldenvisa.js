@@ -33,22 +33,38 @@ exports.goldenvisaadd = async (req, res) => {
 };
 
 // GET
-exports.goldenvisaget = async (req, res) => {
-    try {
-        const goldenVisas = await GoldenVisa.find().sort({ createdAt: -1 });
-        res.status(200).json({
-            status: true,
-            message: "Golden Visa records fetched successfully",
-            data: goldenVisas
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: false,
-            message: "Something went wrong: " + error.message,
-            data: []
-        });
-    }
-};
+    exports.goldenvisaget = async (req, res) => {
+        try {
+            const goldenVisa = await GoldenVisa.find().sort({ createdAt: -1 });
+            const visaWithImage = goldenVisa.map(golden => ({
+                _id: golden._id,
+                title: golden.title,
+                subtitle: golden.subtitle,
+                description: golden.description,
+                buttontitle: golden.buttontitle,
+                link: golden.link,
+                image: golden.image ? {
+                    data: golden.image, // Buffer
+                    contentType: golden.imageType || 'image/png'
+                } : null
+            }));
+
+            res.status(200).json({
+                status: true,
+                message: "goldenVisa fetched successfully",
+                data: visaWithImage
+            });
+        } catch (error) {
+            console.error('Fetch error:', error);
+            res.status(500).json({
+                status: false,
+                message: "Failed to fetch offers",
+                error: error.message
+            });
+        }
+    };
+    
+    
 
 // EDIT
 exports.goldenvisaedit = async (req, res) => {
@@ -120,20 +136,3 @@ exports.goldenvisadelete = async (req, res) => {
     }
 };
 
-// Serve the image as a blob
-exports.getGoldenVisaImage = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const goldenVisa = await GoldenVisa.findById(id);
-
-        if (!goldenVisa || !goldenVisa.image) {
-            return res.status(404).send('Image not found');
-        }
-
-        res.set('Content-Type', goldenVisa.imageType || 'image/png');
-        res.send(goldenVisa.image); // Sends the binary image data
-    } catch (error) {
-        console.error('Error serving image:', error);
-        res.status(500).send('Server error');
-    }
-};

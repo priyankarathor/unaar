@@ -32,25 +32,41 @@ exports.Investeradd = async (req, res) => {
     }
 };
 
-// GET ALL Investments
-exports.InvestmentGet = async (req, res) => {
-    try {
-        const investments = await Investment.find().sort({ createdAt: -1 });
 
-        res.status(200).json({
-            status: true,
-            message: "Investments fetched successfully",
-            data: investments
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            status: false,
-            message: "Failed to fetch investments",
-            error: error.message
-        });
-    }
-};
+// Get all InvestmentGet
+    exports.InvestmentGet = async (req, res) => {
+        try {
+            const investments = await Investment.find().sort({ createdAt: -1 });
+    
+            const investmentsWithImage = investments.map(investment => ({
+                _id: investment._id,
+                title: investment.title,
+                subtitle: investment.subtitle,
+                description: investment.description,
+                buttontitle: investment.buttontitle,
+                date: investment.date,
+                createdAt: investment.createdAt,
+                updatedAt: investment.updatedAt,
+                image: investment.image ? {
+                    data: investment.image, // Buffer
+                    contentType: investment.imageType || 'image/png'
+                } : null
+            }));
+    
+            res.status(200).json({
+                status: true,
+                message: "investments fetched successfully",
+                data: investmentsWithImage
+            });
+        } catch (error) {
+            console.error('Fetch error:', error);
+            res.status(500).json({
+                status: false,
+                message: "Failed to fetch offers",
+                error: error.message
+            });
+        }
+    };
 
 // EDIT Investment
 exports.InvestmentEdit = async (req, res) => {
@@ -121,23 +137,5 @@ exports.InvestmentDelete = async (req, res) => {
             message: "Failed to delete Investment",
             error: error.message
         });
-    }
-};
-
-// GET Investment Image (Serve image buffer)
-exports.getInvestmentImage = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const investment = await Investment.findById(id);
-
-        if (!investment || !investment.image) {
-            return res.status(404).send("Image not found");
-        }
-
-        res.set("Content-Type", investment.imageType);
-        res.send(investment.image);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Failed to retrieve image");
     }
 };

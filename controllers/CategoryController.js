@@ -39,34 +39,36 @@ exports.categoryInsert = async (req, res) => {
     }
 };
 
+
 exports.categoryGet = async (req, res) => {
     try {
         const categories = await Category.find().sort({ createdAt: -1 });
-
-        // Convert image Buffer to base64 for each category
-        const categoryWithImages = categories.map(cat => ({
-            _id: cat._id,
-            name: cat.name,
-            // Include other fields if needed
-            image: cat.image ? `data:${cat.imageType};base64,${cat.image.toString('base64')}` : null,
-            createdAt: cat.createdAt,
-            updatedAt: cat.updatedAt
-        }));
-
-        res.status(200).json({
-            status: true,
-            message: "Categories fetched successfully",
-            data: categoryWithImages
-        });
+  
+      const categoriesWithImage = categories.map(category => ({
+        _id: category._id,
+        categorytype: category.categorytype,
+        categoryvalue: category.categoryvalue,
+        image: category.image ? {
+            data: category.image, 
+            contentType: category.imageType || 'image/png'
+        } : null,
+        action: category.action,
+      }));
+  
+      res.status(200).json({
+        status: true,
+        message: "categories fetched successfully",
+        data: categoriesWithImage,
+      });
     } catch (error) {
-        console.error('Error fetching categories:', error);
-        res.status(500).json({
-            status: false,
-            message: "Failed to fetch categories",
-            error: error.message
-        });
+      console.error('Fetch error:', error);
+      res.status(500).json({
+        status: false,
+        message: "Failed to fetch categories",
+        error: error.message,
+      });
     }
-};
+  };
 
 
 // EDIT CATEGORY

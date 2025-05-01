@@ -5,14 +5,12 @@ const {
     Testimonialadd,
     TestimonialGet,
     TestimonialEdit,
-    TestimonialDelete,
-    getTestimonialImage
+    TestimonialDelete
 } =  require("../controllers/testimonialController");
 
 router.post("/testimonialinsert", upload.single('image'), Testimonialadd);
 router.get("/testimonialget", TestimonialGet);
 router.put("/testimonialedit/:id", upload.single('image'), TestimonialEdit);
 router.delete("/testimonialdelete/:id", TestimonialDelete);
-router.get("/testimonial/image/:id", getTestimonialImage);
 
 module.exports = router;
