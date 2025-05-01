@@ -3,8 +3,8 @@ const Enquirey = require('../model/Enquirey');
 // CREATE
 exports.userEnquirey = async (req, res) => {
     try {
-        const { inquire, fullname, email, phoneNo, date } = req.body;
-        const Enquireydata = new Enquirey({ inquire, fullname, email, phoneNo, date });
+        const { inquire, fullname, email, phoneNo, date , status} = req.body;
+        const Enquireydata = new Enquirey({ inquire, fullname, email, phoneNo, date , status});
         await Enquireydata.save();
 
         res.status(201).json({
