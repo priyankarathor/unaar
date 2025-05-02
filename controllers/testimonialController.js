@@ -46,9 +46,9 @@ exports.TestimonialGet = async (req, res) => {
             message: t.message,
             star: t.star,
             date: t.date,
-            image: t.image ? {
-                data: t.image.toString('base64'),
-                contentType: t.imageType || 'image/png'
+            image: investment.image ? {
+                data: investment.image, // Buffer
+                contentType: investment.imageType || 'image/png'
             } : null
         }));
 
