@@ -1,6 +1,6 @@
 const Testimonial = require('../model/Testimonial');
 
-// INSERT Testimonial
+// INSERT
 exports.Testimonialadd = async (req, res) => {
     try {
         const { Name, email, designation, message, star, date } = req.body;
@@ -13,7 +13,7 @@ exports.Testimonialadd = async (req, res) => {
             designation,
             message,
             star,
-            date
+            date: date || Date.now()
         });
 
         await newTestimonial.save();
@@ -24,7 +24,7 @@ exports.Testimonialadd = async (req, res) => {
             data: newTestimonial
         });
     } catch (error) {
-        console.error('Error inserting Testimonial:', error);
+        console.error('Insert Error:', error);
         res.status(500).json({
             status: false,
             message: "Failed to insert Testimonial",
@@ -33,42 +33,41 @@ exports.Testimonialadd = async (req, res) => {
     }
 };
 
-
-// GET ALL Testimonials
+// GET
 exports.TestimonialGet = async (req, res) => {
-        try {
-            const testimonials = await Testimonial.find().sort({ createdAt: -1 });
-    
-            const testimonialsWithImage = testimonials.map(testimonial => ({
-                _id: testimonial._id,
-                Name: testimonial.Name,
-                email: testimonial.email,
-                designation: testimonial.designation,
-                message: testimonial.message,
-                star: testimonial.star,
-                date: testimonial.date,
-                image: testimonial.image ? {
-                    data: testimonial.image, // Buffer
-                    contentType: testimonial.imageType || 'image/png'
-                } : null
-            }));
-    
-            res.status(200).json({
-                status: true,
-                message: "testimonial fetched successfully",
-                data: testimonialsWithImage
-            });
-        } catch (error) {
-            console.error('Fetch error:', error);
-            res.status(500).json({
-                status: false,
-                message: "Failed to fetch offers",
-                error: error.message
-            });
-        }
-    };
-    
-// EDIT Testimonial
+    try {
+        const testimonials = await Testimonial.find().sort({ createdAt: -1 });
+
+        const data = testimonials.map(t => ({
+            _id: t._id,
+            Name: t.Name,
+            email: t.email,
+            designation: t.designation,
+            message: t.message,
+            star: t.star,
+            date: t.date,
+            image: t.image ? {
+                data: t.image.toString('base64'),
+                contentType: t.imageType || 'image/png'
+            } : null
+        }));
+
+        res.status(200).json({
+            status: true,
+            message: "Testimonials fetched successfully",
+            data
+        });
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        res.status(500).json({
+            status: false,
+            message: "Failed to fetch Testimonials",
+            error: error.message
+        });
+    }
+};
+
+// EDIT
 exports.TestimonialEdit = async (req, res) => {
     try {
         const { id } = req.params;
@@ -94,15 +93,15 @@ exports.TestimonialEdit = async (req, res) => {
             testimonial.imageType = req.file.mimetype;
         }
 
-        const updatedTestimonial = await testimonial.save();
+        const updated = await testimonial.save();
 
         res.status(200).json({
             status: true,
             message: "Testimonial updated successfully",
-            data: updatedTestimonial
+            data: updated
         });
     } catch (error) {
-        console.error('Error updating Testimonial:', error);
+        console.error('Edit Error:', error);
         res.status(500).json({
             status: false,
             message: "Failed to update Testimonial",
@@ -111,14 +110,14 @@ exports.TestimonialEdit = async (req, res) => {
     }
 };
 
-// DELETE Testimonial
+// DELETE
 exports.TestimonialDelete = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const testimonial = await Testimonial.findByIdAndDelete(id);
+        const deleted = await Testimonial.findByIdAndDelete(id);
 
-        if (!testimonial) {
+        if (!deleted) {
             return res.status(404).json({
                 status: false,
                 message: "Testimonial not found"
@@ -128,10 +127,10 @@ exports.TestimonialDelete = async (req, res) => {
         res.status(200).json({
             status: true,
             message: "Testimonial deleted successfully",
-            data: testimonial
+            data: deleted
         });
     } catch (error) {
-        console.error('Error deleting Testimonial:', error);
+        console.error('Delete Error:', error);
         res.status(500).json({
             status: false,
             message: "Failed to delete Testimonial",
