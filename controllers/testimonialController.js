@@ -46,9 +46,9 @@ exports.TestimonialGet = async (req, res) => {
             message: t.message,
             star: t.star,
             date: t.date,
-            image: investment.image ? {
-                data: investment.image, // Buffer
-                contentType: investment.imageType || 'image/png'
+            image: t.image ? {
+                data: t.image, // Buffer
+                contentType: t.imageType || 'image/png'
             } : null
         }));
 
