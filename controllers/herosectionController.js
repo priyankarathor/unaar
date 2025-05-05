@@ -3,8 +3,8 @@ const Homesection = require("../model/herosection");
 // POST - Add Home Section
 exports.herosectionadd = async (req, res) => {
     try {
-        const { title, subtitle, status, popularenquirylist, enquirylink } = req.body;
-        const HomeSectionData = new Homesection({ title, subtitle, status, popularenquirylist, enquirylink });
+        const { title, subtitle, title1, title2, title3, status, popularenquirylist, enquirylink } = req.body;
+        const HomeSectionData = new Homesection({ title, subtitle, title1, title2, title3, status, popularenquirylist, enquirylink });
         await HomeSectionData.save();
         res.status(201).json({
             status: true,
@@ -45,7 +45,7 @@ exports.homesectionedit = async (req, res) => {
         const { id } = req.params;
         const updatedHeroSection = await Homesection.findByIdAndUpdate(
             id,
-            { title, subtitle, status, popularenquirylist, enquirylink },
+            { title, subtitle, title1, title2, title3, status, popularenquirylist, enquirylink },
             { new: true }
         );
 

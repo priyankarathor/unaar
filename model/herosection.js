@@ -7,6 +7,15 @@ const herosection = new mongoose.Schema({
     subtitle:{
         type: String
     },
+    title1:{
+        type:String
+    },
+    title2:{
+        type:String
+    },
+    title3:{
+        type:String
+    },
     status:{
         type : String
     },
