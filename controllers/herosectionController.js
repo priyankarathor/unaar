@@ -41,7 +41,7 @@ exports.homesectionget = async (req, res) => {
 // PUT - Edit Home Section by ID
 exports.homesectionedit = async (req, res) => {
     try {
-        const { title, subtitle, status, popularenquirylist, enquirylink } = req.body;
+        const { title, subtitle, title1, title2, title3, status, popularenquirylist, enquirylink } = req.body;
         const { id } = req.params;
         const updatedHeroSection = await Homesection.findByIdAndUpdate(
             id,
