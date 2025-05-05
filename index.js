@@ -12,6 +12,7 @@ const offersectionRoutes = require("./routes/offerRouter");
 const advertiseRoutes = require("./routes/advertiseRoutes");
 const testiminialRoutes = require("./routes/testiminialRoutes");
 const investmentRoutes = require("./routes/investmentRoutes");
+const blogRoutes = require("./routes/blogRoutes");
 
 const cors = require("cors");
 
@@ -38,5 +39,6 @@ app.use("/api/offer",offersectionRoutes);
 app.use("/api/adverisement",advertiseRoutes);
 app.use("/api/testimonial",testiminialRoutes);
 app.use("/api/investment",investmentRoutes);
+app.use("/api/blog",blogRoutes);
 
 app.listen(process.env.PORT || 8001, () => console.log("Server started on port 8001"));
