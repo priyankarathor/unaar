@@ -25,6 +25,27 @@ const blogs = new mongoose.Schema({
     },
     categorytitle:{
         type:String
+    },  
+    categorylable:{
+        type:String
+    },
+    categoryValue:{
+        type:String
+    },
+    categoryType:{
+        type:String
+    },
+    authername:{
+        type:String
+    },
+    metatitle:{
+        type :String
+    },
+    metadescription:{
+        type:String
+    },
+    metakeyword:{
+        type:String
     }
 })
 

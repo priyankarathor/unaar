@@ -42,22 +42,22 @@ exports.categoryInsert = async (req, res) => {
 
 exports.categoryGet = async (req, res) => {
     try {
-        const categories = await Category.find().sort({ createdAt: -1 });
+      const categories = await Category.find().sort({ createdAt: -1 });
   
       const categoriesWithImage = categories.map(category => ({
         _id: category._id,
         categorytype: category.categorytype,
         categoryvalue: category.categoryvalue,
         image: category.image ? {
-            data: category.image, 
-            contentType: category.imageType || 'image/png'
+          data: category.image,
+          contentType: category.imageType || 'application/octet-stream'  // support all image types
         } : null,
         action: category.action,
       }));
   
       res.status(200).json({
         status: true,
-        message: "categories fetched successfully",
+        message: "Categories fetched successfully",
         data: categoriesWithImage,
       });
     } catch (error) {
@@ -69,7 +69,7 @@ exports.categoryGet = async (req, res) => {
       });
     }
   };
-
+  
 
 // EDIT CATEGORY
 exports.categoryEdit = async (req, res) => {

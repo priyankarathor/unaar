@@ -3,7 +3,7 @@ const blog = require("../model/Blog");
 // ADD
 exports.blogadd = async (req, res) => {
     try {
-        const { title, subtitle, description, action, date,categorytitle } = req.body;
+        const { title, subtitle, description,categorylable, categoryValue, categoryType, action, date,categorytitle,authername, metatitle, metadescription, metakeyword} = req.body;
 
         const newblog = new blog({
             image: req.file.buffer,
@@ -11,9 +11,16 @@ exports.blogadd = async (req, res) => {
             title,
             subtitle,
             description,
+            categorylable,
+            categoryValue,
+            categoryType,
             action,
             date,
-            categorytitle
+            categorytitle,
+            authername,
+            metatitle,
+            metadescription,
+            metakeyword
         });
 
         await newblog.save();
@@ -42,9 +49,17 @@ exports.blogadd = async (req, res) => {
                 title: blogdata.title,
                 subtitle: blogdata.subtitle,
                 description: blogdata.description,
+                categorylable: blogdata.categorylable,
+                categoryValue: blogdata.categoryValue,
+                categoryType: blogdata.categoryType,
+                description: blogdata.description,
                 action: blogdata.action,
                 date: blogdata.date,
                 categorytitle: blogdata.categorytitle,
+                authername: blogdata.authername,
+                metatitle: blogdata.metatitle,
+                metadescription: blogdata.metadescription,
+                metakeyword: blogdata.metakeyword,
                 image: blogdata.image ? {
                     data: blogdata.image, // Buffer
                     contentType: blogdata.imageType || 'image/png'
@@ -69,7 +84,7 @@ exports.blogadd = async (req, res) => {
     // EDIT
 exports.blogedit = async (req, res) => {
     try {
-        const { title, subtitle, description, action, date, categorytitle } = req.body;
+        const { title, subtitle, description,categorylable, categoryValue, categoryType, action, date,categorytitle,authername, metatitle, metadescription, metakeyword} = req.body;
         const { id } = req.params;
 
         const blogdata = await blog.findById(id);
@@ -89,9 +104,16 @@ exports.blogedit = async (req, res) => {
         blogdata.title = title;
         blogdata.subtitle = subtitle;
         blogdata.description = description;
+        blogdata.categorylable = categorylable;
+        blogdata.categoryValue = categoryValue;
+        blogdata.categoryType = categoryType;
         blogdata.action = action;
         blogdata.date = date;
         blogdata.categorytitle = categorytitle;
+        blogdata.authername = authername;
+        blogdata.metatitle = metatitle;
+        blogdata.metadescription = metadescription;
+        blogdata.metakeyword = metakeyword;
 
         const updatedblogdata = await blogdata.save();
 
