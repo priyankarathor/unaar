@@ -14,9 +14,11 @@ const testiminialRoutes = require("./routes/testiminialRoutes");
 const investmentRoutes = require("./routes/investmentRoutes");
 const blogRoutes = require("./routes/blogRoutes");
 
+const subcategoryRoutes = require("./routes/subcategoryRoutes");
+
+const subtosubcategoryRoutes = require("./routes/subtosubcategoryRoutes");
+
 const cors = require("cors");
-const SubcategoryRoutes = require("./routes/subcategoryRoutes");
-const subtoSubcategoryRoutes = require("./routes/subtosubcategoryRoutes");
 
 const app = express();
 app.use(express.json());
@@ -42,7 +44,7 @@ app.use("/api/adverisement",advertiseRoutes);
 app.use("/api/testimonial",testiminialRoutes);
 app.use("/api/investment",investmentRoutes);
 app.use("/api/blog",blogRoutes);
-app.use("/api/subcategory",SubcategoryRoutes);
-app.use("api/subtosubcategory",subtoSubcategoryRoutes);
+app.use("/api/subcategory",subcategoryRoutes);
+app.use("/api/subtosubcategory",subtosubcategoryRoutes);
 
 app.listen(process.env.PORT || 8001, () => console.log("Server started on port 8001"));

@@ -6,7 +6,7 @@ const {
     subtosubcategoryGet, 
     subtosubcategoryEdit, 
     subtosubcategoryDelete 
-} = require("../controllers/subcategoryController");
+} = require("../controllers/subtosubcategoryController");
 
 // Use multer for parsing multipart/form-data
 const storage = multer.memoryStorage();
