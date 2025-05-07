@@ -1,6 +1,15 @@
 const mongoose = require('mongoose');
 
 const propertylisting = new mongoose.Schema({
+    category:{
+        type:String
+    },
+    subcategory:{
+        type:String
+    },
+    subtosubcategory:{
+        type:String
+    },
     title:{
         type:String,
         require : true
@@ -8,6 +17,9 @@ const propertylisting = new mongoose.Schema({
     subtitle:{
         type:String,
         require: true
+    },
+    fromamout:{
+        type:String
     },
     description:{
         type:String,
