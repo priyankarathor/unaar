@@ -1,4 +1,4 @@
-const subCategory = require('../model/Subcategory');
+const subCategory = require('../model/SubCategory');
 
 // INSERT CATEGORY
 exports.subcategoryInsert = async (req, res) => {
