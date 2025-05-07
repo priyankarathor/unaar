@@ -5,6 +5,9 @@ const SubCategorySchema = new mongoose.Schema({
     masterId :{
         type:String
     },
+    mastertitle:{
+        type:String,
+    },
     categorytype: { type: String, required: true },
     categoryvalue: { type: String, required: true },
     image: { type: Buffer },

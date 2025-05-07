@@ -3,7 +3,7 @@ const subCategory = require('../model/Subcategory');
 // INSERT CATEGORY
 exports.subcategoryInsert = async (req, res) => {
     try {
-        const { masterId, categorytype, categoryvalue, action } = req.body;
+        const { masterId, mastertitle, categorytype, categoryvalue, action } = req.body;
 
         // Check if image is uploaded
         if (!req.file) {
@@ -18,6 +18,7 @@ exports.subcategoryInsert = async (req, res) => {
             image: req.file.buffer,        // Store image as buffer
             imageType: req.file.mimetype,  // Store MIME type
             masterId,
+            mastertitle,
             categorytype,
             categoryvalue,
             action
@@ -47,7 +48,8 @@ exports.subcategoryGet = async (req, res) => {
   
       const categoriesWithImage = categories.map(category => ({
         _id: category._id,
-        categorytype: category.masterId,
+        masterId: category.masterId,
+        mastertitle : category.mastertitle,
         categorytype: category.categorytype,
         categoryvalue: category.categoryvalue,
         image: category.image ? {
@@ -77,7 +79,7 @@ exports.subcategoryGet = async (req, res) => {
 exports.subcategoryEdit = async (req, res) => {
     try {
         const { id } = req.params;
-        const { categorytype, categoryvalue, action } = req.body;
+        const { masterId,mastertitle, categorytype, categoryvalue, action } = req.body;
 
         const category = await subCategory.findById(id);
         if (!category) {
@@ -93,6 +95,8 @@ exports.subcategoryEdit = async (req, res) => {
             category.imageType = req.file.mimetype;
         }
 
+        category.masterId = masterId;
+        category.mastertitle = mastertitle;
         category.categorytype = categorytype;
         category.categoryvalue = categoryvalue;
         category.action = action;

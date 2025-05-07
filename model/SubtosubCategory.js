@@ -8,6 +8,12 @@ const subtoSubCategorySchema = new mongoose.Schema({
     subcategoryId:{
         type:String
     },
+    mastertitle:{
+        type:String
+    },
+    subtitle:{
+        type:String
+    },
     categorytype: { type: String, required: true },
     categoryvalue: { type: String, required: true },
     image: { type: Buffer },

@@ -1,9 +1,9 @@
-const subtosubsubCategory = require('../model/Subtosubcategory');
+const subtosubsubCategory = require('../model/SubtosubCategory');
 
 // INSERT CATEGORY
 exports.subtosubcategoryInsert = async (req, res) => {
     try {
-        const { masterId, subcategoryId, categorytype, categoryvalue, action } = req.body;
+        const { masterId, subcategoryId, mastertitle, subtitle, categorytype, categoryvalue, action } = req.body;
 
         // Check if image is uploaded
         if (!req.file) {
@@ -19,6 +19,8 @@ exports.subtosubcategoryInsert = async (req, res) => {
             imageType: req.file.mimetype,  // Store MIME type
             masterId,
             subcategoryId,
+            mastertitle,
+            subtitle,
             categorytype,
             categoryvalue,
             action
@@ -48,8 +50,10 @@ exports.subtosubcategoryGet = async (req, res) => {
   
       const categoriesWithImage = categories.map(category => ({
         _id: category._id,
-        subcategoryId : category.subcategoryId,
         masterId: category.masterId,
+        subcategoryId : category.subcategoryId,
+        mastertitle : category.mastertitle ,
+        subtitle :  category.subtitle,
         categorytype: category.categorytype,
         categoryvalue: category.categoryvalue,
         image: category.image ? {
@@ -79,7 +83,7 @@ exports.subtosubcategoryGet = async (req, res) => {
 exports.subtosubcategoryEdit = async (req, res) => {
     try {
         const { id } = req.params;
-        const { categorytype, categoryvalue, action } = req.body;
+        const {  masterId, subcategoryId, mastertitle, subtitle, categorytype, categoryvalue, action } = req.body;
 
         const category = await subtosubsubCategory.findById(id);
         if (!category) {
@@ -95,6 +99,10 @@ exports.subtosubcategoryEdit = async (req, res) => {
             category.imageType = req.file.mimetype;
         }
 
+        category.masterId = masterId;
+        category.subcategoryId = subcategoryId;
+        category.mastertitle = mastertitle;
+        category.subtitle = subtitle;
         category.categorytype = categorytype;
         category.categoryvalue = categoryvalue;
         category.action = action;
