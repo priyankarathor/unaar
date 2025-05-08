@@ -1,4 +1,4 @@
-const PropertyListing = require('../model/propertylisting');
+const PropertyListing = require('../model/PropertyListing');
 
 exports.PropertyListingInsert = async (req, res) => {
     try {
