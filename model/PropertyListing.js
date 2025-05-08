@@ -21,15 +21,66 @@ const propertylisting = new mongoose.Schema({
     fromamout:{
         type:String
     },
+    propertylabel:{
+        type:String
+    },
+    propertyvalue:{
+        type:String
+    },
+    descriptiontitle:{
+        type:String
+    },
+    descriptionlabel:{
+        type:String
+    },
+    descriptionvalue:{
+        type:String
+    },
     description:{
         type:String,
         require : true
     },
-    buttontitle:{
+    facilitietitle:{
+        type:String,
+    },
+    facilitieimage:{ //image
+        type:Buffer
+    },
+    facilitieimagetype:{ //image
+        type:String
+    },
+    facilitievalue:{
+        type:String,
+    },
+    facilitiedescription:{
+        type:String,
+    },
+    featuretitle:{
+        type:String
+    },
+    featureimage:{
+        type:Buffer  //image
+    },
+    featureimagetype:{
+        type:String  //image
+    },
+    locationtitle:{
+        type:String
+    },
+    locationsubtitle:{
+        type:String
+    },
+    locationlable:{
+        type:String
+    },
+    locationvalue:{
+        type:String
+    },
+    locationvaluetitle:{
         type:String
     },
     image:{
-       type:Buffer
+       type:Buffer //image
     },
     imageType: {
         type : String 
@@ -37,6 +88,30 @@ const propertylisting = new mongoose.Schema({
     data:{
         type: Date,
         default: Date.now
+    },
+    apartmenttitle:{
+        type : String 
+    },
+    apartmentlable:{
+        type : String 
+    },
+    apartmendescription:{
+        type : String 
+    },
+    remotelocationtitle:{
+        type:String
+    },
+    remotelocationimage:{
+        type:Buffer        //image
+    },
+    remotelocationimagetype:{
+        type:String
+    },
+    remotelocationsubtitle:{
+        type:String
+    },
+    tagtitle:{
+        type:String
     }
 })
 
