@@ -1,56 +1,22 @@
 const mongoose = require('mongoose');
 
 const propertyListing = new mongoose.Schema({
-    category: String,
-    subcategory: String,
-    subtosubcategory: String,
+  image: Buffer,
+  imageType: String,
 
-    title: { type: String, required: true },
-    subtitle: { type: String, required: true },
+  facilitieimage: Buffer,
+  facilitieimagetype: String,
 
-    fromamout: String,
-    propertylabel: String,
-    propertyvalue: String,
+  featureimage: Buffer,
+  featureimagetype: String,
 
-    descriptiontitle: String,
-    descriptionlabel: String,
-    descriptionvalue: String,
-    description: { type: String, required: true },
+  remotelocationimage: Buffer,
+  remotelocationimagetype: String,
 
-    facilitietitle: String,
-    facilitieimage: Buffer,
-    facilitieimagetype: String,
-    facilitievalue: String,
-    facilitiedescription: String,
-
-    featuretitle: String,
-    featureimage: Buffer,
-    featureimagetype: String,
-
-    locationtitle: String,
-    locationsubtitle: String,
-    locationlable: String,
-    locationvalue: String,
-    locationvaluetitle: String,
-
-    image: Buffer,
-    imageType: String,
-
-    data: {
-        type: Date,
-        default: Date.now
-    },
-
-    apartmenttitle: String,
-    apartmentlable: String,
-    apartmendescription: String,
-
-    remotelocationtitle: String,
-    remotelocationimage: Buffer,
-    remotelocationimagetype: String,
-    remotelocationsubtitle: String,
-
-    tagtitle: String
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 module.exports = mongoose.model('PropertyListing', propertyListing);
