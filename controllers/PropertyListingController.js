@@ -7,29 +7,31 @@ exports.PropertyListingInsert = async (req, res) => {
             propertylabel, propertyvalue, descriptiontitle, descriptionlabel, descriptionvalue,
             description, facilitietitle, facilitievalue, facilitiedescription, featuretitle,
             locationtitle, locationsubtitle, locationlable, locationvalue, locationvaluetitle,
-            imageType, data, apartmenttitle, apartmentlable, apartmendescription,
+            data, apartmenttitle, apartmentlable, apartmendescription,
             remotelocationtitle, remotelocationsubtitle, tagtitle
         } = req.body;
 
-        if (!req.file) {
+        const files = req.files;
+
+        if (!files.image || !files.facilitieimage || !files.remotelocationimage) {
             return res.status(400).json({
                 status: false,
-                message: "Image is required"
+                message: "All image fields (image, facilitieimage, remotelocationimage) are required"
             });
         }
 
-        const imageBuffer = req.file.buffer;
-        const imageMimeType = req.file.mimetype;
-
         const newListing = new PropertyListing({
-            image: imageBuffer,
-            imageType: imageMimeType,
-            facilitieimage: imageBuffer,
-            facilitieimagetype: imageMimeType,
-            featureimage: imageBuffer,
-            featureimagetype: imageMimeType,
-            remotelocationimage: imageBuffer,
-            remotelocationimagetype: imageMimeType,
+            image: files.image[0].buffer,
+            imageType: files.image[0].mimetype,
+
+            facilitieimage: files.facilitieimage[0].buffer,
+            facilitieimagetype: files.facilitieimage[0].mimetype,
+
+            featureimage: files.image[0].buffer, // You may change this if `featureimage` is separate
+            featureimagetype: files.image[0].mimetype,
+
+            remotelocationimage: files.remotelocationimage[0].buffer,
+            remotelocationimagetype: files.remotelocationimage[0].mimetype,
 
             category,
             subcategory,
