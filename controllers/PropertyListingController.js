@@ -3,6 +3,8 @@ const PropertyListing = require('../model/PropertyListing');
 exports.PropertyListingInsert = async (req, res) => {
   try {
     const {
+      subCategrory,
+      subtosubCategrory,
       title,
       subtitle,
       fromamout,
@@ -31,6 +33,8 @@ exports.PropertyListingInsert = async (req, res) => {
     const { files } = req;
 
     const newPropertyListing = new PropertyListing({
+      subCategrory,
+      subtosubCategrory,
       title,
       subtitle,
       fromamout,

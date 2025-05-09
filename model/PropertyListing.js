@@ -2,6 +2,12 @@ const mongoose = require('mongoose');
 
 const propertyListing = new mongoose.Schema({
 
+    subCategrory:{
+        type: String
+    },
+    subtosubCategrory:{
+        type: String
+    },
     title: { type: String, required: true },
     subtitle: { type: String, required: true },
 
