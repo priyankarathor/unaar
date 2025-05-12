@@ -2,73 +2,55 @@ const PropertyListing = require('../model/PropertyListing');
 
 exports.PropertyListingInsert = async (req, res) => {
   try {
-    const {
-      subCategrory,
-      subtosubCategrory,
-      city,
-      title,
-      subtitle,
-      fromamout,
-      propertylabel,
-      propertyvalue,
-      descriptiontitle,
-      descriptionlabel,
-      descriptionvalue,
-      description,
-      facilitieid,
-      facilitiedescription,
-      featureId,
-      latitude,
-      longitude,
-      locationlable,
-      locationvalue,
-      locationvaluetitle,
-      apartmenttitle,
-      apartmentlable,
-      apartmendescription,
-      remotelocationtitle,
-      remotelocationsubtitle,
-      tagtitle
-    } = req.body;
+    const data = req.body;
+    const files = req.files;
 
-    const { files } = req;
+    // Helper function to parse comma-separated fields into arrays
+    const parseArray = (key) => data[key] ? data[key].split(',') : [];
 
-    // Process multiple images
+    // Process multiple images (as objects with buffer and contentType)
     const images = files?.image?.map(file => ({
-      buffer: file.buffer,
-      mimetype: file.mimetype
+      data: file.buffer,
+      contentType: file.mimetype
     })) || [];
 
+    // Process single remotelocation image
+    const remoteLocationImage = files?.remotelocationimage?.[0]
+      ? {
+          data: files.remotelocationimage[0].buffer,
+          contentType: files.remotelocationimage[0].mimetype
+        }
+      : null;
+
     const newPropertyListing = new PropertyListing({
-      subCategrory,
-      subtosubCategrory,
-      city,
-      title,
-      subtitle,
-      fromamout,
-      propertylabel,
-      propertyvalue,
-      descriptiontitle,
-      descriptionlabel,
-      descriptionvalue,
-      description,
-      facilitieid,
-      facilitiedescription,
-      featureId,
-      latitude,
-      longitude,
-      locationlable,
-      locationvalue,
-      locationvaluetitle,
-      apartmenttitle,
-      apartmentlable,
-      apartmendescription,
-      remotelocationtitle,
-      remotelocationsubtitle,
-      tagtitle,
-      images, // array of image objects
-      remotelocationimage: files?.remotelocationimage?.[0]?.buffer || null,
-      remotelocationimagetype: files?.remotelocationimage?.[0]?.mimetype || null,
+      subCategrory: data.subCategrory,
+      subtosubCategrory: data.subtosubCategrory,
+      city: data.city,
+      title: data.title,
+      subtitle: data.subtitle,
+      fromamout: data.fromamout,
+      propertylabel: parseArray('propertylabel'),
+      propertyvalue: parseArray('propertyvalue'),
+      descriptiontitle: data.descriptiontitle,
+      descriptionlabel: parseArray('descriptionlabel'),
+      descriptionvalue: parseArray('descriptionvalue'),
+      description: data.description,
+      facilitieid: parseArray('facilitieid'),
+      facilitiedescription: data.facilitiedescription,
+      featureId: parseArray('featureId'),
+      latitude: data.latitude,
+      longitude: data.longitude,
+      locationlable: parseArray('locationlable'),
+      locationvalue: parseArray('locationvalue'),
+      locationvaluetitle: data.locationvaluetitle,
+      apartmenttitle: data.apartmenttitle,
+      apartmentlable: data.apartmentlable,
+      apartmendescription: data.apartmendescription,
+      remotelocationtitle: data.remotelocationtitle,
+      remotelocationsubtitle: data.remotelocationsubtitle,
+      tagtitle: data.tagtitle,
+      images,
+      remotelocationimage: remoteLocationImage
     });
 
     await newPropertyListing.save();
@@ -76,6 +58,7 @@ exports.PropertyListingInsert = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: 'Property listing inserted successfully.',
+      data: newPropertyListing
     });
   } catch (error) {
     console.error('Error inserting property listing:', error);
@@ -86,4 +69,3 @@ exports.PropertyListingInsert = async (req, res) => {
     });
   }
 };
-

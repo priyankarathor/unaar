@@ -13,7 +13,7 @@ const propertylistingController = require('../controllers/PropertyListingControl
 router.post(
   '/propertyinsert',
   upload.fields([
-    { name: 'image', maxCount: 6 },               
+    { name: 'image', maxCount: 5 },               
     { name: 'remotelocationimage', maxCount: 1 }, 
   ]),
   propertylistingController.PropertyListingInsert
