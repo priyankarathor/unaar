@@ -1,71 +1,88 @@
 const PropertyListing = require('../model/PropertyListing');
 
-exports.PropertyListingInsert = async (req, res) => {
+const PropertyListingInsert = async (req, res) => {
   try {
-    const data = req.body;
-    const files = req.files;
+    const {
+      subCategrory,
+      subtosubCategrory,
+      city,
+      title,
+      subtitle,
+      fromamout,
+      propertylabel,
+      propertyvalue,
+      descriptiontitle,
+      descriptionlabel,
+      descriptionvalue,
+      description,
+      facilitieid,
+      facilitiedescription,
+      featureId,
+      latitude,
+      longitude,
+      locationlable,
+      locationvalue,
+      locationvaluetitle,
+      apartmenttitle,
+      apartmentlable,
+      apartmendescription,
+      remotelocationtitle,
+      remotelocationsubtitle,
+      tagtitle
+    } = req.body;
 
-    // Helper function to parse comma-separated fields into arrays
-    const parseArray = (key) => data[key] ? data[key].split(',') : [];
-
-    // Process multiple images (as objects with buffer and contentType)
-    const images = files?.image?.map(file => ({
-      data: file.buffer,
-      contentType: file.mimetype
-    })) || [];
-
-    // Process single remotelocation image
-    const remoteLocationImage = files?.remotelocationimage?.[0]
-      ? {
-          data: files.remotelocationimage[0].buffer,
-          contentType: files.remotelocationimage[0].mimetype
-        }
-      : null;
-
-    const newPropertyListing = new PropertyListing({
-      subCategrory: data.subCategrory,
-      subtosubCategrory: data.subtosubCategrory,
-      city: data.city,
-      title: data.title,
-      subtitle: data.subtitle,
-      fromamout: data.fromamout,
-      propertylabel: parseArray('propertylabel'),
-      propertyvalue: parseArray('propertyvalue'),
-      descriptiontitle: data.descriptiontitle,
-      descriptionlabel: parseArray('descriptionlabel'),
-      descriptionvalue: parseArray('descriptionvalue'),
-      description: data.description,
-      facilitieid: parseArray('facilitieid'),
-      facilitiedescription: data.facilitiedescription,
-      featureId: parseArray('featureId'),
-      latitude: data.latitude,
-      longitude: data.longitude,
-      locationlable: parseArray('locationlable'),
-      locationvalue: parseArray('locationvalue'),
-      locationvaluetitle: data.locationvaluetitle,
-      apartmenttitle: data.apartmenttitle,
-      apartmentlable: data.apartmentlable,
-      apartmendescription: data.apartmendescription,
-      remotelocationtitle: data.remotelocationtitle,
-      remotelocationsubtitle: data.remotelocationsubtitle,
-      tagtitle: data.tagtitle,
-      images,
-      remotelocationimage: remoteLocationImage
+    const newListing = new PropertyListing({
+      subCategrory,
+      subtosubCategrory,
+      city,
+      title,
+      subtitle,
+      fromamout,
+      propertylabel,
+      propertyvalue,
+      descriptiontitle,
+      descriptionlabel,
+      descriptionvalue,
+      description,
+      facilitieid,
+      facilitiedescription,
+      featureId,
+      latitude,
+      longitude,
+      locationlable,
+      locationvalue,
+      locationvaluetitle,
+      apartmenttitle,
+      apartmentlable,
+      apartmendescription,
+      remotelocationtitle,
+      remotelocationsubtitle,
+      tagtitle,
+      createdAt: new Date()
     });
 
-    await newPropertyListing.save();
+    // Handle multiple images
+    if (req.files?.image) {
+      newListing.images = req.files.image.map(file => ({
+        data: file.buffer,
+        contentType: file.mimetype
+      }));
+    }
 
-    return res.status(201).json({
-      success: true,
-      message: 'Property listing inserted successfully.',
-      data: newPropertyListing
-    });
+    // Handle single remote location image
+    if (req.files?.remotelocationimage?.[0]) {
+      newListing.remotelocationimage = req.files.remotelocationimage[0].buffer;
+      newListing.remotelocationimagetype = req.files.remotelocationimage[0].mimetype;
+    }
+
+    const saved = await newListing.save();
+    res.status(201).json({ message: 'Property listing created successfully', data: saved });
   } catch (error) {
     console.error('Error inserting property listing:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error.',
-      error: error.message
-    });
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
+};
+
+module.exports = {
+  PropertyListingInsert
 };
