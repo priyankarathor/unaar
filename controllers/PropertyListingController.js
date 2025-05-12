@@ -31,6 +31,7 @@ const PropertyListingInsert = async (req, res) => {
       tagtitle
     } = req.body;
 
+    // Create a new property listing
     const newListing = new PropertyListing({
       subCategrory,
       subtosubCategrory,
@@ -62,14 +63,14 @@ const PropertyListingInsert = async (req, res) => {
     });
 
     // Check if images are uploaded
-    if (req.files?.image) {
-      newListing.images = req.files.image.map(file => ({
+    if (req.files?.images) {
+      newListing.images = req.files.images.map(file => ({
         data: file.buffer,
         contentType: file.mimetype
       }));
     }
 
-    // Handle remote location image if it exists
+    // Handle remote location image if uploaded
     if (req.files?.remotelocationimage?.[0]) {
       const remoteLocationImage = req.files.remotelocationimage[0];
       newListing.remotelocationimage = remoteLocationImage.buffer;
