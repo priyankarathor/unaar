@@ -5,6 +5,7 @@ exports.PropertyListingInsert = async (req, res) => {
     const {
       subCategrory,
       subtosubCategrory,
+      city,
       title,
       subtitle,
       fromamout,
@@ -32,9 +33,16 @@ exports.PropertyListingInsert = async (req, res) => {
 
     const { files } = req;
 
+    // Process multiple images
+    const images = files?.image?.map(file => ({
+      buffer: file.buffer,
+      mimetype: file.mimetype
+    })) || [];
+
     const newPropertyListing = new PropertyListing({
       subCategrory,
       subtosubCategrory,
+      city,
       title,
       subtitle,
       fromamout,
@@ -58,8 +66,7 @@ exports.PropertyListingInsert = async (req, res) => {
       remotelocationtitle,
       remotelocationsubtitle,
       tagtitle,
-      image: files?.image?.[0]?.buffer || null,
-      imageType: files?.image?.[0]?.mimetype || null,
+      images, // array of image objects
       remotelocationimage: files?.remotelocationimage?.[0]?.buffer || null,
       remotelocationimagetype: files?.remotelocationimage?.[0]?.mimetype || null,
     });
@@ -79,3 +86,4 @@ exports.PropertyListingInsert = async (req, res) => {
     });
   }
 };
+

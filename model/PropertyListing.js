@@ -8,6 +8,9 @@ const propertyListing = new mongoose.Schema({
     subtosubCategrory:{
         type: String
     },
+    city:{
+        type: String
+    },
     title: { type: String, required: true },
     subtitle: { type: String, required: true },
 

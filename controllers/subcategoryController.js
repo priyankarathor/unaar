@@ -13,7 +13,6 @@ exports.subcategoryInsert = async (req, res) => {
             });
         }
 
-        // Create a new category with image buffer
         const newCategory = new subCategory({
             image: req.file.buffer,        // Store image as buffer
             imageType: req.file.mimetype,  // Store MIME type
@@ -41,20 +40,36 @@ exports.subcategoryInsert = async (req, res) => {
     }
 };
 
-
-exports.subcategoryGet = async (req, res) => {
+const getContentType = (filenameOrType) => {
+    const extensionMap = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      svg: 'image/svg+xml',
+      webp: 'image/webp',
+      bmp: 'image/bmp',
+      tiff: 'image/tiff',
+      ico: 'image/x-icon',
+    };
+  
+    const ext = (filenameOrType || '').split('.').pop().toLowerCase();
+    return extensionMap[ext] || 'application/octet-stream';
+  };
+  
+  exports.subcategoryGet = async (req, res) => {
     try {
       const categories = await subCategory.find().sort({ createdAt: -1 });
   
       const categoriesWithImage = categories.map(category => ({
         _id: category._id,
         masterId: category.masterId,
-        mastertitle : category.mastertitle,
+        mastertitle: category.mastertitle,
         categorytype: category.categorytype,
         categoryvalue: category.categoryvalue,
         image: category.image ? {
           data: category.image,
-          contentType: category.imageType || 'application/octet-stream'  // support all image types
+          contentType: getContentType(category.imageType || 'jpg') // default fallback
         } : null,
         action: category.action,
       }));
@@ -73,6 +88,7 @@ exports.subcategoryGet = async (req, res) => {
       });
     }
   };
+s  
   
 
 // EDIT CATEGORY

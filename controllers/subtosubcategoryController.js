@@ -44,6 +44,23 @@ exports.subtosubcategoryInsert = async (req, res) => {
 };
 
 
+const getContentType = (filenameOrType) => {
+    const extensionMap = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      svg: 'image/svg+xml',
+      webp: 'image/webp',
+      bmp: 'image/bmp',
+      tiff: 'image/tiff',
+      ico: 'image/x-icon',
+    };
+  
+    const ext = (filenameOrType || '').split('.').pop().toLowerCase();
+    return extensionMap[ext] || 'application/octet-stream';
+  };
+
 exports.subtosubcategoryGet = async (req, res) => {
     try {
       const categories = await subtosubsubCategory.find().sort({ createdAt: -1 });
@@ -57,9 +74,9 @@ exports.subtosubcategoryGet = async (req, res) => {
         categorytype: category.categorytype,
         categoryvalue: category.categoryvalue,
         image: category.image ? {
-          data: category.image,
-          contentType: category.imageType || 'application/octet-stream'  // support all image types
-        } : null,
+            data: category.image,
+            contentType: getContentType(category.imageType || 'jpg') // default fallback
+          } : null,
         action: category.action,
       }));
   
