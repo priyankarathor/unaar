@@ -88,7 +88,7 @@ const getContentType = (filenameOrType) => {
       });
     }
   };
-s  
+
   
 
 // EDIT CATEGORY
