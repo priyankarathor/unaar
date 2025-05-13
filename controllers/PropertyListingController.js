@@ -106,35 +106,41 @@ const PropertyListingInsert = async (req, res) => {
   }
 };
 
-// Get all property listings
+
+// GET: Fetch all property listings
 const getAllPropertyListings = async (req, res) => {
   try {
     const listings = await PropertyListing.find().sort({ createdAt: -1 });
 
     const formattedListings = listings.map(listing => ({
       ...listing.toObject(),
+
+      // Format array of image buffers to base64
       images: listing.images?.map(image => ({
-        data: `data:${getContentType(image.contentType)};base64,${image.data.toString('base64')}`,
-        contentType: getContentType(image.contentType)
-      })),
+        data: image.data.toString('base64'),
+        contentType: getContentType(image.contentType),
+      })) || [],
+
+      // Format remote location image to base64 if exists
       remotelocationimage: listing.remotelocationimage
         ? {
-            data: `data:${getContentType(listing.remotelocationimagetype || 'jpg')};base64,${listing.remotelocationimage.toString('base64')}`,
+            data: listing.remotelocationimage.toString('base64'),
             contentType: getContentType(listing.remotelocationimagetype || 'jpg')
           }
-        : null
+        : null,
     }));
 
     res.status(200).json({
       status: true,
-      message: 'Listings fetched successfully',
+      message: 'Property listings fetched successfully',
       data: formattedListings
     });
+
   } catch (error) {
     console.error('Error fetching property listings:', error);
     res.status(500).json({
       status: false,
-      message: 'Failed to fetch listings',
+      message: 'Failed to fetch property listings',
       error: error.message
     });
   }
