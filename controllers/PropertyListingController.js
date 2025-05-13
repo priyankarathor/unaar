@@ -1,7 +1,6 @@
 const PropertyListing = require('../model/PropertyListing');
 const multer = require('multer');
 
-// POST: Insert a new property listing
 const PropertyListingInsert = async (req, res) => {
   try {
     const {
@@ -33,6 +32,7 @@ const PropertyListingInsert = async (req, res) => {
       tagtitle
     } = req.body;
 
+    // Prepare property listing object
     const newListing = new PropertyListing({
       subCategrory,
       subtosubCategrory,
@@ -63,24 +63,35 @@ const PropertyListingInsert = async (req, res) => {
       createdAt: new Date()
     });
 
-    // Handle multiple property images as BLOBs
+    // Handle property images (store as Buffer + contentType)
     if (req.files?.propertyimage) {
-      newListing.propertyimage = req.files.propertyimage.map(image => image.buffer); // Store each image as a BLOB (Buffer)
+      newListing.propertyimage = req.files.propertyimage.map(image => ({
+        data: image.buffer,
+        contentType: image.mimetype
+      }));
     }
 
-    // Handle remote location image
+    // Handle single remote location image (store as Buffer + contentType)
     if (req.files?.remotelocationimage?.[0]) {
-      const remoteLocationImage = req.files.remotelocationimage[0];
-      newListing.remotelocationimage = remoteLocationImage.buffer;
-      newListing.remotelocationimagetype = remoteLocationImage.mimetype;
+      const remoteImage = req.files.remotelocationimage[0];
+      newListing.remotelocationimage = {
+        data: remoteImage.buffer,
+        contentType: remoteImage.mimetype
+      };
     }
 
-    // Save the property listing to the database
-    const saved = await newListing.save();
-    res.status(201).json({ message: 'Property listing created successfully', data: saved });
+    // Save to database
+    const savedListing = await newListing.save();
+    res.status(201).json({
+      message: 'Property listing created successfully',
+      data: savedListing
+    });
   } catch (error) {
     console.error('Error inserting property listing:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res.status(500).json({
+      message: 'Internal server error',
+      error: error.message
+    });
   }
 };
 
