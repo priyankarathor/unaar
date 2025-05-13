@@ -33,7 +33,6 @@ const PropertyListingInsert = async (req, res) => {
       tagtitle
     } = req.body;
 
-    // Create a new property listing
     const newListing = new PropertyListing({
       subCategrory,
       subtosubCategrory,
@@ -64,29 +63,27 @@ const PropertyListingInsert = async (req, res) => {
       createdAt: new Date()
     });
 
-    // Handle property images and convert to comma-separated base64 strings
+    // Handle multiple property images as BLOBs
     if (req.files?.propertyimage) {
-      newListing.propertyimage = req.files.propertyimage.map(image => {
-        return image.buffer.toString('base64'); // Convert each image to base64
-      }).join(','); // Join images as comma-separated string
+      newListing.propertyimage = req.files.propertyimage.map(image => image.buffer); // Store each image as a BLOB (Buffer)
     }
 
-    // Handle remote location image (single image)
+    // Handle remote location image
     if (req.files?.remotelocationimage?.[0]) {
       const remoteLocationImage = req.files.remotelocationimage[0];
-      newListing.remotelocationimage = remoteLocationImage.buffer.toString('base64'); // Convert to base64
+      newListing.remotelocationimage = remoteLocationImage.buffer;
       newListing.remotelocationimagetype = remoteLocationImage.mimetype;
     }
 
     // Save the property listing to the database
     const saved = await newListing.save();
     res.status(201).json({ message: 'Property listing created successfully', data: saved });
-
   } catch (error) {
     console.error('Error inserting property listing:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
 
 
 // Utility function to resolve proper content type

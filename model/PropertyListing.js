@@ -1,10 +1,5 @@
 const mongoose = require('mongoose');
 
-const imageSchema = new mongoose.Schema({
-  data: Buffer,
-  contentType: String
-});
-
 const propertyListingSchema = new mongoose.Schema({
   subCategrory: String,
   subtosubCategrory: String,
@@ -33,13 +28,24 @@ const propertyListingSchema = new mongoose.Schema({
   remotelocationsubtitle: String,
   tagtitle: String,
 
-  images: [imageSchema],
-  propertyimage: Buffer,
-  propertyimageType: String,
-  remotelocationimage: Buffer,
-  remotelocationimagetype: String,
+  // Store property images as an array of Buffers (BLOBs)
+  propertyimage: [{
+    type: Buffer // Storing images as BLOBs (Buffer objects)
+  }],
+  
+  // Store remotelocation image as a single Buffer (BLOB)
+  remotelocationimage: {
+    type: Buffer
+  },
+  
+  remotelocationimagetype: {
+    type: String // MIME type for the image, e.g., 'image/jpeg'
+  },
 
-  createdAt: { type: Date, default: Date.now }
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 module.exports = mongoose.model('PropertyListing', propertyListingSchema);
