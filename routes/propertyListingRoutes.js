@@ -16,14 +16,11 @@ router.post(
     { name: 'propertyimage', maxCount: 5 }, // Allow up to 5 property images
     { name: 'remotelocationimage', maxCount: 1 } // Allow 1 remote location image
   ]),
-  propertylistingController.PropertyListingInsert // Ensure this is a valid function in the controller
+  propertylistingController.PropertyListingInsert // Make sure this points to the correct controller method
 );
 
 // GET request for all property listings
 router.get('/properties', propertylistingController.getAllPropertyListings);
-
-// GET request for a single property listing by ID
-router.get('/property/:id', propertylistingController.getPropertyListingById);
 
 // PUT request for updating a property listing by ID
 router.put(

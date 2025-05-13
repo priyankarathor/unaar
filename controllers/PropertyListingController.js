@@ -1,8 +1,6 @@
 const PropertyListing = require('../model/PropertyListing');
 const multer = require('multer');
 
-// Utility function to get content type based on file extension
-
 // POST: Insert a new property listing
 const PropertyListingInsert = async (req, res) => {
   try {
@@ -66,18 +64,17 @@ const PropertyListingInsert = async (req, res) => {
       createdAt: new Date()
     });
 
-    // Check if property images are uploaded (up to 5 images)
+    // Handle property images and convert to comma-separated base64 strings
     if (req.files?.propertyimage) {
-      newListing.propertyimage = req.files.propertyimage.map(image => ({
-        data: image.buffer,
-        contentType: image.mimetype
-      }));
+      newListing.propertyimage = req.files.propertyimage.map(image => {
+        return image.buffer.toString('base64'); // Convert each image to base64
+      }).join(','); // Join images as comma-separated string
     }
 
-    // Check if remote location image is uploaded
+    // Handle remote location image (single image)
     if (req.files?.remotelocationimage?.[0]) {
       const remoteLocationImage = req.files.remotelocationimage[0];
-      newListing.remotelocationimage = remoteLocationImage.buffer;
+      newListing.remotelocationimage = remoteLocationImage.buffer.toString('base64'); // Convert to base64
       newListing.remotelocationimagetype = remoteLocationImage.mimetype;
     }
 
@@ -90,6 +87,7 @@ const PropertyListingInsert = async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
 
 // Utility function to resolve proper content type
 const getContentType = (input = '') => {
@@ -155,35 +153,6 @@ const getAllPropertyListings = async (req, res) => {
 };
 
 
-// GET: Fetch a single property listing by ID
-const getPropertyListingById = async (req, res) => {
-  try {
-    const listing = await PropertyListing.findById(req.params.id);
-
-    if (!listing) {
-      return res.status(404).json({ message: 'Property listing not found' });
-    }
-
-    // Return the listing data, including property images (up to 5)
-    res.status(200).json({
-      status: true,
-      message: 'Property listing fetched successfully',
-      data: {
-        ...listing.toObject(),
-        propertyimage: listing.propertyimage || [],
-        remotelocationimage: listing.remotelocationimage || null
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching property listing by ID:', error);
-    res.status(500).json({
-      status: false,
-      message: 'Failed to fetch property listing',
-      error: error.message
-    });
-  }
-};
-
 // PUT: Update an existing property listing by ID
 const updatePropertyListing = async (req, res) => {
   try {
@@ -239,6 +208,5 @@ module.exports = {
   PropertyListingInsert,
   getAllPropertyListings,
   updatePropertyListing,
-  deletePropertyListing,
-  getPropertyListingById
+  deletePropertyListing
 };
