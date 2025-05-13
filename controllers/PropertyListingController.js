@@ -1,4 +1,5 @@
 const PropertyListing = require('../model/PropertyListing');
+const multer = require('multer');
 
 // Utility function to get content type based on file extension
 const getContentType = (filenameOrType) => {
@@ -18,7 +19,7 @@ const getContentType = (filenameOrType) => {
   return extensionMap[ext] || 'application/octet-stream';
 };
 
-// Insert a new property listing
+// POST: Insert a new property listing
 const PropertyListingInsert = async (req, res) => {
   try {
     const {
@@ -81,15 +82,15 @@ const PropertyListingInsert = async (req, res) => {
       createdAt: new Date()
     });
 
-    // Check if images are uploaded
-    if (req.files?.images) {
-      newListing.images = req.files.images.map(file => ({
-        data: file.buffer,
-        contentType: file.mimetype
+    // Check if property images are uploaded (up to 5 images)
+    if (req.files?.propertyimage) {
+      newListing.propertyimage = req.files.propertyimage.map(image => ({
+        data: image.buffer,
+        contentType: image.mimetype
       }));
     }
 
-    // Handle remote location image if uploaded
+    // Check if remote location image is uploaded
     if (req.files?.remotelocationimage?.[0]) {
       const remoteLocationImage = req.files.remotelocationimage[0];
       newListing.remotelocationimage = remoteLocationImage.buffer;
@@ -106,7 +107,6 @@ const PropertyListingInsert = async (req, res) => {
   }
 };
 
-
 // GET: Fetch all property listings
 const getAllPropertyListings = async (req, res) => {
   try {
@@ -115,19 +115,19 @@ const getAllPropertyListings = async (req, res) => {
     const formattedListings = listings.map(listing => ({
       ...listing.toObject(),
 
-      // Format array of image buffers to base64
-      images: listing.images?.map(image => ({
+      // Format property images if they exist (up to 5 images)
+      propertyimage: listing.propertyimage?.map(image => ({
         data: image.data.toString('base64'),
-        contentType: getContentType(image.contentType),
+        contentType: getContentType(image.contentType || 'jpg')
       })) || [],
 
-      // Format remote location image to base64 if exists
+      // Format remote location image if it exists
       remotelocationimage: listing.remotelocationimage
         ? {
             data: listing.remotelocationimage.toString('base64'),
             contentType: getContentType(listing.remotelocationimagetype || 'jpg')
           }
-        : null,
+        : null
     }));
 
     res.status(200).json({
@@ -146,16 +146,45 @@ const getAllPropertyListings = async (req, res) => {
   }
 };
 
-// Update an existing property listing
+// GET: Fetch a single property listing by ID
+const getPropertyListingById = async (req, res) => {
+  try {
+    const listing = await PropertyListing.findById(req.params.id);
+
+    if (!listing) {
+      return res.status(404).json({ message: 'Property listing not found' });
+    }
+
+    // Return the listing data, including property images (up to 5)
+    res.status(200).json({
+      status: true,
+      message: 'Property listing fetched successfully',
+      data: {
+        ...listing.toObject(),
+        propertyimage: listing.propertyimage || [],
+        remotelocationimage: listing.remotelocationimage || null
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching property listing by ID:', error);
+    res.status(500).json({
+      status: false,
+      message: 'Failed to fetch property listing',
+      error: error.message
+    });
+  }
+};
+
+// PUT: Update an existing property listing by ID
 const updatePropertyListing = async (req, res) => {
   try {
     const updatedData = { ...req.body };
 
     // Handle updated images if provided
-    if (req.files?.images) {
-      updatedData.images = req.files.images.map(file => ({
-        data: file.buffer,
-        contentType: file.mimetype
+    if (req.files?.propertyimage) {
+      updatedData.propertyimage = req.files.propertyimage.map(image => ({
+        data: image.buffer,
+        contentType: image.mimetype
       }));
     }
 
@@ -182,7 +211,7 @@ const updatePropertyListing = async (req, res) => {
   }
 };
 
-// Delete a property listing
+// DELETE: Delete a property listing by ID
 const deletePropertyListing = async (req, res) => {
   try {
     const deleted = await PropertyListing.findByIdAndDelete(req.params.id);
@@ -201,5 +230,6 @@ module.exports = {
   PropertyListingInsert,
   getAllPropertyListings,
   updatePropertyListing,
-  deletePropertyListing
+  deletePropertyListing,
+  getPropertyListingById
 };

@@ -1,11 +1,9 @@
-// routes/propertyListingRoutes.js
-
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const propertylistingController = require('../controllers/PropertyListingController');
 
-// Configure multer storage to use memory storage
+// Configure multer storage to use memory storage (for in-memory file storage as Buffer)
 const storage = multer.memoryStorage();
 
 // Define multer upload middleware
@@ -15,25 +13,26 @@ const upload = multer({ storage });
 router.post(
   '/propertyinsert',
   upload.fields([
-    { name: 'images', maxCount: 5 },
-    { name: 'remotelocationimage', maxCount: 1 }
+    { name: 'propertyimage', maxCount: 5 }, // Allow up to 5 property images
+    { name: 'remotelocationimage', maxCount: 1 } // Allow 1 remote location image
   ]),
-  propertylistingController.PropertyListingInsert // Make sure this is a function
+  propertylistingController.PropertyListingInsert // Ensure this is a valid function in the controller
 );
 
 // GET request for all property listings
 router.get('/properties', propertylistingController.getAllPropertyListings);
 
 // GET request for a single property listing by ID
+router.get('/property/:id', propertylistingController.getPropertyListingById);
 
 // PUT request for updating a property listing by ID
 router.put(
   '/propertyedit/:id',
   upload.fields([
-    { name: 'images', maxCount: 5 },
-    { name: 'remotelocationimage', maxCount: 1 }
+    { name: 'propertyimage', maxCount: 5 }, // Allow up to 5 property images
+    { name: 'remotelocationimage', maxCount: 1 } // Allow 1 remote location image
   ]),
-  propertylistingController.updatePropertyListing // Make sure this is a function
+  propertylistingController.updatePropertyListing
 );
 
 // DELETE request for deleting a property listing by ID
