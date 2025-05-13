@@ -2,22 +2,6 @@ const PropertyListing = require('../model/PropertyListing');
 const multer = require('multer');
 
 // Utility function to get content type based on file extension
-const getContentType = (filenameOrType) => {
-  const extensionMap = {
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    png: 'image/png',
-    gif: 'image/gif',
-    svg: 'image/svg+xml',
-    webp: 'image/webp',
-    bmp: 'image/bmp',
-    tiff: 'image/tiff',
-    ico: 'image/x-icon',
-  };
-
-  const ext = (filenameOrType || '').split('.').pop().toLowerCase();
-  return extensionMap[ext] || 'application/octet-stream';
-};
 
 // POST: Insert a new property listing
 const PropertyListingInsert = async (req, res) => {
@@ -107,33 +91,57 @@ const PropertyListingInsert = async (req, res) => {
   }
 };
 
+// Utility function to resolve proper content type
+const getContentType = (input = '') => {
+  const extensionMap = {
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    gif: 'image/gif',
+    svg: 'image/svg+xml',
+    webp: 'image/webp',
+    bmp: 'image/bmp',
+    tiff: 'image/tiff',
+    ico: 'image/x-icon',
+  };
+
+  // If input is already a MIME type
+  if (input.includes('/')) return input;
+
+  // Handle file extensions or filenames
+  const ext = input.split('.').pop().toLowerCase();
+  return extensionMap[ext] || 'application/octet-stream';
+};
+
 // GET: Fetch all property listings
 const getAllPropertyListings = async (req, res) => {
   try {
     const listings = await PropertyListing.find().sort({ createdAt: -1 });
 
-    const formattedListings = listings.map(listing => ({
-      ...listing.toObject(),
+    const formattedListings = listings.map(listing => {
+      const propertyObj = listing.toObject();
 
-      // Format property images if they exist (up to 5 images)
-      propertyimage: listing.propertyimage?.map(image => ({
+      // Convert multiple property images (Array of BLOBs)
+      propertyObj.propertyimage = (listing.propertyimage || []).map(image => ({
         data: image.data.toString('base64'),
-        contentType: getContentType(image.contentType || 'jpg')
-      })) || [],
+        contentType: getContentType(image.contentType || 'jpg'),
+      }));
 
-      // Format remote location image if it exists
-      remotelocationimage: listing.remotelocationimage
+      // Convert single remote location image (BLOB)
+      propertyObj.remotelocationimage = listing.remotelocationimage
         ? {
             data: listing.remotelocationimage.toString('base64'),
-            contentType: getContentType(listing.remotelocationimagetype || 'jpg')
+            contentType: getContentType(listing.remotelocationimagetype || 'jpg'),
           }
-        : null
-    }));
+        : null;
+
+      return propertyObj;
+    });
 
     res.status(200).json({
       status: true,
       message: 'Property listings fetched successfully',
-      data: formattedListings
+      data: formattedListings,
     });
 
   } catch (error) {
@@ -141,10 +149,11 @@ const getAllPropertyListings = async (req, res) => {
     res.status(500).json({
       status: false,
       message: 'Failed to fetch property listings',
-      error: error.message
+      error: error.message,
     });
   }
 };
+
 
 // GET: Fetch a single property listing by ID
 const getPropertyListingById = async (req, res) => {
