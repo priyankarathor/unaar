@@ -10,11 +10,14 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // POST request for property insertion (create)
-
- router.post('/propertyinsert', upload.fields([
-  { name: 'propertyimage', maxCount: 5 },
-  { name: 'remotelocationimage', maxCount: 1 }
-]) , propertylistingController.PropertyListingInsert );
+router.post(
+  '/propertyinsert',
+  upload.fields([
+    { name: 'propertyimage', maxCount: 5 }, // Allow up to 5 property images
+    { name: 'remotelocationimage', maxCount: 1 } // Allow 1 remote location image
+  ]),
+  propertylistingController.PropertyListingInsert // Make sure this points to the correct controller method
+);
 
 // GET request for all property listings
 router.get('/properties', propertylistingController.getAllPropertyListings);
