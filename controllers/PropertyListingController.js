@@ -97,6 +97,7 @@ const PropertyListingInsert = async (req, res) => {
 
 
 
+
 // Utility function to resolve proper content type
 const getContentType = (input = '') => {
   const extensionMap = {

@@ -15,11 +15,41 @@ const upload = multer({ storage });
 router.post(
   '/propertyinsert',
   upload.fields([
-    { name: 'propertyimage', maxCount: 5 },
+    { name: 'propertyimage', maxCount: 10 },
     { name: 'remotelocationimage', maxCount: 1 }
   ]),
-  propertylistingController.PropertyListingInsert // Make sure this is a function
+  async (req, res) => {
+    try {
+      const {
+        // Destructure your other form fields here
+        title,
+        subtitle,
+        // ...other fields
+      } = req.body;
+
+      // Store images as buffers
+      const propertyImages = (req.files['propertyimage'] || []).map(file => file.buffer);
+      const remoteLocationImage = req.files['remotelocationimage']?.[0]?.buffer || null;
+
+      // Save to MongoDB (example)
+      const newProperty = new PropertyModel({
+        title,
+        subtitle,
+        // Add other form fields from req.body
+        propertyimage: propertyImages,
+        remotelocationimage: remoteLocationImage
+      });
+
+      await newProperty.save();
+      res.status(200).json({ message: 'Property created successfully' });
+
+    } catch (err) {
+      console.error('Insert Error:', err);
+      res.status(500).json({ error: 'Server error' });
+    }
+  }
 );
+
 
 // GET request for all property listings
 router.get('/properties', propertylistingController.getAllPropertyListings);
