@@ -29,13 +29,15 @@ const propertyListing = new mongoose.Schema({
   tagtitle: String,
 
   // Store property images as an array of Buffers (BLOBs)
-  propertyimage: [{
-    type: Buffer // Storing images as BLOBs (Buffer objects)
-  }],
-  
-  // Store remotelocation image as a single Buffer (BLOB)
+   propertyimage: [
+    {
+      data: Buffer,
+      contentType: String
+    }
+  ],
   remotelocationimage: {
-    type: Buffer
+    data: Buffer,
+    contentType: String
   },
   
   remotelocationimagetype: {

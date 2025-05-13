@@ -63,22 +63,21 @@ const PropertyListingInsert = async (req, res) => {
       createdAt: new Date()
     });
 
-    // Handle property images (store as Buffer + contentType)
     if (req.files?.propertyimage) {
-      newListing.propertyimage = req.files.propertyimage.map(image => ({
-        data: image.buffer,
-        contentType: image.mimetype
-      }));
-    }
+  newListing.propertyimage = req.files.propertyimage.map(image => ({
+    data: image.buffer,
+    contentType: image.mimetype
+  }));
+}
 
-    // Handle single remote location image (store as Buffer + contentType)
-    if (req.files?.remotelocationimage?.[0]) {
-      const remoteImage = req.files.remotelocationimage[0];
-      newListing.remotelocationimage = {
-        data: remoteImage.buffer,
-        contentType: remoteImage.mimetype
-      };
-    }
+if (req.files?.remotelocationimage?.[0]) {
+  const remoteImage = req.files.remotelocationimage[0];
+  newListing.remotelocationimage = {
+    data: remoteImage.buffer,
+    contentType: remoteImage.mimetype
+  };
+}
+
 
     // Save to database
     const savedListing = await newListing.save();
