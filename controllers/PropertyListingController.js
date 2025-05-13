@@ -64,11 +64,15 @@ const PropertyListingInsert = async (req, res) => {
 
     // Handle property images
     if (req.files?.propertyimage) {
-      newListing.propertyimage = req.files.propertyimage.map(image => ({
-        data: image.buffer,
-        contentType: image.mimetype
-      }));
-    }
+  // Save image data as BLOBs
+  newListing.propertyimageblobs = req.files.propertyimage.map(img => ({
+    data: img.buffer,
+    contentType: img.mimetype
+  }));
+
+  // Save filenames as comma-separated string in a separate field
+  newListing.propertyimage = req.files.propertyimage.map(img => img.originalname).join(',');
+}
 
     // Handle remote location image
     if (req.files?.remotelocationimage?.[0]) {
