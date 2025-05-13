@@ -14,7 +14,7 @@ const upload = multer({ storage });
 router.post(
   '/propertyinsert',
   upload.fields([
-    { name: 'propertyimage', maxCount: 5 },
+    { name: 'propertyimage[]', maxCount: 5 },
     { name: 'remotelocationimage', maxCount: 1 }
   ]),
   propertylistingController.PropertyListingInsert
