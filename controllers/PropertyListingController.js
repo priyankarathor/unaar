@@ -103,10 +103,7 @@ const getContentType = (input = '') => {
     ico: 'image/x-icon',
   };
 
-  // If input is already a MIME type
   if (input.includes('/')) return input;
-
-  // Handle file extensions or filenames
   const ext = input.split('.').pop().toLowerCase();
   return extensionMap[ext] || 'application/octet-stream';
 };
@@ -119,19 +116,34 @@ const getAllPropertyListings = async (req, res) => {
     const formattedListings = listings.map(listing => {
       const propertyObj = listing.toObject();
 
-      // Convert multiple property images (Array of BLOBs)
-      propertyObj.propertyimage = (listing.propertyimage || []).map(image => ({
-        data: image.data.toString('base64'),
-        contentType: getContentType(image.contentType || 'jpg'),
-      }));
+      // Handle propertyimage
+      if (typeof listing.propertyimage === 'string') {
+        // Comma-separated base64 string
+        const images = listing.propertyimage.split(',');
+        propertyObj.propertyimage = images.map(base64Str => ({
+          data: base64Str,
+          contentType: getContentType('jpg'),
+        }));
+      } else if (Array.isArray(listing.propertyimage)) {
+        // Array of { data, contentType } format
+        propertyObj.propertyimage = listing.propertyimage.map(image => ({
+          data: image?.data?.toString('base64') || '',
+          contentType: getContentType(image?.contentType || 'jpg'),
+        }));
+      } else {
+        // No images
+        propertyObj.propertyimage = [];
+      }
 
-      // Convert single remote location image (BLOB)
-      propertyObj.remotelocationimage = listing.remotelocationimage
-        ? {
-            data: listing.remotelocationimage.toString('base64'),
-            contentType: getContentType(listing.remotelocationimagetype || 'jpg'),
-          }
-        : null;
+      // Handle remotelocationimage
+      if (listing.remotelocationimage) {
+        propertyObj.remotelocationimage = {
+          data: listing.remotelocationimage.toString('base64'),
+          contentType: getContentType(listing.remotelocationimagetype || 'jpg'),
+        };
+      } else {
+        propertyObj.remotelocationimage = null;
+      }
 
       return propertyObj;
     });
@@ -151,6 +163,7 @@ const getAllPropertyListings = async (req, res) => {
     });
   }
 };
+
 
 
 // PUT: Update an existing property listing by ID
