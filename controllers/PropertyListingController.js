@@ -60,9 +60,6 @@ const PropertyListingInsert = async (req, res) => {
       remotelocationtitle,
       remotelocationsubtitle,
       tagtitle,
-      remotelocationimage: req.file.buffer,     
-      remotelocationimagetype: req.file.mimetype,
-       contentType: remoteImage.mimetype,
       createdAt: new Date()
     });
 
@@ -71,6 +68,14 @@ const PropertyListingInsert = async (req, res) => {
     data: image.buffer,
     contentType: image.mimetype
   }));
+}
+
+if (req.files?.remotelocationimage?.[0]) {
+  const remoteImage = req.files.remotelocationimage[0];
+  newListing.remotelocationimage = {
+    data: remoteImage.buffer,
+    contentType: remoteImage.mimetype
+  };
 }
 
     // Save to database
@@ -118,30 +123,21 @@ const getAllPropertyListings = async (req, res) => {
     const formattedListings = listings.map(listing => {
       const propertyObj = listing.toObject();
 
-      // Handle propertyimage
-      if (typeof listing.propertyimage === 'string') {
-        // Comma-separated base64 string
-        const images = listing.propertyimage.split(',');
-        propertyObj.propertyimage = images.map(base64Str => ({
-          data: base64Str,
-          contentType: getContentType('jpg'),
-        }));
-      } else if (Array.isArray(listing.propertyimage)) {
-        // Array of { data, contentType } format
+      // Handle propertyimage as BLOBs (Buffers)
+      if (Array.isArray(listing.propertyimage)) {
         propertyObj.propertyimage = listing.propertyimage.map(image => ({
-          data: image?.data?.toString('base64') || '',
-          contentType: getContentType(image?.contentType || 'jpg'),
+          data: image?.data, // Keep as Buffer (BLOB)
+          contentType: image?.contentType || 'image/jpeg',
         }));
       } else {
-        // No images
         propertyObj.propertyimage = [];
       }
 
-      // Handle remotelocationimage
-      if (listing.remotelocationimage) {
+      // Handle remotelocationimage as BLOB (Buffer)
+      if (listing.remotelocationimage?.data) {
         propertyObj.remotelocationimage = {
-          data: listing.remotelocationimage.toString('base64'),
-          contentType: getContentType(listing.remotelocationimagetype || 'jpg'),
+          data: listing.remotelocationimage.data, // Keep as Buffer
+          contentType: listing.remotelocationimage.contentType || 'image/jpeg',
         };
       } else {
         propertyObj.remotelocationimage = null;
@@ -165,6 +161,7 @@ const getAllPropertyListings = async (req, res) => {
     });
   }
 };
+
 
 
 
