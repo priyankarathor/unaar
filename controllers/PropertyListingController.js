@@ -32,7 +32,6 @@ const PropertyListingInsert = async (req, res) => {
       tagtitle
     } = req.body;
 
-    // Prepare property listing object
     const newListing = new PropertyListing({
       subCategrory,
       subtosubCategrory,
@@ -63,22 +62,23 @@ const PropertyListingInsert = async (req, res) => {
       createdAt: new Date()
     });
 
+    // Handle property images
     if (req.files?.propertyimage) {
-  newListing.propertyimage = req.files.propertyimage.map(image => ({
-    data: image.buffer,
-    contentType: image.mimetype
-  }));
-}
+      newListing.propertyimage = req.files.propertyimage.map(image => ({
+        data: image.buffer,
+        contentType: image.mimetype
+      }));
+    }
 
-if (req.files?.remotelocationimage?.[0]) {
-  const remoteImage = req.files.remotelocationimage[0];
-  newListing.remotelocationimage = {
-    data: remoteImage.buffer,
-    contentType: remoteImage.mimetype
-  };
-}
+    // Handle remote location image
+    if (req.files?.remotelocationimage?.[0]) {
+      const remoteImage = req.files.remotelocationimage[0];
+      newListing.remotelocationimage = {
+        data: remoteImage.buffer,
+        contentType: remoteImage.mimetype
+      };
+    }
 
-    // Save to database
     const savedListing = await newListing.save();
     res.status(201).json({
       message: 'Property listing created successfully',
@@ -92,6 +92,7 @@ if (req.files?.remotelocationimage?.[0]) {
     });
   }
 };
+
 
 
 

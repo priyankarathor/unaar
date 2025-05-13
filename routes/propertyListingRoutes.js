@@ -17,8 +17,10 @@ router.post(
     { name: 'propertyimage', maxCount: 5 },
     { name: 'remotelocationimage', maxCount: 1 }
   ]),
-  propertylistingController.PropertyListingInsert // Make sure this is a function
+  propertylistingController.PropertyListingInsert
 );
+
+
 
 // GET request for all property listings
 router.get('/properties', propertylistingController.getAllPropertyListings);
