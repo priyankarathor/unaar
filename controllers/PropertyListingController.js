@@ -60,6 +60,9 @@ const PropertyListingInsert = async (req, res) => {
       remotelocationtitle,
       remotelocationsubtitle,
       tagtitle,
+      remotelocationimage: req.file.buffer,     
+      remotelocationimagetype: req.file.mimetype,
+       contentType: remoteImage.mimetype,
       createdAt: new Date()
     });
 
@@ -69,15 +72,6 @@ const PropertyListingInsert = async (req, res) => {
     contentType: image.mimetype
   }));
 }
-
-if (req.files?.remotelocationimage?.[0]) {
-  const remoteImage = req.files.remotelocationimage[0];
-  newListing.remotelocationimage = {
-    data: remoteImage.buffer,
-    contentType: remoteImage.mimetype
-  };
-}
-
 
     // Save to database
     const savedListing = await newListing.save();

@@ -5,7 +5,6 @@ const router = express.Router();
 const multer = require('multer');
 const propertylistingController = require('../controllers/PropertyListingController');
 
-// Configure multer storage to use memory storage
 const storage = multer.memoryStorage();
 
 // Define multer upload middleware
