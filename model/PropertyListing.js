@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const propertyListingSchema = new mongoose.Schema({
+const propertyListing = new mongoose.Schema({
   subCategrory: String,
   subtosubCategrory: String,
   city: String,
@@ -48,4 +48,4 @@ const propertyListingSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('PropertyListing', propertyListingSchema);
+module.exports = mongoose.model('PropertyListingschma', propertyListing);
