@@ -63,18 +63,16 @@ const PropertyListingInsert = async (req, res) => {
     });
 
     // Handle property images
-    if (req.files?.propertyimage) {
-  // Save image data as BLOBs
-  newListing.propertyimageblobs = req.files.propertyimage.map(img => ({
-    data: img.buffer,
-    contentType: img.mimetype
-  }));
+     if (req.files?.propertyimage) {
+      newListing.propertyimageblobs = req.files.propertyimage.map(img => ({
+        data: img.buffer,
+        contentType: img.mimetype
+      }));
 
-  // Save filenames as comma-separated string in a separate field
-  newListing.propertyimage = req.files.propertyimage.map(img => img.originalname).join(',');
-}
+      newListing.propertyimage = req.files.propertyimage.map(img => img.originalname).join(',');
+    }
 
-    // Handle remote location image
+    // Handle remote location image (single)
     if (req.files?.remotelocationimage?.[0]) {
       const remoteImage = req.files.remotelocationimage[0];
       newListing.remotelocationimage = {
@@ -82,7 +80,6 @@ const PropertyListingInsert = async (req, res) => {
         contentType: remoteImage.mimetype
       };
     }
-
     const savedListing = await newListing.save();
     res.status(201).json({
       message: 'Property listing created successfully',
