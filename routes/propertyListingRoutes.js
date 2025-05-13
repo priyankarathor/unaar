@@ -1,3 +1,5 @@
+// routes/propertyListingRoutes.js
+
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -6,18 +8,35 @@ const propertylistingController = require('../controllers/PropertyListingControl
 // Configure multer storage to use memory storage
 const storage = multer.memoryStorage();
 
-// Define multer upload middleware: 
-// It handles file uploads for 'image' (multiple, max 5 files) and 'remotelocationimage' (1 file)
+// Define multer upload middleware
 const upload = multer({ storage });
 
-// Handle POST request for property insertion
+// POST request for property insertion (create)
 router.post(
   '/propertyinsert',
   upload.fields([
-    { name: 'images', maxCount: 5 },  // 'images' field allows multiple image files (max 5)
-    { name: 'remotelocationimage', maxCount: 1 }  // 'remotelocationimage' field allows 1 image
+    { name: 'images', maxCount: 5 },
+    { name: 'remotelocationimage', maxCount: 1 }
   ]),
-  propertylistingController.PropertyListingInsert  // Call the controller function for insertion
+  propertylistingController.PropertyListingInsert // Make sure this is a function
 );
+
+// GET request for all property listings
+router.get('/properties', propertylistingController.getAllPropertyListings);
+
+// GET request for a single property listing by ID
+
+// PUT request for updating a property listing by ID
+router.put(
+  '/propertyedit/:id',
+  upload.fields([
+    { name: 'images', maxCount: 5 },
+    { name: 'remotelocationimage', maxCount: 1 }
+  ]),
+  propertylistingController.updatePropertyListing // Make sure this is a function
+);
+
+// DELETE request for deleting a property listing by ID
+router.delete('/propertydelete/:id', propertylistingController.deletePropertyListing);
 
 module.exports = router;
