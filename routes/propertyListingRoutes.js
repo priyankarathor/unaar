@@ -10,14 +10,36 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // POST request for property insertion (create)
-router.post(
-  '/propertyinsert',
-  upload.fields([
-    { name: 'propertyimage', maxCount: 5 }, // Allow up to 5 property images
-    { name: 'remotelocationimage', maxCount: 1 } // Allow 1 remote location image
-  ]),
-  propertylistingController.PropertyListingInsert // Make sure this points to the correct controller method
-);
+
+router.post('/propertyinsert', upload.fields([
+  { name: 'propertyimage', maxCount: 5 },
+  { name: 'remotelocationimage', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const propertyImages = (req.files['propertyimage'] || []).map(file => ({
+      data: file.buffer,
+      contentType: file.mimetype,
+    }));
+
+    const remoteLocationImage = req.files['remotelocationimage']?.[0];
+
+    const property = new Property({
+      title: req.body.title,
+      price: req.body.price,
+      // Other fields...
+      propertyimage: propertyImages,
+      remotelocationimage: remoteLocationImage
+        ? { data: remoteLocationImage.buffer, contentType: remoteLocationImage.mimetype }
+        : undefined,
+    });
+
+    await property.save();
+    res.status(201).json({ message: 'Property saved successfully!' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to save property' });
+  }
+});
 
 // GET request for all property listings
 router.get('/properties', propertylistingController.getAllPropertyListings);
