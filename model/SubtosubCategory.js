@@ -8,7 +8,7 @@ const subtoSubCategorySchema = new mongoose.Schema({
     subcategoryId:{
         type:String
     },
-    mastertitle:{
+    subtosubcategoryId:{
         type:String
     },
     subtitle:{
