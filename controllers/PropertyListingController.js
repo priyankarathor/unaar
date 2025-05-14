@@ -125,20 +125,18 @@ const getAllPropertyListings = async (req, res) => {
     const formattedListings = listings.map(listing => {
       const propertyObj = listing.toObject();
 
-      // Handle propertyimage as BLOBs (Buffers)
-      if (Array.isArray(listing.propertyimage)) {
-        propertyObj.propertyimage = listing.propertyimage.map(image => ({
-          data: image?.data, // Keep as Buffer (BLOB)
-          contentType: image?.contentType || 'image/jpeg',
-        }));
-      } else {
-        propertyObj.propertyimage = [];
-      }
+      // Keep propertyimage as raw Buffer (BLOB)
+      propertyObj.propertyimage = Array.isArray(listing.propertyimage)
+        ? listing.propertyimage.map(img => ({
+            data: img?.data, // raw Buffer
+            contentType: img?.contentType || 'image/jpeg',
+          }))
+        : [];
 
-      // Handle remotelocationimage as BLOB (Buffer)
+      // Keep remotelocationimage as raw Buffer (BLOB)
       if (listing.remotelocationimage?.data) {
         propertyObj.remotelocationimage = {
-          data: listing.remotelocationimage.data, // Keep as Buffer
+          data: listing.remotelocationimage.data, // raw Buffer
           contentType: listing.remotelocationimage.contentType || 'image/jpeg',
         };
       } else {

@@ -19,7 +19,6 @@ router.post(
 );
 
 
-
 // GET request for all property listings
 router.get('/properties', propertylistingController.getAllPropertyListings);
 
