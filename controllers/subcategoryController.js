@@ -1,33 +1,51 @@
-const subCategory = require('../model/SubCategory');
 const axios = require("axios");
+const subCategory = require("../model/SubCategory");
 
+// Utility function to get image content-type from extension
+const getContentType = (filenameOrType) => {
+    const extensionMap = {
+        jpg: 'image/jpeg',
+        jpeg: 'image/jpeg',
+        png: 'image/png',
+        gif: 'image/gif',
+        svg: 'image/svg+xml',
+        webp: 'image/webp',
+        bmp: 'image/bmp',
+        tiff: 'image/tiff',
+        ico: 'image/x-icon',
+    };
+
+    const ext = (filenameOrType || '').split('.').pop().toLowerCase();
+    return extensionMap[ext] || 'application/octet-stream';
+};
+
+// INSERT SUBCATEGORY
 exports.subcategoryInsert = async (req, res) => {
     try {
         const { masterId, mastertitle, categorytype, categoryvalue, action, image } = req.body;
 
         let imageBuffer, imageType;
 
-        // Case 1: If image is uploaded via multipart/form-data
+        // Case 1: File uploaded via form
         if (req.file) {
             imageBuffer = req.file.buffer;
             imageType = req.file.mimetype;
         }
-        // Case 2: If image is provided via URL
+        // Case 2: Image provided via URL in JSON body
         else if (image && typeof image === 'string') {
             const response = await axios.get(image, { responseType: 'arraybuffer' });
             imageBuffer = Buffer.from(response.data, 'binary');
             imageType = response.headers['content-type'];
-        }
-        else {
+        } else {
             return res.status(400).json({
                 status: false,
-                message: "Image is required (either upload or image URL)"
+                message: "Image is required (upload or provide image URL)"
             });
         }
 
         const newCategory = new subCategory({
             image: imageBuffer,
-            imageType: imageType,
+            imageType,
             masterId,
             mastertitle,
             categorytype,
@@ -53,63 +71,44 @@ exports.subcategoryInsert = async (req, res) => {
     }
 };
 
-
-const getContentType = (filenameOrType) => {
-    const extensionMap = {
-      jpg: 'image/jpeg',
-      jpeg: 'image/jpeg',
-      png: 'image/png',
-      gif: 'image/gif',
-      svg: 'image/svg+xml',
-      webp: 'image/webp',
-      bmp: 'image/bmp',
-      tiff: 'image/tiff',
-      ico: 'image/x-icon',
-    };
-  
-    const ext = (filenameOrType || '').split('.').pop().toLowerCase();
-    return extensionMap[ext] || 'application/octet-stream';
-  };
-  
-  exports.subcategoryGet = async (req, res) => {
+// GET ALL SUBCATEGORIES
+exports.subcategoryGet = async (req, res) => {
     try {
-      const categories = await subCategory.find().sort({ createdAt: -1 });
-  
-      const categoriesWithImage = categories.map(category => ({
-        _id: category._id,
-        masterId: category.masterId,
-        mastertitle: category.mastertitle,
-        categorytype: category.categorytype,
-        categoryvalue: category.categoryvalue,
-        image: category.image ? {
-          data: category.image,
-          contentType: getContentType(category.imageType || 'jpg') // default fallback
-        } : null,
-        action: category.action,
-      }));
-  
-      res.status(200).json({
-        status: true,
-        message: "Categories fetched successfully",
-        data: categoriesWithImage,
-      });
+        const categories = await subCategory.find().sort({ createdAt: -1 });
+
+        const categoriesWithImage = categories.map(category => ({
+            _id: category._id,
+            masterId: category.masterId,
+            mastertitle: category.mastertitle,
+            categorytype: category.categorytype,
+            categoryvalue: category.categoryvalue,
+            action: category.action,
+            image: category.image ? {
+                data: category.image,
+                contentType: getContentType(category.imageType || 'jpg')
+            } : null
+        }));
+
+        res.status(200).json({
+            status: true,
+            message: "Categories fetched successfully",
+            data: categoriesWithImage
+        });
     } catch (error) {
-      console.error('Fetch error:', error);
-      res.status(500).json({
-        status: false,
-        message: "Failed to fetch categories",
-        error: error.message,
-      });
+        console.error('Fetch error:', error);
+        res.status(500).json({
+            status: false,
+            message: "Failed to fetch categories",
+            error: error.message
+        });
     }
-  };
+};
 
-  
-
-// EDIT CATEGORY
+// EDIT SUBCATEGORY
 exports.subcategoryEdit = async (req, res) => {
     try {
         const { id } = req.params;
-        const { masterId,mastertitle, categorytype, categoryvalue, action } = req.body;
+        const { masterId, mastertitle, categorytype, categoryvalue, action, image } = req.body;
 
         const category = await subCategory.findById(id);
         if (!category) {
@@ -119,12 +118,17 @@ exports.subcategoryEdit = async (req, res) => {
             });
         }
 
-        // If a new image is uploaded, update it
+        // Update image if new one is uploaded
         if (req.file) {
             category.image = req.file.buffer;
             category.imageType = req.file.mimetype;
+        } else if (image && typeof image === 'string') {
+            const response = await axios.get(image, { responseType: 'arraybuffer' });
+            category.image = Buffer.from(response.data, 'binary');
+            category.imageType = response.headers['content-type'];
         }
 
+        // Update other fields
         category.masterId = masterId;
         category.mastertitle = mastertitle;
         category.categorytype = categorytype;
@@ -138,6 +142,7 @@ exports.subcategoryEdit = async (req, res) => {
             message: "Category updated successfully",
             data: updatedCategory
         });
+
     } catch (error) {
         console.error('Error updating category:', error);
         res.status(500).json({
@@ -148,7 +153,7 @@ exports.subcategoryEdit = async (req, res) => {
     }
 };
 
-// DELETE CATEGORY
+// DELETE SUBCATEGORY
 exports.subcategoryDelete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -166,6 +171,7 @@ exports.subcategoryDelete = async (req, res) => {
             message: "Category deleted successfully",
             data: category
         });
+
     } catch (error) {
         console.error('Error deleting category:', error);
         res.status(500).json({
