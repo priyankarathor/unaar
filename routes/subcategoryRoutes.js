@@ -13,10 +13,10 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Routes
-router.post('/insertcategory', upload.any(), subcategoryInsert);
-
-router.get('/getcategory', subcategoryGet);  // Get all categories or image based on categoryvalue query
-router.put('/editcategory/:id', upload.single('image'), subcategoryEdit);
+router.post('/insertcategory', upload.any(), subcategoryInsert);  // Multiple files
+router.get('/getcategory', subcategoryGet);
+router.put('/editcategory/:id', upload.single('image'), subcategoryEdit); // Single file
 router.delete('/deletecategory/:id', subcategoryDelete);
+
 
 module.exports = router;
