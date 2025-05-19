@@ -29,6 +29,7 @@ const PropertyListingInsert = async (req, res) => {
       apartmendescription,
       remotelocationtitle,
       remotelocationsubtitle,
+      Currency,
       tagtitle
     } = req.body;
 
@@ -58,6 +59,7 @@ const PropertyListingInsert = async (req, res) => {
       apartmendescription,
       remotelocationtitle,
       remotelocationsubtitle,
+      Currency,
       tagtitle,
       createdAt: new Date()
     });

@@ -34,6 +34,8 @@ const propertyListing = new mongoose.Schema({
   remotelocationsubtitle: String,
   tagtitle: String,
 
+  Currency:String,
+
   // Store property images as an array of Buffers (BLOBs)
   
     // BLOB image array

@@ -10,7 +10,7 @@ const SubCategorySchema = new mongoose.Schema({
     },
     categorytype: { type: String, required: true },
     categoryvalue: { type: String, required: true },
-    image: { type: Buffer },
+    image: { type: String },
     imageType: {
         type : String 
     },

@@ -14,8 +14,7 @@ exports.subcategoryInsert = async (req, res) => {
         }
 
         const newCategory = new subCategory({
-            image: req.file.buffer,        // Store image as buffer
-            imageType: req.file.mimetype,  // Store MIME type
+            image, 
             masterId,
             mastertitle,
             categorytype,
