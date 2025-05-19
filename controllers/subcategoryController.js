@@ -1,53 +1,135 @@
 const subCategory = require('../model/SubCategory');
 
 // INSERT CATEGORY
+// exports.subcategoryInsert = async (req, res) => {
+//     try {
+//         const { masterId, mastertitle, categorytype, categoryvalue, action } = req.body;
+
+//         // Check if image is uploaded
+//         if (!req.file) {
+//             return res.status(400).json({ 
+//                 status: false, 
+//                 message: "Image is required" 
+//             });
+//         }
+
+//         const newCategory = new subCategory({
+//             image: req.file.buffer,        // Store image as buffer
+//             imageType: req.file.mimetype,  // Store MIME type
+//             masterId,
+//             mastertitle,
+//             categorytype,
+//             categoryvalue,
+//             action
+//         });
+
+//         await newCategory.save();
+
+//         res.status(201).json({
+//             status: true,
+//             message: "Category inserted successfully",
+//             data: newCategory
+//         });
+//     } catch (error) {
+//         console.error('Error inserting category:', error);
+//         res.status(500).json({
+//             status: false,
+//             message: "Failed to insert category",
+//             error: error.message
+//         });
+//     }
+// };
+
+
+async function downloadImageToBuffer(url) {
+  const response = await axios.get(url, { responseType: 'arraybuffer' });
+  const contentType = response.headers['content-type'];
+  const buffer = Buffer.from(response.data, 'binary');
+  return { buffer, contentType };
+}
+
 exports.subcategoryBulkInsert = async (req, res) => {
   try {
-    const categories = req.body; // expecting array of categories
+    const categories = req.body;
 
     if (!Array.isArray(categories) || categories.length === 0) {
       return res.status(400).json({ status: false, message: "Array of categories required" });
     }
 
     const insertedCategories = [];
+    const errors = [];
 
-    for (const cat of categories) {
-      const {
+    for (let i = 0; i < categories.length; i++) {
+      const cat = categories[i];
+      let {
         masterId,
-        mastertitle,
+        mastertitle = "",
         categorytype,
         categoryvalue,
         action,
-        image,       // base64 string here
-        imageType
+        image,
+        imageType // optional if image is URL, required if base64
       } = cat;
 
-      if (!image || !imageType) {
-        return res.status(400).json({ status: false, message: "Image and imageType are required in each category" });
+      if (!categorytype || !categoryvalue) {
+        errors.push({ index: i, message: "categorytype and categoryvalue are required" });
+        continue;
       }
 
-      // convert base64 string to buffer
-      const imageBuffer = Buffer.from(image, 'base64');
+      if (!image) {
+        errors.push({ index: i, message: "Image is required" });
+        continue;
+      }
 
-      const newCategory = new subCategory({
-        masterId,
-        mastertitle,
-        categorytype,
-        categoryvalue,
-        action,
-        image: imageBuffer,
-        imageType
-      });
+      let imageBuffer;
+      let resolvedImageType;
 
-      await newCategory.save();
-      insertedCategories.push(newCategory);
+      try {
+        if (image.startsWith('http://') || image.startsWith('https://')) {
+          // Image is a URL — download it
+          const { buffer, contentType } = await downloadImageToBuffer(image);
+          imageBuffer = buffer;
+          resolvedImageType = contentType;
+        } else {
+          // Assume base64 string — imageType required
+          if (!imageType) {
+            errors.push({ index: i, message: "imageType is required for base64 image data" });
+            continue;
+          }
+          imageBuffer = Buffer.from(image, 'base64');
+          resolvedImageType = imageType.trim();
+        }
+      } catch (err) {
+        errors.push({ index: i, message: "Failed to process image: " + err.message });
+        continue;
+      }
+
+      try {
+        const newCategory = new subCategory({
+          masterId: masterId ? masterId.trim() : undefined,
+          mastertitle: mastertitle.trim(),
+          categorytype: categorytype.trim(),
+          categoryvalue: categoryvalue.trim(),
+          action: action ? action.trim() : undefined,
+          image: imageBuffer,
+          imageType: resolvedImageType
+        });
+
+        await newCategory.save();
+        insertedCategories.push(newCategory);
+      } catch (err) {
+        errors.push({ index: i, message: "DB save error: " + err.message });
+      }
     }
 
-    res.status(201).json({
-      status: true,
-      message: "Categories inserted successfully",
+    res.status(insertedCategories.length > 0 ? 201 : 400).json({
+      status: insertedCategories.length > 0,
+      message: insertedCategories.length > 0 ? "Categories inserted successfully" : "No categories inserted",
+      insertedCount: insertedCategories.length,
+      errors,
       data: insertedCategories
     });
+
   } catch (error) {
     console.error("Error inserting categories:", error);
     res.status(500).json({
