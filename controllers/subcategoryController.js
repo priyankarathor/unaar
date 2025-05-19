@@ -20,49 +20,70 @@ const getContentType = (filenameOrType) => {
 };
 
 // INSERT SUBCATEGORY
+
 exports.subcategoryInsert = async (req, res) => {
     try {
-        const { masterId, mastertitle, categorytype, categoryvalue, action, image } = req.body;
+        let categories = req.body.categories;
 
-        let imageBuffer, imageType;
-
-        // Case 1: File uploaded via form
-        if (req.file) {
-            imageBuffer = req.file.buffer;
-            imageType = req.file.mimetype;
+        // If it's a single object, normalize to array
+        if (!Array.isArray(categories)) {
+            categories = [req.body];
         }
-        // Case 2: Image provided via URL in JSON body
-        else if (image && typeof image === 'string') {
-            const response = await axios.get(image, { responseType: 'arraybuffer' });
-            imageBuffer = Buffer.from(response.data, 'binary');
-            imageType = response.headers['content-type'];
-        } else {
-            return res.status(400).json({
-                status: false,
-                message: "Image is required (upload or provide image URL)"
+
+        // Normalize uploaded files (can be single or multiple)
+        const uploadedFiles = req.files || (req.file ? [req.file] : []);
+
+        const createdCategories = [];
+
+        for (let i = 0; i < categories.length; i++) {
+            const item = categories[i];
+            let imageBuffer = null;
+            let imageType = null;
+
+            // Priority 1: Uploaded file (by index)
+            if (uploadedFiles[i]) {
+                imageBuffer = uploadedFiles[i].buffer;
+                imageType = uploadedFiles[i].mimetype;
+            }
+            // Priority 2: Image URL
+            else if (item.image && typeof item.image === 'string') {
+                const response = await axios.get(item.image, { responseType: 'arraybuffer' });
+                imageBuffer = Buffer.from(response.data, 'binary');
+                imageType = response.headers['content-type'];
+            }
+
+            // If no image provided, throw error
+            if (!imageBuffer || !imageType) {
+                return res.status(400).json({
+                    status: false,
+                    message: `Image missing for category at index ${i}`
+                });
+            }
+
+            const newCategory = new subCategory({
+                image: imageBuffer,
+                imageType,
+                masterId: item.masterId,
+                mastertitle: item.mastertitle,
+                categorytype: item.categorytype,
+                categoryvalue: item.categoryvalue,
+                action: item.action
             });
+
+            const savedCategory = await newCategory.save();
+            createdCategories.push(savedCategory);
         }
-
-        const newCategory = new subCategory({
-            image: imageBuffer,
-            imageType,
-            masterId,
-            mastertitle,
-            categorytype,
-            categoryvalue,
-            action
-        });
-
-        await newCategory.save();
 
         res.status(201).json({
             status: true,
-            message: "Category inserted successfully",
-            data: newCategory
+            message: createdCategories.length > 1
+                ? "Categories inserted successfully"
+                : "Category inserted successfully",
+            data: createdCategories
         });
 
     } catch (error) {
-        console.error('Error inserting category:', error);
+        console.error("Error inserting category:", error);
         res.status(500).json({
             status: false,
             message: "Failed to insert category",
