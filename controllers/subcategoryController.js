@@ -20,17 +20,23 @@ const getContentType = (filenameOrType) => {
 };
 
 // INSERT SUBCATEGORY
+
 const subcategoryInsert = async (req, res) => {
   try {
-    // Parse JSON array sent in req.body.data (stringified)
-    const data = JSON.parse(req.body.data);
+    // Assuming client sends JSON array in req.body.data (already parsed)
+    // If stringified, do: JSON.parse(req.body.data)
+    const data = typeof req.body.data === 'string' ? JSON.parse(req.body.data) : req.body.data;
+
+    if (!Array.isArray(data)) {
+      return res.status(400).json({ error: 'Data must be an array of subcategories' });
+    }
 
     const processedData = await Promise.all(
       data.map(async (item) => {
         let imageBuffer = null;
         let imageType = null;
 
-        // Find matching uploaded file by comparing originalname to item.image
+        // Find matching uploaded file by originalname
         const file = req.files?.find(f => f.originalname === item.image);
 
         if (file) {
@@ -45,11 +51,12 @@ const subcategoryInsert = async (req, res) => {
 
         return {
           masterId: item.masterId,
-          mastertitle: item.mastertitle,
+          mastertitle: item.mastertitle || '',
           categorytype: item.categorytype,
           categoryvalue: item.categoryvalue,
-          action: item.action,
+          action: item.action || 'Active',
           image: imageBuffer ? { data: imageBuffer, contentType: imageType } : undefined,
+          // images: [], // If you want to support multiple images, handle here similarly
         };
       })
     );
@@ -57,12 +64,15 @@ const subcategoryInsert = async (req, res) => {
     // Insert all processed items into DB
     const inserted = await SubCategory.insertMany(processedData);
 
-    res.status(201).json({ message: 'Categories inserted successfully', data: inserted });
+    return res.status(201).json({ message: 'Categories inserted successfully', data: inserted });
   } catch (error) {
     console.error('Error inserting categories:', error);
-    res.status(500).json({ error: 'Error inserting categories' });
+    return res.status(500).json({ error: 'Error inserting categories', details: error.message });
   }
 };
+
+
+
 
 // GET ALL SUBCATEGORIES
 const subcategoryGet = async (req, res) => {
