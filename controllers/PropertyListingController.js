@@ -4,8 +4,8 @@ const multer = require('multer');
 const PropertyListingInsert = async (req, res) => {
   try {
     const {
-      subCategrory,
-      subtosubCategrory,
+      country,
+      state,
       city,
       title,
       subtitle,
@@ -34,8 +34,8 @@ const PropertyListingInsert = async (req, res) => {
     } = req.body;
 
     const newListing = new PropertyListing({
-      subCategrory,
-      subtosubCategrory,
+      country,
+      state,
       city,
       title,
       subtitle,

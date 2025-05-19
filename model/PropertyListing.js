@@ -7,8 +7,8 @@ const imageSchema = new mongoose.Schema({
 
 
 const propertyListing = new mongoose.Schema({
-  subCategrory: String,
-  subtosubCategrory: String,
+     country: String,
+      state: String,
   city: String,
   title: String,
   subtitle: String,
