@@ -1,44 +1,63 @@
 const subCategory = require('../model/SubCategory');
 
 // INSERT CATEGORY
-exports.subcategoryInsert = async (req, res) => {
-    try {
-        const { masterId, mastertitle, categorytype, categoryvalue, action } = req.body;
+exports.subcategoryBulkInsert = async (req, res) => {
+  try {
+    const categories = req.body; // expecting array of categories
 
-        // Check if image is uploaded
-        if (!req.file) {
-            return res.status(400).json({ 
-                status: false, 
-                message: "Image is required" 
-            });
-        }
-
-        const newCategory = new subCategory({
-            image: req.file.buffer,        // Store image as buffer
-            imageType: req.file.mimetype,  // Store MIME type
-            masterId,
-            mastertitle,
-            categorytype,
-            categoryvalue,
-            action
-        });
-
-        await newCategory.save();
-
-        res.status(201).json({
-            status: true,
-            message: "Category inserted successfully",
-            data: newCategory
-        });
-    } catch (error) {
-        console.error('Error inserting category:', error);
-        res.status(500).json({
-            status: false,
-            message: "Failed to insert category",
-            error: error.message
-        });
+    if (!Array.isArray(categories) || categories.length === 0) {
+      return res.status(400).json({ status: false, message: "Array of categories required" });
     }
+
+    const insertedCategories = [];
+
+    for (const cat of categories) {
+      const {
+        masterId,
+        mastertitle,
+        categorytype,
+        categoryvalue,
+        action,
+        image,       // base64 string here
+        imageType
+      } = cat;
+
+      if (!image || !imageType) {
+        return res.status(400).json({ status: false, message: "Image and imageType are required in each category" });
+      }
+
+      // convert base64 string to buffer
+      const imageBuffer = Buffer.from(image, 'base64');
+
+      const newCategory = new subCategory({
+        masterId,
+        mastertitle,
+        categorytype,
+        categoryvalue,
+        action,
+        image: imageBuffer,
+        imageType
+      });
+
+      await newCategory.save();
+      insertedCategories.push(newCategory);
+    }
+
+    res.status(201).json({
+      status: true,
+      message: "Categories inserted successfully",
+      data: insertedCategories
+    });
+  } catch (error) {
+    console.error("Error inserting categories:", error);
+    res.status(500).json({
+      status: false,
+      message: "Failed to insert categories",
+      error: error.message,
+    });
+  }
 };
+
 
 const getContentType = (filenameOrType) => {
     const extensionMap = {
