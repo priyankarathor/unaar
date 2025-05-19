@@ -1,20 +1,33 @@
 const subCategory = require('../model/SubCategory');
+const axios = require("axios");
 
-// INSERT CATEGORY
 exports.subcategoryInsert = async (req, res) => {
     try {
-        const { masterId, mastertitle, categorytype, categoryvalue, action } = req.body;
+        const { masterId, mastertitle, categorytype, categoryvalue, action, image } = req.body;
 
-        // Check if image is uploaded
-        if (!req.file) {
-            return res.status(400).json({ 
-                status: false, 
-                message: "Image is required" 
+        let imageBuffer, imageType;
+
+        // Case 1: If image is uploaded via multipart/form-data
+        if (req.file) {
+            imageBuffer = req.file.buffer;
+            imageType = req.file.mimetype;
+        }
+        // Case 2: If image is provided via URL
+        else if (image && typeof image === 'string') {
+            const response = await axios.get(image, { responseType: 'arraybuffer' });
+            imageBuffer = Buffer.from(response.data, 'binary');
+            imageType = response.headers['content-type'];
+        }
+        else {
+            return res.status(400).json({
+                status: false,
+                message: "Image is required (either upload or image URL)"
             });
         }
 
         const newCategory = new subCategory({
-            image,  // Store MIME type
+            image: imageBuffer,
+            imageType: imageType,
             masterId,
             mastertitle,
             categorytype,
@@ -29,6 +42,7 @@ exports.subcategoryInsert = async (req, res) => {
             message: "Category inserted successfully",
             data: newCategory
         });
+
     } catch (error) {
         console.error('Error inserting category:', error);
         res.status(500).json({
@@ -38,6 +52,7 @@ exports.subcategoryInsert = async (req, res) => {
         });
     }
 };
+
 
 const getContentType = (filenameOrType) => {
     const extensionMap = {
