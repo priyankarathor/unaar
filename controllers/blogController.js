@@ -83,52 +83,76 @@ exports.blogadd = async (req, res) => {
     
     // EDIT
 exports.blogedit = async (req, res) => {
-    try {
-        const { title, subtitle, description,categorylable, categoryValue, categoryType, action, date,categorytitle,authername, metatitle, metadescription, metakeyword} = req.body;
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      subtitle,
+      description,
+      categorylable,
+      categoryValue,
+      categoryType,
+      action,
+      date,
+      categorytitle,
+      authername,
+      metatitle,
+      metadescription,
+      metakeyword,
+      status
+    } = req.body;
 
-        const blogdata = await blog.findById(id);
-
-        if (!blogdata) {
-            return res.status(404).json({
-                status: false,
-                message: "Blog Data not found"
-            });
-        }
-
-        if (req.file) {
-            blogdata.image = req.file.buffer;
-            blogdata.imageType = req.file.mimetype;
-        }
-
-        blogdata.title = title;
-        blogdata.subtitle = subtitle;
-        blogdata.description = description;
-        blogdata.categorylable = categorylable;
-        blogdata.categoryValue = categoryValue;
-        blogdata.categoryType = categoryType;
-        blogdata.action = action;
-        blogdata.date = date;
-        blogdata.categorytitle = categorytitle;
-        blogdata.authername = authername;
-        blogdata.metatitle = metatitle;
-        blogdata.metadescription = metadescription;
-        blogdata.metakeyword = metakeyword;
-
-        const updatedblogdata = await blogdata.save();
-
-        res.status(200).json({
-            status: true,
-            message: "Blog updated successfully",
-            data: updatedblogdata
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(400).json({
-            status: false,
-            message: "Something went wrong: " + error.message,
-        });
+    // Find the blog by ID
+    const blogdata = await blog.findById(id);
+    if (!blogdata) {
+      return res.status(404).json({
+        status: false,
+        message: "Blog not found",
+      });
     }
+
+    // Handle image update if file is uploaded
+    if (req.file) {
+      blogdata.image = req.file.buffer;
+      blogdata.imageType = req.file.mimetype;
+    }
+
+    // Update all relevant fields
+    blogdata.title = title ?? blogdata.title;
+    blogdata.subtitle = subtitle ?? blogdata.subtitle;
+    blogdata.description = description ?? blogdata.description;
+    blogdata.categorylable = categorylable ?? blogdata.categorylable;
+    blogdata.categoryValue = categoryValue ?? blogdata.categoryValue;
+    blogdata.categoryType = categoryType ?? blogdata.categoryType;
+    blogdata.action = action ?? blogdata.action;
+    blogdata.date = date ?? blogdata.date;
+    blogdata.categorytitle = categorytitle ?? blogdata.categorytitle;
+    blogdata.authername = authername ?? blogdata.authername;
+    blogdata.metatitle = metatitle ?? blogdata.metatitle;
+    blogdata.metadescription = metadescription ?? blogdata.metadescription;
+    blogdata.metakeyword = metakeyword ?? blogdata.metakeyword;
+
+    // Optional: Handle status update (toggle or explicit)
+    if (typeof status !== 'undefined') {
+      blogdata.status = status;
+    }
+
+    // Save and respond
+    const updatedBlog = await blogdata.save();
+
+    res.status(200).json({
+      status: true,
+      message: "Blog updated successfully",
+      data: updatedBlog,
+    });
+  } catch (error) {
+    console.error("Blog edit error:", error);
+    res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
 };
 
 
