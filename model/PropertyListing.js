@@ -35,6 +35,9 @@ const propertyListing = new mongoose.Schema({
   tagtitle: String,
 
   Currency:String,
+  
+  nearbyPlaces:String,
+  pincode:String,
 
   // Store property images as an array of Buffers (BLOBs)
   
