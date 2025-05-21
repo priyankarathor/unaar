@@ -1,6 +1,7 @@
 const PropertyListing = require('../model/PropertyListing');
 const multer = require('multer');
 
+
 const PropertyListingInsert = async (req, res) => {
   try {
     const {
@@ -68,8 +69,8 @@ const PropertyListingInsert = async (req, res) => {
       createdAt: new Date()
     });
 
-    // Handle property images
-     if (req.files?.propertyimage) {
+    // Handle property images (multiple)
+    if (req.files?.propertyimage) {
       newListing.propertyimageblobs = req.files.propertyimage.map(img => ({
         data: img.buffer,
         contentType: img.mimetype
@@ -78,14 +79,16 @@ const PropertyListingInsert = async (req, res) => {
       newListing.propertyimage = req.files.propertyimage.map(img => img.originalname).join(',');
     }
 
-    // Handle remote location image (single)
-    if (req.files?.remotelocationimage?.[0]) {
-      const remoteImage = req.files.remotelocationimage[0];
-      newListing.remotelocationimage = {
-        data: remoteImage.buffer,
-        contentType: remoteImage.mimetype
-      };
+    // Handle remote location images (multiple BLOBs, CSV filenames)
+    if (req.files?.remotelocationimage) {
+      newListing.remotelocationimageblobs = req.files.remotelocationimage.map(img => ({
+        data: img.buffer,
+        contentType: img.mimetype
+      }));
+
+      newListing.remotelocationimage = req.files.remotelocationimage.map(img => img.originalname).join(',');
     }
+
     const savedListing = await newListing.save();
     res.status(201).json({
       message: 'Property listing created successfully',
@@ -100,6 +103,7 @@ const PropertyListingInsert = async (req, res) => {
   }
 };
 
+module.exports = { PropertyListingInsert };
 
 
 

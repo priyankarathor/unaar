@@ -5,10 +5,9 @@ const imageSchema = new mongoose.Schema({
   contentType: String
 }, { _id: false });
 
-
 const propertyListing = new mongoose.Schema({
-     country: String,
-      state: String,
+  country: String,
+  state: String,
   city: String,
   title: String,
   subtitle: String,
@@ -33,25 +32,21 @@ const propertyListing = new mongoose.Schema({
   remotelocationtitle: String,
   remotelocationsubtitle: String,
   tagtitle: String,
+  Currency: String,
+  nearbyPlaces: String,
+  pincode: String,
 
-  Currency:String,
-  
-  nearbyPlaces:String,
-  pincode:String,
+  // Property images
+  propertyimageblobs: [imageSchema],  // array of image BLOBs
+  propertyimage: String,              // CSV filenames
 
-  // Store property images as an array of Buffers (BLOBs)
-  
-    // BLOB image array
-  propertyimageblobs: [imageSchema],  // stores image buffers
-  propertyimage: String,              // optional: stores image filenames as CSV
-
-  // Single BLOB image
-  remotelocationimage: imageSchema,
+  // Remote location images
+  remotelocationimageblobs: [imageSchema],  // changed from single to array
+  remotelocationimage: String,              // new: CSV filenames
 
   remotelocationimagetype: {
-    type: String // MIME type for the image, e.g., 'image/jpeg'
+    type: String // optional: MIME type for the image set
   },
-
 
   createdAt: {
     type: Date,
