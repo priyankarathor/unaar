@@ -3,44 +3,44 @@ const axios = require('axios');
 
 
 // INSERT CATEGORY
-// exports.subcategoryInsert = async (req, res) => {
-//     try {
-//         const { masterId, mastertitle, categorytype, categoryvalue, action } = req.body;
+exports.subcategoryInsert = async (req, res) => {
+    try {
+        const { masterId, mastertitle, categorytype, categoryvalue, action } = req.body;
 
-//         // Check if image is uploaded
-//         if (!req.file) {
-//             return res.status(400).json({ 
-//                 status: false, 
-//                 message: "Image is required" 
-//             });
-//         }
+        // Check if image is uploaded
+        if (!req.file) {
+            return res.status(400).json({ 
+                status: false, 
+                message: "Image is required" 
+            });
+        }
 
-//         const newCategory = new subCategory({
-//             image: req.file.buffer,        // Store image as buffer
-//             imageType: req.file.mimetype,  // Store MIME type
-//             masterId,
-//             mastertitle,
-//             categorytype,
-//             categoryvalue,
-//             action
-//         });
+        const newCategory = new subCategory({
+            image: req.file.buffer,        // Store image as buffer
+            imageType: req.file.mimetype,  // Store MIME type
+            masterId,
+            mastertitle,
+            categorytype,
+            categoryvalue,
+            action
+        });
 
-//         await newCategory.save();
+        await newCategory.save();
 
-//         res.status(201).json({
-//             status: true,
-//             message: "Category inserted successfully",
-//             data: newCategory
-//         });
-//     } catch (error) {
-//         console.error('Error inserting category:', error);
-//         res.status(500).json({
-//             status: false,
-//             message: "Failed to insert category",
-//             error: error.message
-//         });
-//     }
-// };
+        res.status(201).json({
+            status: true,
+            message: "Category inserted successfully",
+            data: newCategory
+        });
+    } catch (error) {
+        console.error('Error inserting category:', error);
+        res.status(500).json({
+            status: false,
+            message: "Failed to insert category",
+            error: error.message
+        });
+    }
+};
 
 
 async function downloadImageToBuffer(url) {
