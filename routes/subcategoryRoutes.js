@@ -18,6 +18,7 @@ router.post('/insertcategory', upload.single('image'), subcategoryInsert);
 router.post('/subcategoryBulkInsert', express.json(), subcategoryBulkInsert);
 
 router.get('/getcategory', subcategoryGet);  // Get all categories or image based on categoryvalue query
+
 router.put('/editcategory/:id', upload.single('image'), subcategoryEdit);
 router.delete('/deletecategory/:id', subcategoryDelete);
 

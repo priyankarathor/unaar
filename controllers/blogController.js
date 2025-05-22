@@ -85,66 +85,52 @@ exports.blogadd = async (req, res) => {
 exports.blogedit = async (req, res) => {
   try {
     const { id } = req.params;
-    const {
-      title,
-      subtitle,
-      description,
-      categorylable,
-      categoryValue,
-      categoryType,
-      action,
-      date,
-      categorytitle,
-      authername,
-      metatitle,
-      metadescription,
-      metakeyword,
-      status
-    } = req.body;
 
-    // Find the blog by ID
-    const blogdata = await blog.findById(id);
-    if (!blogdata) {
+    // DEBUG: Log incoming body and file
+    console.log("Incoming body:", req.body);
+    console.log("Incoming file:", req.file);
+
+    // Find blog
+    const blogData = await Blog.findById(id);
+    if (!blogData) {
       return res.status(404).json({
         status: false,
         message: "Blog not found",
       });
     }
 
-    // Handle image update if file is uploaded
+    // Update fields if they are provided
+    const fieldsToUpdate = [
+      "title", "subtitle", "description", "categorylable", "categoryValue",
+      "categoryType", "action", "date", "categorytitle", "authername",
+      "metatitle", "metadescription", "metakeyword", "status"
+    ];
+
+    fieldsToUpdate.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        blogData[field] = req.body[field];
+      }
+    });
+
+    // Handle image update
     if (req.file) {
-      blogdata.image = req.file.buffer;
-      blogdata.imageType = req.file.mimetype;
+      blogData.image = req.file.buffer;
+      blogData.imageType = req.file.mimetype;
     }
 
-    // Update all relevant fields
-    blogdata.title = title ?? blogdata.title;
-    blogdata.subtitle = subtitle ?? blogdata.subtitle;
-    blogdata.description = description ?? blogdata.description;
-    blogdata.categorylable = categorylable ?? blogdata.categorylable;
-    blogdata.categoryValue = categoryValue ?? blogdata.categoryValue;
-    blogdata.categoryType = categoryType ?? blogdata.categoryType;
-    blogdata.action = action ?? blogdata.action;
-    blogdata.date = date ?? blogdata.date;
-    blogdata.categorytitle = categorytitle ?? blogdata.categorytitle;
-    blogdata.authername = authername ?? blogdata.authername;
-    blogdata.metatitle = metatitle ?? blogdata.metatitle;
-    blogdata.metadescription = metadescription ?? blogdata.metadescription;
-    blogdata.metakeyword = metakeyword ?? blogdata.metakeyword;
+    // Save updated blog
+    const updatedBlog = await blogData.save();
 
-    // Optional: Handle status update (toggle or explicit)
-    if (typeof status !== 'undefined') {
-      blogdata.status = status;
-    }
-
-    // Save and respond
-    const updatedBlog = await blogdata.save();
-
+    // Return success response
     res.status(200).json({
       status: true,
       message: "Blog updated successfully",
-      data: updatedBlog,
+      data: {
+        ...updatedBlog.toObject(),
+        image: updatedBlog.image?.toString('base64') || null, // optional
+      },
     });
+
   } catch (error) {
     console.error("Blog edit error:", error);
     res.status(500).json({
