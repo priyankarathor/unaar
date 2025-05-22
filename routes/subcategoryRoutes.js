@@ -14,7 +14,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Routes
-router.post('/subcategoryInsert', upload.single('image'), subcategoryInsert);
+router.post('/insertcategory', upload.single('image'), subcategoryInsert);
 router.post('/subcategoryBulkInsert', express.json(), subcategoryBulkInsert);
 
 router.get('/getcategory', subcategoryGet);  // Get all categories or image based on categoryvalue query
