@@ -33,7 +33,8 @@ const PropertyListingInsert = async (req, res) => {
       Currency,
       tagtitle,
       nearbyPlaces,
-      pincode
+      pincode,
+      developer,
     } = req.body;
 
     const newListing = new PropertyListing({
@@ -66,6 +67,7 @@ const PropertyListingInsert = async (req, res) => {
       tagtitle,
       nearbyPlaces,
       pincode,
+      developer,
       createdAt: new Date()
     });
 
