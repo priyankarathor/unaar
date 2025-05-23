@@ -19,6 +19,7 @@ const subcategoryRoutes = require("./routes/subcategoryRoutes");
 const subtosubcategoryRoutes = require("./routes/subtosubcategoryRoutes");
 const propertyListingRoutes = require("./routes/propertyListingRoutes");
 const cityRoutes = require("./routes/cityRouter");
+const developerRoutes = require("./routes/developerRoutes");
 
 const cors = require("cors");
 
@@ -50,5 +51,6 @@ app.use("/api/subcategory",subcategoryRoutes);
 app.use("/api/subtosubcategory",subtosubcategoryRoutes);
 app.use("/api/property",propertyListingRoutes);
 app.use("/api/city",cityRoutes);
+app.use("/api/developer",developerRoutes);
 
 app.listen(process.env.PORT || 8001, () => console.log("Server started on port 8001"));
