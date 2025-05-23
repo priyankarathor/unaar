@@ -1,31 +1,14 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const Developer = new mongoose.Schema({
-    farmname:{
-        String
-    },
-    title:{
-        String
-    },
-    About:{
-        String
-    },
-    year:{
-        String
-    },
-    otherdetails:{
-        String
-    },
-    History:{
-        String
-    },
-    image:{
-        Buffer
-    },
-    imagetype:{
-        String
-    }
-})
+const DeveloperSchema = new mongoose.Schema({
+  farmname: { type: String, required: true },
+  title: { type: String, required: true },
+  About: { type: String },
+  year: { type: String },
+  otherdetails: { type: String },
+  History: { type: String },
+  image: { type: Buffer },
+  imagetype: { type: String },
+}, { timestamps: true });
 
-const Developers = mongoose.model('Developer',Developer);
-module.exports = Developers;
+module.exports = mongoose.model("Developer", DeveloperSchema);

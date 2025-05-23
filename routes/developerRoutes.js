@@ -3,15 +3,15 @@ const router = express.Router();
 const multer = require('multer');
 const upload = multer()
 const {
-    developeradd,
-    developerget,
-    developeredit,
-    developerdelete
+    developerAdd,
+    developerGet,
+    developerEdit,
+    developerDelete
 } = require("../controllers/developerController");
 
-router.post("/developerinsert", upload.single('image'), developeradd);
-router.get("/developerget", developerget);
-router.put("/developeredit/:id", upload.single('image'), developeredit);
-router.delete("/developerdelete/:id", developerdelete);
+router.post("/developerinsert", upload.single('image'), developerAdd);
+router.get("/developerget", developerGet);
+router.put("/developeredit/:id", upload.single('image'), developerEdit);
+router.delete("/developerdelete/:id", developerDelete);
 
 module.exports = router;  // <-- Move this to the end

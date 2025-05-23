@@ -1,137 +1,139 @@
 const Developer = require("../model/Developer");
 
-// ADD
-exports.developeradd = async (req, res) => {
-    try {
-        const { farmname, title, About, year, otherdetails, History,  } = req.body;
+// ADD Developer
+exports.developerAdd = async (req, res) => {
+  try {
+    const { farmname, title, About, year, otherdetails, History } = req.body;
 
-        const newDeveloper = new Developer({
-            image: req.file.buffer,
-            imageType: req.file.mimetype,
-            farmname,
-            title,
-            About,
-            year,
-            otherdetails,
-            History,
-        });
+    const newDeveloper = new Developer({
+      farmname,
+      title,
+      About,
+      year,
+      otherdetails,
+      History,
+      image: req.file?.buffer || null,
+      imagetype: req.file?.mimetype || null,
+    });
 
-        await newDeveloper.save();
+    await newDeveloper.save();
 
-        res.status(201).json({
-            status: true,
-            message: "newDeveloper saved successfully",
-            data: newDeveloper
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            status: false,
-            message: "Something went wrong: " + error.message,
-            data: null
-        });
-    }
+    res.status(201).json({
+      status: true,
+      message: "Developer added successfully",
+      data: newDeveloper,
+    });
+  } catch (error) {
+    console.error("Error adding developer:", error);
+    res.status(500).json({
+      status: false,
+      message: "Internal server error: " + error.message,
+    });
+  }
 };
-// GET
-    exports.developerget = async (req, res) => {
-        try {
-            const developer = await Developer.find().sort({ createdAt: -1 });
-            const developerWithImage = developer.map(developer => ({
-                _id: developer._id,
-                farmname: developer.farmname,
-                title: developer.title,
-                About: developer.About,
-                year: developer.year,
-                otherdetails: developer.otherdetails,
-                History: developer.History,
-                image: developer.image ? {
-                    data: developer.image, // Buffer
-                    contentType: developer.imageType || 'image/png'
-                } : null
-            }));
 
-            res.status(200).json({
-                status: true,
-                message: "developer fetched successfully",
-                data: developerWithImage
-            });
-        } catch (error) {
-            console.error('Fetch error:', error);
-            res.status(500).json({
-                status: false,
-                message: "Failed to fetch offers",
-                error: error.message
-            });
-        }
-    };
-    
-  // EDIT
-exports.developeredit = async (req, res) => {
-    try {
-       const { farmname, title, About, year, otherdetails, History  } = req.body;
-        const { id } = req.params;
+// GET All Developers
+exports.developerGet = async (req, res) => {
+  try {
+    const developers = await Developer.find().sort({ createdAt: -1 });
 
-        const developer = await Developer.findById(id);
+    const developerList = developers.map((dev) => ({
+      _id: dev._id,
+      farmname: dev.farmname,
+      title: dev.title,
+      About: dev.About,
+      year: dev.year,
+      otherdetails: dev.otherdetails,
+      History: dev.History,
+      image: dev.image
+        ? {
+            data: dev.image,
+            contentType: dev.imagetype || "image/png",
+          }
+        : null,
+    }));
 
-        if (!developer) {
-            return res.status(404).json({
-                status: false,
-                message: "Developer not found"
-            });
-        }
+    res.status(200).json({
+      status: true,
+      message: "Developers fetched successfully",
+      data: developerList,
+    });
+  } catch (error) {
+    console.error("Fetch error:", error);
+    res.status(500).json({
+      status: false,
+      message: "Failed to fetch developers: " + error.message,
+    });
+  }
+};
 
-        if (req.file) {
-            developer.image = req.file.buffer;
-            developer.imageType = req.file.mimetype;
-        }
+// EDIT Developer
+exports.developerEdit = async (req, res) => {
+  try {
+    const { farmname, title, About, year, otherdetails, History } = req.body;
+    const { id } = req.params;
 
-        developer.farmname = farmname;
-        developer.title = title;
-        developer.About = About;
-        developer.year = year;
-        developer.otherdetails = otherdetails;
-        developer.History = History;
+    const developer = await Developer.findById(id);
 
-        const updateddeveloper = await developer.save();
-
-        res.status(200).json({
-            status: true,
-            message: "Golden Visa updated successfully",
-            data: updateddeveloper
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(400).json({
-            status: false,
-            message: "Something went wrong: " + error.message,
-        });
+    if (!developer) {
+      return res.status(404).json({
+        status: false,
+        message: "Developer not found",
+      });
     }
-};  
 
-// DELETE
-exports.developerdelete = async (req, res) => {
-    try {
-        const { id } = req.params;
+    developer.farmname = farmname;
+    developer.title = title;
+    developer.About = About;
+    developer.year = year;
+    developer.otherdetails = otherdetails;
+    developer.History = History;
 
-        const developer = await Developer.findByIdAndDelete(id);
-
-        if (!developer) {
-            return res.status(404).json({
-                status: false,
-                message: " developer not found"
-            });
-        }
-
-        res.status(200).json({
-            status: true,
-            message: "developer deleted successfully",
-            data: developer
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            status: false,
-            message: "Something went wrong: " + error.message,
-        });
+    if (req.file) {
+      developer.image = req.file.buffer;
+      developer.imagetype = req.file.mimetype;
     }
+
+    const updatedDeveloper = await developer.save();
+
+    res.status(200).json({
+      status: true,
+      message: "Developer updated successfully",
+      data: updatedDeveloper,
+    });
+  } catch (error) {
+    console.error("Error updating developer:", error);
+    res.status(400).json({
+      status: false,
+      message: "Error updating developer: " + error.message,
+    });
+  }
+};
+
+// DELETE Developer
+exports.developerDelete = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const developer = await Developer.findByIdAndDelete(id);
+
+    if (!developer) {
+      return res.status(404).json({
+        status: false,
+        message: "Developer not found",
+      });
+    }
+
+    res.status(200).json({
+      status: true,
+      message: "Developer deleted successfully",
+      data: developer,
+    });
+  } catch (error) {
+    console.error("Error deleting developer:", error);
+    res.status(500).json({
+      status: false,
+      message: "Error deleting developer: " + error.message,
+    });
+  }
 };
