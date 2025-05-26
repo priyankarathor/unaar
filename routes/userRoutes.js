@@ -4,9 +4,11 @@ const {
   registerUser,
   registerUserdata,
   registerUseredit,
-  registerUserdelete
+  registerUserdelete,
+  loginUser
 } = require("../controllers/userController");
 
+router.post("/login", loginUser);
 router.post("/register", registerUser);
 router.get("/logindata", registerUserdata);
 router.put("/editlogindata/:id", registerUseredit);

@@ -1,5 +1,47 @@
 const User = require("../model/user");
 
+//check user 
+// POST - Login User
+exports.loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1. Find user by email
+    const user = await User.findOne({ email });
+
+    // 2. If user doesn't exist
+    if (!user) {
+      return res.status(404).json({
+        status: false,
+        message: "User not found",
+      });
+    }
+
+    // 3. If password doesn't match (you should hash passwords in production)
+    if (user.password !== password) {
+      return res.status(401).json({
+        status: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    // 4. User exists and password matches
+    res.status(200).json({
+      status: true,
+      message: "Login successful",
+      data: user,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Something went wrong: " + error.message,
+    });
+  }
+};
+
+
+
 // POST - Register User
 exports.registerUser = async (req, res) => {
   try {
