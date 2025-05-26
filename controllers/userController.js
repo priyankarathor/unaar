@@ -45,8 +45,8 @@ exports.loginUser = async (req, res) => {
 // POST - Register User
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
-    const user = new User({ name, email, password, role });
+    const { name, email, password, role , accessrole} = req.body;
+    const user = new User({ name, email, password, role , accessrole});
     await user.save();
     res.status(201).json({
       status: true,
@@ -83,11 +83,11 @@ exports.registerUserdata = async (req, res) => {
 // PUT - Edit User
 exports.registerUseredit = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role ,accessrole } = req.body;
     const { id } = req.params;
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { name, email, password, role },
+      { name, email, password, role , accessrole},
       { new: true }
     );
     if (!updatedUser) {
