@@ -1,5 +1,8 @@
 const User = require("../model/user");
 
+const Jwt = require('jsonwebtoken');
+const jwtKey = 'unnar-admin'; // secret key for JWT
+
 //check user 
 // POST - Login User
 exports.loginUser = async (req, res) => {
@@ -25,11 +28,21 @@ exports.loginUser = async (req, res) => {
       });
     }
 
+    const token = Jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+       
+      },
+      jwtKey,
+      { expiresIn: '3h' }
+    );
     // 4. User exists and password matches
     res.status(200).json({
       status: true,
       message: "Login successful",
       data: user,
+      token
     });
 
   } catch (error) {
@@ -42,17 +55,38 @@ exports.loginUser = async (req, res) => {
 
 
 
+//Post API
+
+
 // POST - Register User
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, role , accessrole} = req.body;
-    const user = new User({ name, email, password, role , accessrole});
+    const { name, email, password, role, accessrole } = req.body;
+
+    // Create new user document
+    const user = new User({ name, email, password, role, accessrole });
     await user.save();
+
+    // Gene rate JWT token (valid for 3 hours)
+    const token = Jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+        accessrole: user.accessrole
+      },
+      jwtKey,
+      { expiresIn: '3h' }
+    );
+
+    // Send JSON response including user data and token
     res.status(201).json({
       status: true,
       message: "User created successfully",
       data: user,
+      token: token,  // <-- send token here
     });
+
   } catch (error) {
     res.status(400).json({
       status: false,
@@ -61,6 +95,7 @@ exports.registerUser = async (req, res) => {
     });
   }
 };
+
 
 // GET - All Users
 exports.registerUserdata = async (req, res) => {

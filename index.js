@@ -23,6 +23,8 @@ const developerRoutes = require("./routes/developerRoutes");
 
 const cors = require("cors");
 
+
+
 const app = express();
 app.use(express.json());
 app.use(cors());
