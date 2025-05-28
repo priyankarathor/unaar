@@ -32,7 +32,8 @@ exports.loginUser = async (req, res) => {
       {
         userId: user._id,
         email: user.email,
-       
+        role: user.role,
+        accessrole: user.accessrole
       },
       jwtKey,
       { expiresIn: '3h' }
