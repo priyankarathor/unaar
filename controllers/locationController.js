@@ -1,8 +1,16 @@
-const Location = require('../model/location'); // Model for location data
+const Location = require('../model/location');
 
 // Insert a new location
 exports.locationInsert = async (req, res) => {
   try {
+    // Check if body is provided
+    if (!req.body) {
+      return res.status(400).json({
+        status: false,
+        message: "Request body is missing",
+      });
+    }
+
     const { Country, State, City, PropertyId } = req.body;
 
     // Validate required fields
@@ -14,13 +22,7 @@ exports.locationInsert = async (req, res) => {
     }
 
     // Create and save new location document
-    const newLocation = new Location({
-      Country,
-      State,
-      City,
-      PropertyId,
-    });
-
+    const newLocation = new Location({ Country, State, City, PropertyId });
     await newLocation.save();
 
     res.status(201).json({

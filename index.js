@@ -24,8 +24,6 @@ const locationRoutes = require("./routes/locationRoutes");
 
 const cors = require("cors");
 
-
-
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -55,6 +53,7 @@ app.use("/api/subtosubcategory",subtosubcategoryRoutes);
 app.use("/api/property",propertyListingRoutes);
 app.use("/api/city",cityRoutes);
 app.use("/api/developer",developerRoutes);
-app.use("/api/location",locationRoutes)
+app.use('/api/location', locationRoutes);
+
 
 app.listen(process.env.PORT || 8001, () => console.log("Server started on port 8001"));
