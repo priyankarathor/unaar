@@ -1,69 +1,69 @@
-const Location = require('../model/location'); // Use PascalCase for model (convention)
+const Location = require('../model/location'); // Model for location data
 
 // Insert a new location
 exports.locationInsert = async (req, res) => {
-    try {
-        const { Country, State, City, PropertyId } = req.body;
+  try {
+    const { Country, State, City, PropertyId } = req.body;
 
-        // If you want to handle image upload, you should also save the image info in the DB (currently missing)
-        if (!req.file) {
-            return res.status(400).json({ status: false, message: "Image is required" });
-        }
-
-        // Create new location instance
-        const newLocation = new Location({
-            Country,
-            State,
-            City,
-            PropertyId,
-            // Optionally store image info if needed, e.g.:
-            // image: req.file.filename or req.file.path
-        });
-
-        await newLocation.save();
-
-        res.status(201).json({
-            status: true,
-            message: "Location inserted successfully",
-            data: newLocation
-        });
-    } catch (error) {
-        console.error('Error inserting location:', error);
-        res.status(500).json({
-            status: false,
-            message: "Failed to insert location",
-            error: error.message
-        });
+    // Validate required fields
+    if (!Country || !State || !City || !PropertyId) {
+      return res.status(400).json({
+        status: false,
+        message: "All fields (Country, State, City, PropertyId) are required",
+      });
     }
+
+    // Create and save new location document
+    const newLocation = new Location({
+      Country,
+      State,
+      City,
+      PropertyId,
+    });
+
+    await newLocation.save();
+
+    res.status(201).json({
+      status: true,
+      message: "Location inserted successfully",
+      data: newLocation,
+    });
+  } catch (error) {
+    console.error('Error inserting location:', error);
+    res.status(500).json({
+      status: false,
+      message: "Failed to insert location",
+      error: error.message,
+    });
+  }
 };
 
 // Get all locations
 exports.locationsGet = async (req, res) => {
-    try {
-        // Use Location (not locations) - the model variable
-        const locations = await Location.find().sort({ createdAt: -1 });
+  try {
+    const locations = await Location.find().sort({ createdAt: -1 });
 
-        // Fix syntax error in map: no `: null` and properly returning an object
-        const locationsWithImage = locations.map(location => ({
-            _id: location._id,
-            Country: location.Country,
-            State: location.State,
-            City: location.City,
-            PropertyId: location.PropertyId,
-            // Include image if stored, e.g. image: location.image
-        }));
+    const formattedLocations = locations.map(location => ({
+      _id: location._id,
+      Country: location.Country,
+      State: location.State,
+      City: location.City,
+      PropertyId: location.PropertyId,
+      createdAt: location.createdAt,
+      updatedAt: location.updatedAt,
+    }));
 
-        res.status(200).json({
-            status: true,
-            message: "Locations fetched successfully",
-            data: locationsWithImage
-        });
-    } catch (error) {
-        console.error('Fetch error:', error);
-        res.status(500).json({
-            status: false,
-            message: "Failed to fetch locations",
-            error: error.message
-        });
-    }
+    res.status(200).json({
+      status: true,
+      message: "Locations fetched successfully",
+      data: formattedLocations,
+    });
+  } catch (error) {
+    console.error('Fetch error:', error);
+    res.status(500).json({
+      status: false,
+      message: "Failed to fetch locations",
+      error: error.message,
+    });
+  }
 };
