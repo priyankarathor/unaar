@@ -5,36 +5,50 @@ const propertylistingController = require('../controllers/PropertyListingControl
 
 const storage = multer.memoryStorage();
 
-// Define multer upload middleware
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    if (['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, PNG, or WEBP images are allowed.'));
+    }
+  }
+});
 
-// POST request for property insertion (create)
+// CSV Import
+// router.post('/import-csv', upload.single('file'), propertylistingController.importCSV);
+
+
+
+// Insert Property
 router.post(
   '/propertyinsert',
- upload.fields([
-  { name: 'propertyimage', maxCount: 10 },
-  { name: 'remotelocationimage', maxCount: 10 }
-]),
+  upload.fields([
+    { name: 'propertyimage', maxCount: 10 },
+    { name: 'remotelocationimage', maxCount: 10 }
+  ]),
   propertylistingController.PropertyListingInsert
 );
 
-
-// GET request for all property listings
+// Get All Properties
 router.get('/properties', propertylistingController.getAllPropertyListings);
 
-// GET request for a single property listing by ID
+router.get('/propertiesdata', propertylistingController.getAllPropertyList);
 
-// PUT request for updating a property listing by ID
+// Get Property by ID
+// Update Property
 router.put(
   '/propertyedit/:id',
   upload.fields([
     { name: 'propertyimage', maxCount: 5 },
     { name: 'remotelocationimage', maxCount: 1 }
   ]),
-  propertylistingController.updatePropertyListing // Make sure this is a function
+  propertylistingController.updatePropertyListing
 );
 
-// DELETE request for deleting a property listing by ID
+// Delete Property
 router.delete('/propertydelete/:id', propertylistingController.deletePropertyListing);
 
 module.exports = router;
