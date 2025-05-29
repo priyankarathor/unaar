@@ -8,5 +8,4 @@ const locationController = require('../controllers/locationController');
 router.post('/locationinsert', upload.none(), locationController.locationInsert); // <-- Important
 router.get('/locationall', locationController.locationsGet);
 
-router.get('/propertyfilter', locationController.propertyfilter);
 module.exports = router;

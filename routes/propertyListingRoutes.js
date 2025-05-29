@@ -37,6 +37,8 @@ router.get('/properties', propertylistingController.getAllPropertyListings);
 
 router.get('/propertiesdata', propertylistingController.getAllPropertyList);
 
+router.get('/propertyfilter', propertylistingController.propertyfilter);
+
 // Get Property by ID
 // Update Property
 router.put(
