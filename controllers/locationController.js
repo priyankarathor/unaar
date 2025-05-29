@@ -1,4 +1,34 @@
 const Location = require('../model/location');
+const PropertyListing = require('../model/PropertyListing');
+
+
+exports.propertyfilter = async (req, res) => {
+    try {
+        const { country, state, city } = req.query;
+
+        // Build a dynamic query object
+        const query = {};
+        if (country) query.country = country;
+        if (state) query.state = state;
+        if (city) query.city = city;
+
+        const filteredProperties = await PropertyListing.find(query).sort({ createdAt: -1 });
+
+        res.status(200).json({
+            status: true,
+            message: "Properties fetched successfully",
+            data: filteredProperties,
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            message: "Error fetching properties",
+            error: error.message,
+        });
+    }
+};
+
+
 
 // Insert a new location
 exports.locationInsert = async (req, res) => {
