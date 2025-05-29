@@ -3,8 +3,8 @@ const Location = require('../model/location');
 // Insert a new location
 exports.locationInsert = async (req, res) => {
 try {
-        const { Country, State, City, PropertyId } = req.body;
-        const LocationSectionData = new Location({ Country, State, City, PropertyId});
+        const { Country, State, City, PropertyId, locationlable } = req.body;
+        const LocationSectionData = new Location({ Country, State, City, PropertyId, locationlable});
         await LocationSectionData.save();
         res.status(201).json({
             status: true,
@@ -31,6 +31,7 @@ exports.locationsGet = async (req, res) => {
       State: location.State,
       City: location.City,
       PropertyId: location.PropertyId,
+      locationlable: location.locationlable,
       createdAt: location.createdAt,
       updatedAt: location.updatedAt,
     }));
