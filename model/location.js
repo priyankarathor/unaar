@@ -4,7 +4,7 @@ const locationSchema = new mongoose.Schema({
   Country: { type: String, required: true },
   State: { type: String, required: true },
   City: { type: String, required: true },
-  PropertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property', required: true },
+  PropertyId: { type: String },
 }, {
   timestamps: true
 });
