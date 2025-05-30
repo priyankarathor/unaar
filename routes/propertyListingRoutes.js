@@ -19,7 +19,7 @@ const upload = multer({
 
 // CSV Import
 // router.post('/import-csv', upload.single('file'), propertylistingController.importCSV);
-router.post('/propertyinsertCSV', upload.none(), propertylistingController.insertProperty);
+
 
 
 // Insert Property

@@ -6,34 +6,105 @@ const axios = require('axios');
 
 const upload = multer({ dest: 'uploads/' });
 
+// Utility to fetch image as BLOB
+// async function fetchImageBlob(url) {
+//   try {
+//     const response = await axios.get(url, { responseType: 'arraybuffer' });
+//     return {
+//       data: Buffer.from(response.data),
+//       contentType: response.headers['content-type']
+//     };
+//   } catch (err) {
+//     console.error(`Failed to fetch image from ${url}:`, err.message);
+//     return null;
+//   }
+// }
+
+// ========== IMPORT CSV ==========
+
+// const importCSV = [
+//   upload.single('csvfile'),
+//   async (req, res) => {
+//     try {
+//       const filePath = req.file.path;
+//       const results = [];
+
+//       await new Promise((resolve, reject) => {
+//         fs.createReadStream(filePath)
+//           .pipe(csv())
+//           .on('data', (data) => results.push(data))
+//           .on('end', resolve)
+//           .on('error', reject);
+//       });
+
+//       const properties = await Promise.all(results.map(async (row) => {
+//         let propertyimageblobs = [];
+//         if (row.propertyimage) {
+//           const urls = row.propertyimage.split(',').map(u => u.trim());
+//           const blobs = await Promise.all(urls.map(fetchImageBlob));
+//           propertyimageblobs = blobs.filter(Boolean);
+//         }
+
+//         let remotelocationimageblobs = [];
+//         if (row.remotelocationimage) {
+//           const urls = row.remotelocationimage.split(',').map(u => u.trim());
+//           const blobs = await Promise.all(urls.map(fetchImageBlob));
+//           remotelocationimageblobs = blobs.filter(Boolean);
+//         }
+
+//         return {
+//           country: row.country || '',
+//           state: row.state || '',
+//           city: row.city || '',
+//           title: row.title || '',
+//           subtitle: row.subtitle || '',
+//           developer: row.developer || '',
+//           fromamout: parseFloat(row.fromamout) || 0,
+//           propertylabel: row.propertylabel || '',
+//           propertyvalue: row.propertyvalue || '',
+//           descriptiontitle: row.descriptiontitle || '',
+//           descriptionlabel: row.descriptionlabel || '',
+//           descriptionvalue: row.descriptionvalue || '',
+//           description: row.description || '',
+//           facilitieid: row.facilitieid || '',
+//           facilitiedescription: row.facilitiedescription || '',
+//           featureId: row.featureId || '',
+//           latitude: row.latitude || '',
+//           longitude: row.longitude || '',
+//           locationlable: row.locationlable || '',
+//           locationvalue: row.locationvalue || '',
+//           locationvaluetitle: row.locationvaluetitle || '',
+//           apartmenttitle: row.apartmenttitle || '',
+//           apartmentlable: row.apartmentlable || '',
+//           apartmendescription: row.apartmendescription || '',
+//           remotelocationtitle: row.remotelocationtitle || '',
+//           remotelocationsubtitle: row.remotelocationsubtitle || '',
+//           tagtitle: row.tagtitle || '',
+//           Currency: row.Currency || '',
+//           nearbyPlaces: row.nearbyPlaces || '',
+//           pincode: row.pincode || '',
+//           propertyimage: row.propertyimage || '',
+//           remotelocationimage: row.remotelocationimage || '',
+//           remotelocationimagetype: row.remotelocationimagetype || '',
+//           propertyimageblobs,
+//           remotelocationimageblobs,
+//           createdAt: new Date()
+//         };
+//       }));
+
+//       await PropertyListing.insertMany(properties);
+//       fs.unlinkSync(filePath);
+
+//       res.json({ success: true, message: 'CSV import successful', count: properties.length });
+
+//     } catch (error) {
+//       console.error('CSV Import Error:', error);
+//       res.status(500).json({ success: false, error: error.message });
+//     }
+//   }
+// ];
 
 
-const insertProperty = async (req, res) => {
-  try {
-    const body = { ...req.body };
-
-    // Parse nearbyPlaces if it's a JSON string
-    if (body.nearbyPlaces) {
-      try {
-        body.nearbyPlaces = JSON.parse(body.nearbyPlaces);
-      } catch (e) {
-        body.nearbyPlaces = [];
-      }
-    }
-
-    if (body.price) {
-      body.price = Number(body.price);
-    }
-
-    const property = new Property(body);
-    const savedProperty = await property.save();
-
-    return res.status(201).json({ message: 'Property inserted successfully', data: savedProperty });
-  } catch (err) {
-    console.error('Property insert error:', err);
-    return res.status(500).json({ message: 'Failed to insert property', error: err.message });
-  }
-};
 
 
 
@@ -198,7 +269,6 @@ module.exports = {
   updatePropertyListing,
   deletePropertyListing,
   getAllPropertyList,
-  propertyfilter,
-  insertProperty
+  propertyfilter
 };
 
