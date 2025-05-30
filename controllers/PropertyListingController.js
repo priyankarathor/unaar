@@ -164,15 +164,19 @@ const updatePropertyListing = async (req, res) => {
 const deletePropertyListing = async (req, res) => {
   try {
     const deleted = await PropertyListing.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: 'Property not found' });
+    if (!deleted) {
+      console.log('Property not found with ID:', req.params.id);
+      return res.status(404).json({ status: false, message: 'Property not found' });
+    }
 
-    res.status(200).json({ message: 'Property deleted successfully' });
+    res.status(200).json({ status: true, message: 'Property deleted successfully' });
 
   } catch (error) {
     console.error('Error deleting property:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res.status(500).json({ status: false, message: 'Internal server error', error: error.message });
   }
 };
+
 
 // ========== EXPORT ==========
 module.exports = {
