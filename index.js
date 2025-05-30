@@ -21,6 +21,7 @@ const propertyListingRoutes = require("./routes/propertyListingRoutes");
 const cityRoutes = require("./routes/cityRouter");
 const developerRoutes = require("./routes/developerRoutes");
 const locationRoutes = require("./routes/locationRoutes");
+const CSVRoutes = require("./routes/CSVRoutes");
 
 const cors = require("cors");
 
@@ -54,6 +55,7 @@ app.use("/api/property",propertyListingRoutes);
 app.use("/api/city",cityRoutes);
 app.use("/api/developer",developerRoutes);
 app.use('/api/location', locationRoutes);
+app.use('/api/CSVRoutes', CSVRoutes);
 
 
 app.listen(process.env.PORT || 8001, () => console.log("Server started on port 8001"));

@@ -9,8 +9,6 @@ const upload = multer({ storage: storage });
 // CSV Import
 // router.post('/import-csv', upload.single('file'), propertylistingController.importCSV);
 
-
-
 // Insert Property
 router.post(
   '/propertyinsert',
