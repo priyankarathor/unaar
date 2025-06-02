@@ -2,16 +2,17 @@ const PropertyListing = require('../model/PropertyListing');
 
 const axios = require('axios');
 
-
 const propertyfilter = async (req, res) => {
     try {
-        const { country, state, city } = req.query;
+        const { country, state, city, locationlable, subtitle } = req.query;
 
-        // Build a dynamic query object
+        // Build dynamic query
         const query = {};
         if (country) query.country = country;
         if (state) query.state = state;
         if (city) query.city = city;
+        if (locationlable) query.locationlable = locationlable;
+        if (subtitle) query.subtitle = subtitle;
 
         const filteredProperties = await PropertyListing.find(query).sort({ createdAt: -1 });
 
@@ -28,6 +29,7 @@ const propertyfilter = async (req, res) => {
         });
     }
 };
+
 
 
 // ========== INSERT PROPERTY ==========

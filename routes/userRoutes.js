@@ -8,6 +8,7 @@ const {
   loginUser
 } = require("../controllers/userController");
 
+//API for check user
 router.post("/login", loginUser);
 
 
