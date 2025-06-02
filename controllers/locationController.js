@@ -31,7 +31,7 @@ exports.locationsGet = async (req, res) => {
       State: location.State,
       City: location.City,
       PropertyId: location.PropertyId,
-      locationlable: location.vs,
+      locationlable: location.locationlable,
       createdAt: location.createdAt,
       updatedAt: location.updatedAt,
     }));
