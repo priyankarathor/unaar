@@ -1,61 +1,68 @@
 require("dotenv").config();
 const express = require('express');
-const path = require('path'); // <<== ADD THIS
+const path = require('path');
+const cors = require("cors");
 const connectDB = require('./Server/Connection');
+
+// Route Imports
 const userRoutes = require("./routes/userRoutes");
-const EnquireyRoutes = require("./routes/enquireyRoutes");
-const agencies = require("./routes/agencieRoutes");
-const goldenvisa = require("./routes/goldenvisaRoutes");
+const enquiryRoutes = require("./routes/enquireyRoutes");
+const agencyRoutes = require("./routes/agencieRoutes");
+const goldenVisaRoutes = require("./routes/goldenvisaRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
-const herosectionRoutes = require("./routes/herosectionRoutes");
-const offersectionRoutes = require("./routes/offerRouter");
-const advertiseRoutes = require("./routes/advertiseRoutes");
-const testiminialRoutes = require("./routes/testiminialRoutes");
+const heroSectionRoutes = require("./routes/herosectionRoutes");
+const offerRoutes = require("./routes/offerRouter");
+const advertisementRoutes = require("./routes/advertiseRoutes");
+const testimonialRoutes = require("./routes/testiminialRoutes");
 const investmentRoutes = require("./routes/investmentRoutes");
 const blogRoutes = require("./routes/blogRoutes");
-
 const subcategoryRoutes = require("./routes/subcategoryRoutes");
-
-const subtosubcategoryRoutes = require("./routes/subtosubcategoryRoutes");
+const subToSubcategoryRoutes = require("./routes/subtosubcategoryRoutes");
 const propertyListingRoutes = require("./routes/propertyListingRoutes");
 const cityRoutes = require("./routes/cityRouter");
 const developerRoutes = require("./routes/developerRoutes");
 const locationRoutes = require("./routes/locationRoutes");
-const CSVRoutes = require("./routes/CSVRoutes");
-
-const cors = require("cors");
+const csvRoutes = require("./routes/CSVRoutes");
+const profileRoutes = require("./routes/ProfileRoutes");
+const homeRoutes = require("./routes/homeRoutes");
 
 const app = express();
+
+// Middleware
 app.use(express.json());
 app.use(cors());
+app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 
+// Connect to Database
 connectDB();
 
-app.use('/uploads', express.static(path.join(__dirname, './uploads'))); 
-
-
+// Root Route
 app.get("/", (req, res) => {
   res.send("API is working");
 });
 
+// API Routes
 app.use("/api/users", userRoutes);
-app.use("/api/enquirey", EnquireyRoutes);
-app.use("/api/agencies", agencies);
-app.use("/api/goldenvisa", goldenvisa);
+app.use("/api/enquiry", enquiryRoutes);
+app.use("/api/agencies", agencyRoutes);
+app.use("/api/goldenvisa", goldenVisaRoutes);
 app.use("/api/category", categoryRoutes);
-app.use("/api/herosection" , herosectionRoutes);
-app.use("/api/offer",offersectionRoutes);
-app.use("/api/adverisement",advertiseRoutes);
-app.use("/api/testimonial",testiminialRoutes);
-app.use("/api/investment",investmentRoutes);
-app.use("/api/blog",blogRoutes);
-app.use("/api/subcategory",subcategoryRoutes);
-app.use("/api/subtosubcategory",subtosubcategoryRoutes);
-app.use("/api/property",propertyListingRoutes);
-app.use("/api/city",cityRoutes);
-app.use("/api/developer",developerRoutes);
-app.use('/api/location', locationRoutes);
-app.use('/api/CSVRoutes', CSVRoutes);
+app.use("/api/herosection", heroSectionRoutes);
+app.use("/api/offer", offerRoutes);
+app.use("/api/advertisement", advertisementRoutes);
+app.use("/api/testimonial", testimonialRoutes);
+app.use("/api/investment", investmentRoutes);
+app.use("/api/blog", blogRoutes);
+app.use("/api/subcategory", subcategoryRoutes);
+app.use("/api/subtosubcategory", subToSubcategoryRoutes);
+app.use("/api/property", propertyListingRoutes);
+app.use("/api/city", cityRoutes);
+app.use("/api/developer", developerRoutes);
+app.use("/api/location", locationRoutes);
+app.use("/api/csv", csvRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/home", homeRoutes);
 
-
-app.listen(process.env.PORT || 8001, () => console.log("Server started on port 8001"));
+// Server Listener
+const PORT = process.env.PORT || 8001;
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
