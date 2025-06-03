@@ -7,7 +7,6 @@ const homeLayoutSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'inactive'], // optional validation
     default: 'active',
   }
 });
