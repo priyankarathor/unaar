@@ -30,6 +30,12 @@ const profilesection = new mongoose.Schema({
     },
     password:{
         type : String
+    },
+    propertyId:{
+        type: String
+    },
+    userrole:{
+        type: String
     }
 })
 

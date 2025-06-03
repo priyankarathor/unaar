@@ -3,8 +3,8 @@ const profilelayout = require("../model/Profile");
 // POST - Add Home Section
 exports.profilelayoutadd = async (req, res) => {
     try {
-        const { firstname, lastname, email, location, city, state, country, contactdetails, phone, password} = req.body;
-        const profilelayoutData = new profilelayout({ firstname, lastname, email, location, city, state, country, contactdetails, phone, password });
+        const { firstname, lastname, email, location, city, state, country, contactdetails, phone, password, propertyId, userrole} = req.body;
+        const profilelayoutData = new profilelayout({ firstname, lastname, email, location, city, state, country, contactdetails, phone, password,  propertyId, userrole });
         await profilelayoutData.save();
         res.status(201).json({
             status: true,
@@ -41,11 +41,11 @@ exports.profilelayoutget = async (req, res) => {
 // PUT - Edit Home Section by ID
 exports.profilelayoutedit = async (req, res) => {
     try {
-        const {firstname, lastname, email, location, city, state, country, contactdetails, phone, password } = req.body;
+        const {firstname, lastname, email, location, city, state, country, contactdetails, phone, password, propertyId, userrole } = req.body;
         const { id } = req.params;
         const updatedprofilelayout = await profilelayout.findByIdAndUpdate(
             id,
-            { firstname, lastname, email, location, city, state, country, contactdetails, phone, password },
+            { firstname, lastname, email, location, city, state, country, contactdetails, phone, password, propertyId, userrole },
             { new: true }
         );
 
