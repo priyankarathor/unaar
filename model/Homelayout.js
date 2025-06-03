@@ -7,7 +7,6 @@ const homeLayoutSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    default: 'active',
   }
 });
 
