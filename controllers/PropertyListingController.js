@@ -4,15 +4,43 @@ const axios = require('axios');
 
 const propertyfilter = async (req, res) => {
     try {
-        const { country, state, city, locationlable, subtitle } = req.query;
+        const {
+            country, state, city, title, subtitle,
+            fromamout, propertylabel, propertyvalue,
+            latitude, longitude, locationlable,
+            locationvalue, locationvaluetitle,
+            apartmenttitle, apartmentlable, apartmendescription,
+            remotelocationtitle, remotelocationsubtitle,
+            Currency, tagtitle, nearbyPlaces,
+            pincode, developer
+        } = req.query;
 
-        // Build dynamic query
+        // Build dynamic MongoDB query
         const query = {};
+
         if (country) query.country = country;
         if (state) query.state = state;
         if (city) query.city = city;
-        if (locationlable) query.locationlable = locationlable;
-        if (subtitle) query.subtitle = subtitle;
+        if (title) query.title = { $regex: title, $options: 'i' };
+        if (subtitle) query.subtitle = { $regex: subtitle, $options: 'i' };
+        if (fromamout) query.fromamout = fromamout;
+        if (propertylabel) query.propertylabel = propertylabel;
+        if (propertyvalue) query.propertyvalue = propertyvalue;
+        if (latitude) query.latitude = latitude;
+        if (longitude) query.longitude = longitude;
+        if (locationlable) query.locationlable = { $regex: locationlable, $options: 'i' };
+        if (locationvalue) query.locationvalue = locationvalue;
+        if (locationvaluetitle) query.locationvaluetitle = locationvaluetitle;
+        if (apartmenttitle) query.apartmenttitle = apartmenttitle;
+        if (apartmentlable) query.apartmentlable = apartmentlable;
+        if (apartmendescription) query.apartmendescription = { $regex: apartmendescription, $options: 'i' };
+        if (remotelocationtitle) query.remotelocationtitle = remotelocationtitle;
+        if (remotelocationsubtitle) query.remotelocationsubtitle = remotelocationsubtitle;
+        if (Currency) query.Currency = Currency;
+        if (tagtitle) query.tagtitle = tagtitle;
+        if (nearbyPlaces) query.nearbyPlaces = { $regex: nearbyPlaces, $options: 'i' };
+        if (pincode) query.pincode = pincode;
+        if (developer) query.developer = developer;
 
         const filteredProperties = await PropertyListing.find(query).sort({ createdAt: -1 });
 
@@ -29,6 +57,7 @@ const propertyfilter = async (req, res) => {
         });
     }
 };
+
 
 
 
