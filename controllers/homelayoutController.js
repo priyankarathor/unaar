@@ -40,36 +40,41 @@ exports.homelayoutget = async (req, res) => {
 
 // PUT - Edit Home Section by ID
 exports.homelayoutedit = async (req, res) => {
-    try {
-        const {title, status } = req.body;
-        const { id } = req.params;
-        const updatedhomelayout = await homelayout.findByIdAndUpdate(
-            id,
-            { title, status },
-            { new: true }
-        );
+  try {
+    let { title, status } = req.body;
+    const { id } = req.params;
 
-        if (!updatedhomelayout) {
-            return res.status(404).json({
-                status: false,
-                message: "Home section not found",
-                data: null,
-            });
-        }
+    // Force status to Boolean (important fix)
+    status = status === true || status === "true";
 
-        res.status(200).json({
-            status: true,
-            message: "Home section updated successfully",
-            data: updatedhomelayout,
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: false,
-            message: "Something went wrong: " + error.message,
-            data: null,
-        });
+    const updatedhomelayout = await homelayout.findByIdAndUpdate(
+      id,
+      { title, status },
+      { new: true }
+    );
+
+    if (!updatedhomelayout) {
+      return res.status(404).json({
+        status: false,
+        message: "Home section not found",
+        data: null,
+      });
     }
+
+    res.status(200).json({
+      status: true,
+      message: "Home section updated successfully",
+      data: updatedhomelayout,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Something went wrong: " + error.message,
+      data: null,
+    });
+  }
 };
+
 
 // DELETE - Delete Home Section by ID
 exports.homelayoutdelete = async (req, res) => {
