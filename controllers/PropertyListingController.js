@@ -112,7 +112,7 @@ const PropertyListingInsert = async (req, res) => {
 const getAllPropertyListings = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;      // Current page (default 1)
-    const limit = 10;                                // Always 10 per page
+    const limit = 3;                                // Always 10 per page
     const skip = (page - 1) * limit;
 
     const total = await PropertyListing.countDocuments(); // Total records
