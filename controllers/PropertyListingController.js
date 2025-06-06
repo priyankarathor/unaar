@@ -111,33 +111,40 @@ const PropertyListingInsert = async (req, res) => {
 // ========== GET ALL ==========
 const getAllPropertyListings = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // current page, default 1
-    const limit = 100; // items per page
+    const page = parseInt(req.query.page) || 1;      // Current page (default 1)
+    const limit = 10;                                // Always 10 per page
     const skip = (page - 1) * limit;
 
-    const total = await PropertyListing.countDocuments();
+    const total = await PropertyListing.countDocuments(); // Total records
 
     const listings = await PropertyListing.find()
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1 })    // Newest first
       .skip(skip)
-      .limit(limit);
+      .limit(limit);              // Only 10 per page
 
     res.status(200).json({
       status: true,
-      message: 'Property listings fetched',
+      message: 'Property listings fetched successfully',
       data: listings,
       pagination: {
         totalItems: total,
         currentPage: page,
         totalPages: Math.ceil(total / limit),
         itemsPerPage: limit,
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
       },
     });
   } catch (error) {
-    console.error('Error fetching listings:', error);
-    res.status(500).json({ status: false, message: 'Failed to fetch', error: error.message });
+    console.error('Error fetching property listings:', error);
+    res.status(500).json({
+      status: false,
+      message: 'Failed to fetch property listings',
+      error: error.message,
+    });
   }
 };
+
 
 
 // only one id get 

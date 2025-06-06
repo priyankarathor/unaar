@@ -51,12 +51,14 @@ exports.homelayoutedit = async (req, res) => {
     const { title, status } = req.body;
     const { id } = req.params;
 
+    // Build update object dynamically
+    const updateFields = {};
+    if (title !== undefined) updateFields.title = title;
+    if (status !== undefined) updateFields.status = toBoolean(status);
+
     const updatedhomelayout = await homelayout.findByIdAndUpdate(
       id,
-      {
-        title,
-        status: toBoolean(status),
-      },
+      updateFields,
       { new: true }
     );
 
@@ -81,6 +83,8 @@ exports.homelayoutedit = async (req, res) => {
     });
   }
 };
+
+
 
 // DELETE - Delete Home Section by ID
 exports.homelayoutdelete = async (req, res) => {
