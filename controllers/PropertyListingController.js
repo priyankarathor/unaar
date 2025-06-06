@@ -12,7 +12,7 @@ const propertyfilter = async (req, res) => {
             apartmenttitle, apartmentlable, apartmendescription,
             remotelocationtitle, remotelocationsubtitle,
             Currency, tagtitle, nearbyPlaces,
-            pincode, developer
+            pincode, developer,type
         } = req.query;
 
         // Build dynamic MongoDB query
@@ -41,6 +41,7 @@ const propertyfilter = async (req, res) => {
         if (nearbyPlaces) query.nearbyPlaces = { $regex: nearbyPlaces, $options: 'i' };
         if (pincode) query.pincode = pincode;
         if (developer) query.developer = developer;
+         if (type) query.type = type;
 
         const filteredProperties = await PropertyListing.find(query).sort({ createdAt: -1 });
 
@@ -70,7 +71,7 @@ const PropertyListingInsert = async (req, res) => {
       facilitiedescription, featureId, latitude, longitude, locationlable,
       locationvalue, locationvaluetitle, apartmenttitle, apartmentlable,
       apartmendescription, remotelocationtitle, remotelocationsubtitle,
-      Currency, tagtitle, nearbyPlaces, pincode, developer
+      Currency, tagtitle, nearbyPlaces, pincode, developer, type
     } = req.body;
 
     const newListing = new PropertyListing({
@@ -79,7 +80,7 @@ const PropertyListingInsert = async (req, res) => {
       facilitiedescription, featureId, latitude, longitude, locationlable,
       locationvalue, locationvaluetitle, apartmenttitle, apartmentlable,
       apartmendescription, remotelocationtitle, remotelocationsubtitle,
-      Currency, tagtitle, nearbyPlaces, pincode, developer,
+      Currency, tagtitle, nearbyPlaces, pincode, developer, type,
       createdAt: new Date()
     });
 

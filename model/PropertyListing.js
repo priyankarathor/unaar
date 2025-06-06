@@ -36,6 +36,7 @@ const propertyListing = new mongoose.Schema({
   nearbyPlaces: String,
   pincode: String,
    developer: String,
+   type:String,
 
   // Property images
   propertyimageblobs: [imageSchema],  // array of image BLOBs
