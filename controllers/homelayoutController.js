@@ -1,55 +1,62 @@
 const homelayout = require("../model/Homelayout");
 
+// Helper to convert status to Boolean
+const toBoolean = (value) => value === true || value === "true";
+
 // POST - Add Home Section
 exports.homelayoutadd = async (req, res) => {
-    try {
-        const { title, status} = req.body;
-        const homelayoutData = new homelayout({ title, status });
-        await homelayoutData.save();
-        res.status(201).json({
-            status: true,
-            message: "homelayoutData created successfully",
-            data: homelayoutData,
-        });
-    } catch (error) {
-        res.status(400).json({
-            status: false,
-            message: "Something went wrong: " + error.message,
-            data: null,
-        });
-    }
+  try {
+    const { title, status } = req.body;
+    const homelayoutData = new homelayout({
+      title,
+      status: toBoolean(status),
+    });
+
+    await homelayoutData.save();
+    res.status(201).json({
+      status: true,
+      message: "Home section created successfully",
+      data: homelayoutData,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: false,
+      message: "Something went wrong: " + error.message,
+      data: null,
+    });
+  }
 };
 
 // GET - Get all Home Sections
 exports.homelayoutget = async (req, res) => {
-    try {
-        const homelayouts = await homelayout.find();
-        res.status(200).json({
-            status: true,
-            message: "Home sections fetched successfully",
-            data: homelayouts,
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: false,
-            message: "Something went wrong: " + error.message,
-            data: [],
-        });
-    }
+  try {
+    const homelayouts = await homelayout.find();
+    res.status(200).json({
+      status: true,
+      message: "Home sections fetched successfully",
+      data: homelayouts,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Something went wrong: " + error.message,
+      data: [],
+    });
+  }
 };
 
 // PUT - Edit Home Section by ID
 exports.homelayoutedit = async (req, res) => {
   try {
-    let { title, status } = req.body;
+    const { title, status } = req.body;
     const { id } = req.params;
-
-    // Force status to Boolean (important fix)
-    status = status === true || status === "true";
 
     const updatedhomelayout = await homelayout.findByIdAndUpdate(
       id,
-      { title, status },
+      {
+        title,
+        status: toBoolean(status),
+      },
       { new: true }
     );
 
@@ -75,31 +82,30 @@ exports.homelayoutedit = async (req, res) => {
   }
 };
 
-
 // DELETE - Delete Home Section by ID
 exports.homelayoutdelete = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deletedHero = await homelayout.findByIdAndDelete(id);
+  try {
+    const { id } = req.params;
+    const deletedSection = await homelayout.findByIdAndDelete(id);
 
-        if (!deletedHero) {
-            return res.status(404).json({
-                status: false,
-                message: "Home section not found",
-                data: null,
-            });
-        }
-
-        res.status(200).json({
-            status: true,
-            message: "Home section deleted successfully",
-            data: deletedHero,
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: false,
-            message: "Something went wrong: " + error.message,
-            data: null,
-        });
+    if (!deletedSection) {
+      return res.status(404).json({
+        status: false,
+        message: "Home section not found",
+        data: null,
+      });
     }
+
+    res.status(200).json({
+      status: true,
+      message: "Home section deleted successfully",
+      data: deletedSection,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Something went wrong: " + error.message,
+      data: null,
+    });
+  }
 };
