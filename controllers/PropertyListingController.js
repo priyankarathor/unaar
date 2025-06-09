@@ -164,10 +164,13 @@ const PropertyListingInsert = async (req, res) => {
 //   }
 // };
 
+// Controller to fetch all property listings from the database
 const getAllPropertyListings = async (req, res) => {
   try {
+    // Fetch all listings from the database, sorted by creation date (latest first)
     const listings = await PropertyListing.find().sort({ createdAt: -1 });
 
+    // Format each listing for the response
     const formattedListings = listings.map(listing => ({
       _id: listing._id,
       country: listing.country,
@@ -201,22 +204,27 @@ const getAllPropertyListings = async (req, res) => {
       nearbyPlaces: listing.nearbyPlaces,
       developer: listing.developer,
       type: listing.type,
+
+      // Return image as a buffer and include its MIME type if present
       image: listing.image
         ? {
             data: listing.image,
             contentType: listing.imageType || "image/jpeg",
           }
         : null,
+
       createdAt: listing.createdAt,
       updatedAt: listing.updatedAt,
     }));
 
+    // Send success response with all formatted listings
     res.status(200).json({
       status: true,
       message: "Property listings fetched successfully",
       data: formattedListings,
     });
   } catch (error) {
+    // Log and return error if the fetch fails
     console.error("Error fetching property listings:", error);
     res.status(500).json({
       status: false,
