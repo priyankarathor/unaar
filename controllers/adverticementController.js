@@ -1,143 +1,141 @@
-const Adverticement = require("../model/adverticement"); // Make sure the model path is correct
+const Advertisement = require("../model/adverticement"); // Ensure the correct path to your Mongoose model
 
-// ADD Adverticement
-exports.adverticementadd = async (req, res) => {
+// ADD Advertisement
+exports.advertisementAdd = async (req, res) => {
     try {
         const { description, status } = req.body;
 
         if (!req.file) {
             return res.status(400).json({
                 status: false,
-                message: "Image is required"
+                message: "Image is required",
             });
         }
 
-        const newadverticement = new Adverticement({
-            image: req.file.buffer,        // Store image as buffer
-            imageType: req.file.mimetype,  // Store image MIME type
+        const newAdvertisement = new Advertisement({
+            image: req.file.buffer,        // Store image as Buffer
+            imageType: req.file.mimetype,  // Store MIME type
             description,
             status
         });
 
-        await newadverticement.save();
+        await newAdvertisement.save();
 
         res.status(201).json({
             status: true,
-            message: "adverticement inserted successfully",
-            data: newadverticement
+            message: "Advertisement inserted successfully",
+            data: newAdvertisement
         });
+
     } catch (error) {
-        console.error("Error inserting adverticement:", error);
+        console.error("Error inserting advertisement:", error);
         res.status(500).json({
             status: false,
-            message: "Failed to insert adverticement",
+            message: "Failed to insert advertisement",
             error: error.message
         });
     }
 };
 
-// GET ALL adverticement
-exports.adverticementget = async (req, res) => {
+// GET ALL Advertisements
+exports.advertisementGet = async (req, res) => {
     try {
-      const adverticementList = await adverticement.find().sort({ createdAt: -1 });
-  
-      const adverticementListWithImage = Adverticement.map(agency => ({
-        _id: agency._id,
-        image: agency.image ? {
-            data: agency.image, 
-            contentType: agency.imageType || 'image/png'
-        } : null,
-        link: agency.link,
-        agenciename: agency.agenciename,
-        status : agency.status
-      }));
-  
-      res.status(200).json({
-        status: true,
-        message: "Adverticement fetched successfully",
-        data: adverticementListWithImage,
-      });
-    } catch (error) {
-      console.error('Fetch error:', error);
-      res.status(500).json({
-        status: false,
-        message: "Failed to fetch Adverticement",
-        error: error.message,
-      });
-    }
-  };
-  
-    
+        const advertisements = await Advertisement.find().sort({ createdAt: -1 });
 
-// EDIT AGENCY
-exports.adverticementedit = async (req, res) => {
+        const advertisementList = advertisements.map(ad => ({
+            _id: ad._id,
+            image: ad.image ? {
+                data: ad.image,
+                contentType: ad.imageType || 'image/png'
+            } : null,
+            description: ad.description,
+            status: ad.status,
+            createdAt: ad.createdAt
+        }));
+
+        res.status(200).json({
+            status: true,
+            message: "Advertisements fetched successfully",
+            data: advertisementList
+        });
+
+    } catch (error) {
+        console.error("Error fetching advertisements:", error);
+        res.status(500).json({
+            status: false,
+            message: "Failed to fetch advertisements",
+            error: error.message
+        });
+    }
+};
+
+// EDIT Advertisement
+exports.advertisementEdit = async (req, res) => {
     try {
         const { id } = req.params;
-        const { description, status } = req.body; // Make sure to include 'status'
+        const { description, status } = req.body;
 
-        const agency = await Adverticement.findById(id);
-        if (!agency) {
+        const advertisement = await Advertisement.findById(id);
+        if (!advertisement) {
             return res.status(404).json({
                 status: false,
-                message: "Adverticement not found"
+                message: "Advertisement not found"
             });
         }
 
-        // Update image if a new one is uploaded
+        // Update image if new file provided
         if (req.file) {
-            agency.image = req.file.buffer;
-            agency.imageType = req.file.mimetype;
+            advertisement.image = req.file.buffer;
+            advertisement.imageType = req.file.mimetype;
         }
 
-        // Update other fields
-        agency.description = description || agency.description;
-        agency.status = status || agency.status;
+        // Update fields if provided
+        advertisement.description = description || advertisement.description;
+        advertisement.status = status || advertisement.status;
 
-        const updatedAgency = await agency.save();
+        const updatedAd = await advertisement.save();
 
         res.status(200).json({
             status: true,
-            message: "Adverticement updated successfully",
-            data: updatedAgency
+            message: "Advertisement updated successfully",
+            data: updatedAd
         });
 
     } catch (error) {
-        console.error("Error updating Adverticement:", error);
+        console.error("Error updating advertisement:", error);
         res.status(500).json({
             status: false,
-            message: "Failed to update Adverticement",
+            message: "Failed to update advertisement",
             error: error.message
         });
     }
 };
 
-
-// DELETE AGENCY
-exports.adverticementdelete = async (req, res) => {
+// DELETE Advertisement
+exports.advertisementDelete = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const agency = await Adverticement.findByIdAndDelete(id);
-        if (!agency) {
+        const deletedAd = await Advertisement.findByIdAndDelete(id);
+        if (!deletedAd) {
             return res.status(404).json({
                 status: false,
-                message: "description not found"
+                message: "Advertisement not found"
             });
         }
 
         res.status(200).json({
             status: true,
-            message: "Adverticement deleted successfully",
-            data: agency
+            message: "Advertisement deleted successfully",
+            data: deletedAd
         });
+
     } catch (error) {
-        console.error("Error deleting Adverticement:", error);
+        console.error("Error deleting advertisement:", error);
         res.status(500).json({
             status: false,
-            message: "Failed to delete Adverticement",
+            message: "Failed to delete advertisement",
             error: error.message
         });
     }
 };
-
-

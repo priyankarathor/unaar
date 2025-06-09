@@ -1,22 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const Adverticement = new mongoose.Schema({
-    image: {
-        type: Buffer,
-        required: true 
-    },
-    imageType: {
-        type : String 
-    },
-    description: {
-        type: String,
-        required: true 
-    },
-    status:{
-        type:String
-    }
-});
+const advertisementSchematab = new mongoose.Schema({
+    image: Buffer,
+    imageType: String,
+    description: String,
+    status: String
+}, { timestamps: true });
 
-const Adverticements = mongoose.model('Adverticement', Adverticement);
-
-module.exports = Adverticements;
+module.exports = mongoose.model("Advertisement", advertisementSchematab);

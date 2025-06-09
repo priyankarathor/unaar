@@ -3,12 +3,12 @@ const router = express.Router();
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-const { adverticementadd, adverticementget, adverticementedit, adverticementdelete } = require("../controllers/adverticementController");
+const { advertisementAdd, advertisementGet, advertisementEdit, advertisementDelete } = require("../controllers/adverticementController");
 
 // Define your routes
-router.post('/adverticementinsert', upload.single('image'), adverticementadd);
-router.get('/adverticementgetdata', adverticementget);
-router.put('/adverticementEdit/:id', upload.single('image'), adverticementedit);
-router.delete('/adverticementdelete/:id', adverticementdelete);
+router.post('/adverticementinsert', upload.single('image'), advertisementAdd);
+router.get('/adverticementgetdata', advertisementGet);
+router.put('/adverticementEdit/:id', upload.single('image'), advertisementEdit);
+router.delete('/adverticementdelete/:id', advertisementDelete);
 
 module.exports = router;
