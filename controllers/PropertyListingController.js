@@ -111,58 +111,122 @@ const PropertyListingInsert = async (req, res) => {
 
 
 // ========== GET ALL ==========
+// const getAllPropertyListings = async (req, res) => {
+//   try {
+//     // Get the requested page number from query parameters (default is 1)
+//     const page = parseInt(req.query.page) || 1;
+
+//     // Limit of listings per page
+//     const limit = 10;
+
+//     // Calculate how many documents to skip
+//     const skip = (page - 1) * limit;
+
+//     // Get the total number of property listings
+//     const totalItems = await PropertyListing.countDocuments();
+
+//     // Get the listings for the current page, sorted by newest first
+//     const listings = await PropertyListing.find()
+//       .sort({ createdAt: -1 }) // Sort by most recent
+//       .skip(skip)
+//       .limit(limit);
+
+//     // Calculate total pages
+//     const totalPages = Math.ceil(totalItems / limit);
+
+//     // Prepare pagination metadata
+//     const pagination = {
+//       totalItems,
+//       currentPage: page,
+//       totalPages,
+//       itemsPerPage: limit,
+//       hasNextPage: page < totalPages,
+//       hasPrevPage: page > 1,
+//     };
+
+//     // Return response with data and pagination
+//     res.status(200).json({
+//       status: true,
+//       message: 'Property listings fetched successfully',
+//       data: listings,
+//       pagination,
+//     });
+
+//   } catch (error) {
+//     console.error('Error fetching property listings:', error);
+
+//     // Return error response
+//     res.status(500).json({
+//       status: false,
+//       message: 'Failed to fetch property listings',
+//       error: error.message,
+//     });
+//   }
+// };
+
 const getAllPropertyListings = async (req, res) => {
   try {
-    // Get the requested page number from query parameters (default is 1)
-    const page = parseInt(req.query.page) || 1;
+    const listings = await PropertyListing.find().sort({ createdAt: -1 });
 
-    // Limit of listings per page
-    const limit = 10;
+    const formattedListings = listings.map(listing => ({
+      _id: listing._id,
+      country: listing.country,
+      state: listing.state,
+      city: listing.city,
+      pincode: listing.pincode,
+      title: listing.title,
+      subtitle: listing.subtitle,
+      fromamount: listing.fromamount,
+      propertylabel: listing.propertylabel,
+      propertyvalue: listing.propertyvalue,
+      descriptiontitle: listing.descriptiontitle,
+      descriptionlabel: listing.descriptionlabel,
+      descriptionvalue: listing.descriptionvalue,
+      description: listing.description,
+      facilitieid: listing.facilitieid,
+      facilitiedescription: listing.facilitiedescription,
+      featureId: listing.featureId,
+      latitude: listing.latitude,
+      longitude: listing.longitude,
+      locationlable: listing.locationlable,
+      locationvalue: listing.locationvalue,
+      locationvaluetitle: listing.locationvaluetitle,
+      apartmenttitle: listing.apartmenttitle,
+      apartmentlable: listing.apartmentlable,
+      apartmendescription: listing.apartmendescription,
+      remotelocationtitle: listing.remotelocationtitle,
+      remotelocationsubtitle: listing.remotelocationsubtitle,
+      Currency: listing.Currency,
+      tagtitle: listing.tagtitle,
+      nearbyPlaces: listing.nearbyPlaces,
+      developer: listing.developer,
+      type: listing.type,
+      image: listing.image
+        ? {
+            data: listing.image,
+            contentType: listing.imageType || "image/jpeg",
+          }
+        : null,
+      createdAt: listing.createdAt,
+      updatedAt: listing.updatedAt,
+    }));
 
-    // Calculate how many documents to skip
-    const skip = (page - 1) * limit;
-
-    // Get the total number of property listings
-    const totalItems = await PropertyListing.countDocuments();
-
-    // Get the listings for the current page, sorted by newest first
-    const listings = await PropertyListing.find()
-      .sort({ createdAt: -1 }) // Sort by most recent
-      .skip(skip)
-      .limit(limit);
-
-    // Calculate total pages
-    const totalPages = Math.ceil(totalItems / limit);
-
-    // Prepare pagination metadata
-    const pagination = {
-      totalItems,
-      currentPage: page,
-      totalPages,
-      itemsPerPage: limit,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-    };
-
-    // Return response with data and pagination
     res.status(200).json({
       status: true,
-      message: 'Property listings fetched successfully',
-      data: listings,
-      pagination,
+      message: "Property listings fetched successfully",
+      data: formattedListings,
     });
-
   } catch (error) {
-    console.error('Error fetching property listings:', error);
-
-    // Return error response
+    console.error("Error fetching property listings:", error);
     res.status(500).json({
       status: false,
-      message: 'Failed to fetch property listings',
+      message: "Failed to fetch property listings",
       error: error.message,
     });
   }
 };
+
+
 
 
 
