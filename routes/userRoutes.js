@@ -10,8 +10,6 @@ const {
 
 //API for check user
 router.post("/login", loginUser);
-
-
 router.post("/register", registerUser);
 
 router.get("/logindata", registerUserdata);

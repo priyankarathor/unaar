@@ -25,6 +25,7 @@ const locationRoutes = require("./routes/locationRoutes");
 const csvRoutes = require("./routes/CSVRoutes");
 const profileRoutes = require("./routes/ProfileRoutes");
 const homeRoutes = require("./routes/homeRoutes");
+const adverticement = require("./routes/adverticementRoutes");
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use("/api/location", locationRoutes);
 app.use("/api/csv", csvRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/home", homeRoutes);
+app.use("/api/adverticement", adverticement)
 
 // Server Listener
 const PORT = process.env.PORT || 8001;

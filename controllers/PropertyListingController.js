@@ -109,35 +109,53 @@ const PropertyListingInsert = async (req, res) => {
   }
 };
 
+
 // ========== GET ALL ==========
 const getAllPropertyListings = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;      // Current page (default 1)
-    const limit = 3;                                // Always 10 per page
+    // Get the requested page number from query parameters (default is 1)
+    const page = parseInt(req.query.page) || 1;
+
+    // Limit of listings per page
+    const limit = 10;
+
+    // Calculate how many documents to skip
     const skip = (page - 1) * limit;
 
-    const total = await PropertyListing.countDocuments(); // Total records
+    // Get the total number of property listings
+    const totalItems = await PropertyListing.countDocuments();
 
+    // Get the listings for the current page, sorted by newest first
     const listings = await PropertyListing.find()
-      .sort({ createdAt: -1 })    // Newest first
+      .sort({ createdAt: -1 }) // Sort by most recent
       .skip(skip)
-      .limit(limit);              // Only 10 per page
+      .limit(limit);
 
+    // Calculate total pages
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Prepare pagination metadata
+    const pagination = {
+      totalItems,
+      currentPage: page,
+      totalPages,
+      itemsPerPage: limit,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    };
+
+    // Return response with data and pagination
     res.status(200).json({
       status: true,
       message: 'Property listings fetched successfully',
       data: listings,
-      pagination: {
-        totalItems: total,
-        currentPage: page,
-        totalPages: Math.ceil(total / limit),
-        itemsPerPage: limit,
-        hasNextPage: page * limit < total,
-        hasPrevPage: page > 1,
-      },
+      pagination,
     });
+
   } catch (error) {
     console.error('Error fetching property listings:', error);
+
+    // Return error response
     res.status(500).json({
       status: false,
       message: 'Failed to fetch property listings',
@@ -145,6 +163,7 @@ const getAllPropertyListings = async (req, res) => {
     });
   }
 };
+
 
 
 
