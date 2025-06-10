@@ -3,21 +3,28 @@ const PropertyBanner = require("../model/propertybanner"); // Ensure correct pat
 // ADD PropertyBanner
 exports.propertyBannerAdd = async (req, res) => {
     try {
-        const { buttontag, description, status } = req.body;
-
-        if (!req.file) {
-            return res.status(400).json({
-                status: false,
-                message: "Image is required",
-            });
-        }
+        const { 
+            buttontag, 
+            categoryProperty, 
+            location, 
+            latitude, 
+            longitude, 
+            country, 
+            city, 
+            state, 
+            locationLabel 
+        } = req.body;
 
         const newBanner = new PropertyBanner({
-            image: req.file.buffer,
-            imageType: req.file.mimetype,
-            description,
-            status,
             buttontag,
+            categoryProperty,
+            location,
+            latitude,
+            longitude,
+            country,
+            city,
+            state,
+            locationLabel
         });
 
         await newBanner.save();
@@ -43,22 +50,10 @@ exports.propertyBannerGet = async (req, res) => {
     try {
         const banners = await PropertyBanner.find().sort({ createdAt: -1 });
 
-        const formattedBanners = banners.map(banner => ({
-            _id: banner._id,
-            image: banner.image ? {
-                data: banner.image,
-                contentType: banner.imageType || 'image/png',
-            } : null,
-            description: banner.description,
-            status: banner.status,
-            buttontag: banner.buttontag,
-            createdAt: banner.createdAt,
-        }));
-
         res.status(200).json({
             status: true,
             message: "Property banners fetched successfully",
-            data: formattedBanners,
+            data: banners,
         });
 
     } catch (error) {
@@ -75,7 +70,17 @@ exports.propertyBannerGet = async (req, res) => {
 exports.propertyBannerEdit = async (req, res) => {
     try {
         const { id } = req.params;
-        const { description, status, buttontag } = req.body;
+        const {
+            buttontag,
+            categoryProperty,
+            location,
+            latitude,
+            longitude,
+            country,
+            city,
+            state,
+            locationLabel
+        } = req.body;
 
         const banner = await PropertyBanner.findById(id);
         if (!banner) {
@@ -85,14 +90,16 @@ exports.propertyBannerEdit = async (req, res) => {
             });
         }
 
-        if (req.file) {
-            banner.image = req.file.buffer;
-            banner.imageType = req.file.mimetype;
-        }
-
-        if (description !== undefined) banner.description = description;
-        if (status !== undefined) banner.status = status;
+        // Update only if fields are provided
         if (buttontag !== undefined) banner.buttontag = buttontag;
+        if (categoryProperty !== undefined) banner.categoryProperty = categoryProperty;
+        if (location !== undefined) banner.location = location;
+        if (latitude !== undefined) banner.latitude = latitude;
+        if (longitude !== undefined) banner.longitude = longitude;
+        if (country !== undefined) banner.country = country;
+        if (city !== undefined) banner.city = city;
+        if (state !== undefined) banner.state = state;
+        if (locationLabel !== undefined) banner.locationLabel = locationLabel;
 
         const updatedBanner = await banner.save();
 
