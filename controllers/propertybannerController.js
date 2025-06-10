@@ -1,9 +1,11 @@
 const PropertyBanner = require("../model/propertybanner"); // Ensure correct path
 
 // ADD PropertyBanner
+// ADD PropertyBanner
 exports.propertyBannerAdd = async (req, res) => {
     try {
         const { 
+            tag,
             buttontag, 
             categoryProperty, 
             location, 
@@ -13,9 +15,10 @@ exports.propertyBannerAdd = async (req, res) => {
             city, 
             state, 
             locationLabel 
-        } = req.body;
+        } = req.body; // <-- ✅ This was missing!
 
         const newBanner = new PropertyBanner({
+            tag,
             buttontag,
             categoryProperty,
             location,
@@ -45,6 +48,7 @@ exports.propertyBannerAdd = async (req, res) => {
     }
 };
 
+
 // GET ALL PropertyBanners
 exports.propertyBannerGet = async (req, res) => {
     try {
@@ -71,6 +75,7 @@ exports.propertyBannerEdit = async (req, res) => {
     try {
         const { id } = req.params;
         const {
+            tag,
             buttontag,
             categoryProperty,
             location,
@@ -91,6 +96,7 @@ exports.propertyBannerEdit = async (req, res) => {
         }
 
         // Update only if fields are provided
+    if (tag !== undefined) banner.tag = tag;
         if (buttontag !== undefined) banner.buttontag = buttontag;
         if (categoryProperty !== undefined) banner.categoryProperty = categoryProperty;
         if (location !== undefined) banner.location = location;
