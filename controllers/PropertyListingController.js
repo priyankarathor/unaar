@@ -377,6 +377,7 @@ module.exports = {
   updatePropertyListing,
   deletePropertyListing,
   getAllPropertyList,
-  propertyfilter
+  propertyfilter,
+  propertyfilterBanner
 };
 

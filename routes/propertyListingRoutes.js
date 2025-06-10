@@ -24,6 +24,9 @@ router.get('/properties', propertylistingController.getAllPropertyListings);
 
 router.get('/propertiesdata', propertylistingController.getAllPropertyList);
 
+//property banner filter
+router.get('/propertybannerdata', propertylistingController.propertyfilterBanner);
+
 router.get('/propertyfilter', propertylistingController.propertyfilter);
 
 // Get Property by ID
