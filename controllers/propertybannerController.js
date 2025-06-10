@@ -14,7 +14,7 @@ exports.propertyBannerAdd = async (req, res) => {
             country, 
             city, 
             state, 
-            locationLabel 
+            loactionlabal 
         } = req.body; // <-- ✅ This was missing!
 
         const newBanner = new PropertyBanner({
@@ -27,7 +27,7 @@ exports.propertyBannerAdd = async (req, res) => {
             country,
             city,
             state,
-            locationLabel
+            loactionlabal
         });
 
         await newBanner.save();
@@ -84,7 +84,7 @@ exports.propertyBannerEdit = async (req, res) => {
             country,
             city,
             state,
-            locationLabel
+            loactionlabal
         } = req.body;
 
         const banner = await PropertyBanner.findById(id);
@@ -105,7 +105,7 @@ exports.propertyBannerEdit = async (req, res) => {
         if (country !== undefined) banner.country = country;
         if (city !== undefined) banner.city = city;
         if (state !== undefined) banner.state = state;
-        if (locationLabel !== undefined) banner.locationLabel = locationLabel;
+        if (loactionlabal !== undefined) banner.loactionlabal = loactionlabal;
 
         const updatedBanner = await banner.save();
 

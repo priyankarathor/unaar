@@ -1,7 +1,9 @@
 const PropertyListing = require('../model/PropertyListing');
+const PropertyBanner = require("../model/propertybanner");
 
 const axios = require('axios');
 
+// Property filter 
 const propertyfilter = async (req, res) => {
     try {
         const {
@@ -60,6 +62,66 @@ const propertyfilter = async (req, res) => {
 };
 
 
+// property banner filter property data
+const propertyfilterBanner = async (req, res) => {
+    try {
+        const {
+            country, state, city, title, subtitle,
+            latitude, longitude, locationlable,
+            locationvalue, locationvaluetitle
+        } = req.query;
+
+        // Build dynamic MongoDB query for PropertyListing
+        const query = {};
+
+        if (country) query.country = country;
+        if (state) query.state = state;
+        if (city) query.city = city;
+        if (subtitle) query.subtitle = { $regex: subtitle, $options: 'i' };
+        if (latitude) query.latitude = latitude;
+        if (longitude) query.longitude = longitude;
+        if (locationlable) query.locationlable = { $regex: locationlable, $options: 'i' };
+        if (locationvalue) query.locationvalue = locationvalue;
+        if (locationvaluetitle) query.locationvaluetitle = locationvaluetitle;
+
+        // Step 1: Get matched properties
+        const filteredProperties = await PropertyListing.find(query).sort({ createdAt: -1 });
+
+        // Step 2: Extract values from matched properties
+        const locationValues = filteredProperties.map(p => p.locationvalue).filter(Boolean);
+        const latitudes = filteredProperties.map(p => p.latitude).filter(Boolean);
+        const longitudes = filteredProperties.map(p => p.longitude).filter(Boolean);
+        const locationLabels = filteredProperties.map(p => p.locationlable).filter(Boolean);
+        const subtitles = filteredProperties.map(p => p.subtitle).filter(Boolean);
+
+        // Step 3: Find banners that match any of those values
+        const matchedBanners = await PropertyBanner.find({
+            $or: [
+                { loactionlabal: { $in: locationValues } },
+                { latitude: { $in: latitudes } },
+                { longitude: { $in: longitudes } },
+                { locationlable: { $in: locationLabels } },
+                { categoryProperty: { $in: subtitles } }
+            ]
+        }).sort({ createdAt: -1 });
+
+        // Step 4: Send response
+        res.status(200).json({
+            status: true,
+            message: "Properties and matching banners fetched successfully",
+            data: {
+                properties: filteredProperties,
+                banners: matchedBanners
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            message: "Error fetching data",
+            error: error.message,
+        });
+    }
+};
 
 
 // ========== INSERT PROPERTY ==========
