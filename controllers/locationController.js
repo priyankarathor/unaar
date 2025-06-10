@@ -20,6 +20,36 @@ try {
     }
 };
 
+
+//filter top 4 
+exports.toplocations = async (req, res) => {
+  try {
+    const result = await Location.aggregate([
+      {
+        $group: {
+          _id: "$locationlable", // Group by locationlabel
+          count: { $sum: 1 }      // Count occurrences
+        }
+      },
+      { $sort: { count: -1 } },   // Sort by count descending
+      { $limit: 4 },              // Top 4 locations
+      {
+        $project: {
+          _id: 0,
+          locationlable: "$_id",  // Rename _id to locationlabel
+          count: 1
+        }
+      }
+    ]);
+
+    res.status(200).json(result);
+  } catch (err) {
+    console.error("Error in /toplocations API:", err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
 // Get all locations
 exports.locationsGet = async (req, res) => {
   try {
