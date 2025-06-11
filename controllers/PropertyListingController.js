@@ -15,7 +15,7 @@ const propertyfilter = async (req, res) => {
             remotelocationtitle, remotelocationsubtitle,
             Currency, tagtitle, nearbyPlaces,
             pincode, developer, type,
-            minPrice, maxPrice
+            minPrice, maxPrice // ✅ New
         } = req.query;
 
         const query = {};
@@ -27,14 +27,17 @@ const propertyfilter = async (req, res) => {
         if (title) query.title = { $regex: title, $options: 'i' };
         if (subtitle) query.subtitle = { $regex: subtitle, $options: 'i' };
 
+        // ✅ Handle price range using minPrice and maxPrice
         const min = Number(minPrice);
         const max = Number(maxPrice);
+
         if (!isNaN(min) || !isNaN(max)) {
             query.fromamout = {};
             if (!isNaN(min)) query.fromamout.$gte = min;
             if (!isNaN(max)) query.fromamout.$lte = max;
         }
 
+        // ✅ Partial match for propertylabel
         if (propertylabel) {
             query.propertylabel = { $regex: propertylabel, $options: 'i' };
         }
@@ -43,15 +46,7 @@ const propertyfilter = async (req, res) => {
         if (latitude) query.latitude = latitude;
         if (longitude) query.longitude = longitude;
 
-        // ✅ Normalize locationlable using $where (safe fallback for now)
-        if (locationlable) {
-            const normalizedInput = locationlable.toLowerCase().replace(/[^a-z0-9]/gi, '');
-            query.$where = function () {
-                const normalize = (str) => str?.toLowerCase().replace(/[^a-z0-9]/gi, '');
-                return normalize(this.locationlable) === normalizedInput;
-            };
-        }
-
+        if (locationlable) query.locationlable = { $regex: locationlable, $options: 'i' };
         if (locationvalue) query.locationvalue = locationvalue;
         if (locationvaluetitle) query.locationvaluetitle = locationvaluetitle;
 
@@ -70,6 +65,7 @@ const propertyfilter = async (req, res) => {
         if (developer) query.developer = developer;
         if (type) query.type = type;
 
+        // Debug log
         console.log('Final Query:', query);
 
         const filteredProperties = await PropertyListing.find(query).sort({ createdAt: -1 });
@@ -87,7 +83,6 @@ const propertyfilter = async (req, res) => {
         });
     }
 };
-
 
 
 
@@ -151,8 +146,6 @@ const propertyfilterBanner = async (req, res) => {
         });
     }
 };
-
-
 
 
 // ========== INSERT PROPERTY ==========
