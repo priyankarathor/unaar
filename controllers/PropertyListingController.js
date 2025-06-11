@@ -15,7 +15,7 @@ const propertyfilter = async (req, res) => {
             remotelocationtitle, remotelocationsubtitle,
             Currency, tagtitle, nearbyPlaces,
             pincode, developer, type,
-            minPrice, maxPrice // ✅ New
+            minPrice, maxPrice
         } = req.query;
 
         const query = {};
@@ -27,17 +27,14 @@ const propertyfilter = async (req, res) => {
         if (title) query.title = { $regex: title, $options: 'i' };
         if (subtitle) query.subtitle = { $regex: subtitle, $options: 'i' };
 
-        // ✅ Handle price range using minPrice and maxPrice
         const min = Number(minPrice);
         const max = Number(maxPrice);
-
         if (!isNaN(min) || !isNaN(max)) {
             query.fromamout = {};
             if (!isNaN(min)) query.fromamout.$gte = min;
             if (!isNaN(max)) query.fromamout.$lte = max;
         }
 
-        // ✅ Partial match for propertylabel
         if (propertylabel) {
             query.propertylabel = { $regex: propertylabel, $options: 'i' };
         }
@@ -46,7 +43,35 @@ const propertyfilter = async (req, res) => {
         if (latitude) query.latitude = latitude;
         if (longitude) query.longitude = longitude;
 
-        if (locationlable) query.locationlable = { $regex: locationlable, $options: 'i' };
+        // ✅ Normalize locationlable for flexible comparison
+        if (locationlable) {
+            const normalize = (str) =>
+                str.toLowerCase().replace(/[^a-z0-9]/gi, ''); // remove everything except letters and numbers
+
+            const normalizedInput = normalize(locationlable);
+
+            query.$expr = {
+                $regexMatch: {
+                    input: {
+                        $replaceAll: {
+                            input: {
+                                $toLower: {
+                                    $replaceAll: {
+                                        input: "$locationlable",
+                                        find: /[^a-zA-Z0-9]/g,
+                                        replacement: ""
+                                    }
+                                }
+                            },
+                            find: "",
+                            replacement: ""
+                        }
+                    },
+                    regex: normalizedInput,
+                },
+            };
+        }
+
         if (locationvalue) query.locationvalue = locationvalue;
         if (locationvaluetitle) query.locationvaluetitle = locationvaluetitle;
 
@@ -65,8 +90,7 @@ const propertyfilter = async (req, res) => {
         if (developer) query.developer = developer;
         if (type) query.type = type;
 
-        // Debug log
-        console.log('Final Query:', query);
+        console.log('Final Query:', JSON.stringify(query, null, 2));
 
         const filteredProperties = await PropertyListing.find(query).sort({ createdAt: -1 });
 
