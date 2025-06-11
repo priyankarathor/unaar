@@ -43,32 +43,12 @@ const propertyfilter = async (req, res) => {
         if (latitude) query.latitude = latitude;
         if (longitude) query.longitude = longitude;
 
-        // ✅ Normalize locationlable for flexible comparison
+        // ✅ Normalize locationlable using $where (safe fallback for now)
         if (locationlable) {
-            const normalize = (str) =>
-                str.toLowerCase().replace(/[^a-z0-9]/gi, ''); // remove everything except letters and numbers
-
-            const normalizedInput = normalize(locationlable);
-
-            query.$expr = {
-                $regexMatch: {
-                    input: {
-                        $replaceAll: {
-                            input: {
-                                $toLower: {
-                                    $replaceAll: {
-                                        input: "$locationlable",
-                                        find: /[^a-zA-Z0-9]/g,
-                                        replacement: ""
-                                    }
-                                }
-                            },
-                            find: "",
-                            replacement: ""
-                        }
-                    },
-                    regex: normalizedInput,
-                },
+            const normalizedInput = locationlable.toLowerCase().replace(/[^a-z0-9]/gi, '');
+            query.$where = function () {
+                const normalize = (str) => str?.toLowerCase().replace(/[^a-z0-9]/gi, '');
+                return normalize(this.locationlable) === normalizedInput;
             };
         }
 
@@ -90,7 +70,7 @@ const propertyfilter = async (req, res) => {
         if (developer) query.developer = developer;
         if (type) query.type = type;
 
-        console.log('Final Query:', JSON.stringify(query, null, 2));
+        console.log('Final Query:', query);
 
         const filteredProperties = await PropertyListing.find(query).sort({ createdAt: -1 });
 
@@ -107,6 +87,7 @@ const propertyfilter = async (req, res) => {
         });
     }
 };
+
 
 
 
