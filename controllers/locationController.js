@@ -26,17 +26,56 @@ exports.toplocations = async (req, res) => {
   try {
     const result = await Location.aggregate([
       {
-        $group: {
-          _id: "$locationlable", // Group by locationlabel
-          count: { $sum: 1 }      // Count occurrences
+        // Step 1: Normalize the locationlable (remove symbols, extra spaces, convert to lowercase)
+        $addFields: {
+          normalizedLabel: {
+            $trim: {
+              input: {
+                $replaceAll: {
+                  input: {
+                    $toLower: "$locationlable"
+                  },
+                  find: "-",
+                  replacement: ""
+                }
+              }
+            }
+          }
         }
       },
-      { $sort: { count: -1 } },   // Sort by count descending
-      { $limit: 4 },              // Top 4 locations
       {
+        // Optional: Remove extra spaces and unify format further
+        $addFields: {
+          normalizedLabel: {
+            $replaceAll: {
+              input: "$normalizedLabel",
+              find: " ",
+              replacement: ""
+            }
+          }
+        }
+      },
+      {
+        // Step 2: Group by normalizedLabel
+        $group: {
+          _id: "$normalizedLabel",
+          originalLabel: { $first: "$locationlable" },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        // Step 3: Sort by count
+        $sort: { count: -1 }
+      },
+      {
+        // Step 4: Limit to top 4
+        $limit: 4
+      },
+      {
+        // Step 5: Project clean response
         $project: {
           _id: 0,
-          locationlable: "$_id",  // Rename _id to locationlabel
+          locationlable: "$originalLabel", // return one version of the label
           count: 1
         }
       }
@@ -48,6 +87,7 @@ exports.toplocations = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 
 // Get all locations

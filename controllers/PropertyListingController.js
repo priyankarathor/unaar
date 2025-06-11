@@ -148,6 +148,8 @@ const propertyfilterBanner = async (req, res) => {
 };
 
 
+
+
 // ========== INSERT PROPERTY ==========
 const PropertyListingInsert = async (req, res) => {
   try {

@@ -1,7 +1,6 @@
 const PropertyBanner = require("../model/propertybanner"); // Ensure correct path
 
 // ADD PropertyBanner
-// ADD PropertyBanner
 exports.propertyBannerAdd = async (req, res) => {
     try {
         const { 
@@ -15,7 +14,7 @@ exports.propertyBannerAdd = async (req, res) => {
             city, 
             state, 
             loactionlabal 
-        } = req.body; // <-- ✅ This was missing!
+        } = req.body; 
 
         const newBanner = new PropertyBanner({
             tag,
