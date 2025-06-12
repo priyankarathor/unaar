@@ -253,17 +253,18 @@ const propertyfilterBanner = async (req, res) => {
 // };
 
 // Controller to fetch all property listings from the database
+
 const getAllPropertyListings = async (req, res) => {
  try {
     const latestProperty = await PropertyListing.find().sort({ createdAt: -1 });
 
     res.status(200).json({
       status: true,
-      message: 'Latest property listing fetched',
+      message: 'Latest property  fetched',
       data: latestProperty
     });
   } catch (error) {
-    console.error('Error fetching latest property:', error);
+    console.error('Error fetching  property:', error);
     res.status(500).json({ status: false, message: 'Failed to fetch', error: error.message });
   }
 };

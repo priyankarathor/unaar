@@ -157,6 +157,69 @@ exports.toplocationsofcountry = async (req, res) => {
 };
 
 
+//filter all
+exports.toplocationsall = async (req, res) => {
+  try {
+    const result = await Location.aggregate([
+      {
+        // Step 1: Normalize the locationlable (remove symbols, extra spaces, convert to lowercase)
+        $addFields: {
+          normalizedLabel: {
+            $trim: {
+              input: {
+                $replaceAll: {
+                  input: {
+                    $toLower: "$locationlable"
+                  },
+                  find: "-",
+                  replacement: ""
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        // Optional: Remove extra spaces and unify format further
+        $addFields: {
+          normalizedLabel: {
+            $replaceAll: {
+              input: "$normalizedLabel",
+              find: " ",
+              replacement: ""
+            }
+          }
+        }
+      },
+      {
+        // Step 2: Group by normalizedLabel
+        $group: {
+          _id: "$normalizedLabel",
+          originalLabel: { $first: "$locationlable" },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        // Step 3: Sort by count
+        $sort: { count: -1 }
+      },
+      
+      {
+        // Step 5: Project clean response
+        $project: {
+          _id: 0,
+          locationlable: "$originalLabel", // return one version of the label
+          count: 1
+        }
+      }
+    ]);
+
+    res.status(200).json(result);
+  } catch (err) {
+    console.error("Error in /toplocations API:", err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
 
 

@@ -22,11 +22,13 @@ router.post(
 // Get All Properties
 router.get('/properties', propertylistingController.getAllPropertyListings);
 
+//get one data
 router.get('/propertiesdata', propertylistingController.getAllPropertyList);
 
 //property banner filter
 router.get('/propertybannerdata', propertylistingController.propertyfilterBanner);
 
+//property 
 router.get('/propertyfilter', propertylistingController.propertyfilter);
 
 // Get Property by ID
