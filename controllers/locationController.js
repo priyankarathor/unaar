@@ -203,7 +203,10 @@ exports.toplocationsall = async (req, res) => {
         // Step 3: Sort by count
         $sort: { count: -1 }
       },
-      
+      {
+        // Step 4: Limit to top 4
+        $limit: 50
+      },
       {
         // Step 5: Project clean response
         $project: {
