@@ -280,6 +280,7 @@ const getAllPropertyListings = async (req, res) => {
       locationlable: listing.locationlable,
       locationvalue: listing.locationvalue,
       locationvaluetitle: listing.locationvaluetitle,
+      locationdescription: listing.locationdescription,
       apartmenttitle: listing.apartmenttitle,
       apartmentlable: listing.apartmentlable,
       apartmendescription: listing.apartmendescription,

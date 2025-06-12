@@ -88,6 +88,76 @@ exports.toplocations = async (req, res) => {
   }
 };
 
+//filter all state wise 
+exports.toplocationsofcountry = async (req, res) => {
+  try {
+    const result = await Location.aggregate([
+      {
+        // Step 1: Normalize and clean country and state
+        $addFields: {
+          normalizedCountry: {
+            $trim: {
+              input: { $toLower: "$Country" }
+            }
+          },
+          normalizedState: {
+            $trim: {
+              input: { $toLower: "$State" }
+            }
+          }
+        }
+      },
+      {
+        // Step 2: Group by normalized country and state
+        $group: {
+          _id: {
+            country: "$normalizedCountry",
+            state: "$normalizedState"
+          },
+          originalCountry: { $first: "$Country" },
+          originalState: { $first: "$State" },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        // Step 3: Sort within groups
+        $sort: {
+          "_id.country": 1,
+          count: -1
+        }
+      },
+      {
+        // Step 4: Group again by country to collect states
+        $group: {
+          _id: "$_id.country",
+          country: { $first: "$originalCountry" },
+          states: {
+            $push: {
+              state: "$originalState",
+              count: "$count"
+            }
+          }
+        }
+      },
+      {
+        // Step 5: Project clean output
+        $project: {
+          _id: 0,
+          country: 1,
+          states: 1
+        }
+      }
+    ]);
+
+    res.status(200).json(result);
+  } catch (err) {
+    console.error("Error in /toplocations API:", err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
+
 
 
 // Get all locations
