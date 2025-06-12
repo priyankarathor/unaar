@@ -3,6 +3,55 @@ const PropertyBanner = require("../model/propertybanner");
 
 const axios = require('axios');
 
+
+// ========== INSERT PROPERTY ==========
+const PropertyListingInsert = async (req, res) => {
+  try {
+    const {
+      country, state, city, title, subtitle, fromamout, propertylabel, propertyvalue,
+      descriptiontitle, descriptionlabel, descriptionvalue, description, facilitieid,
+      facilitiedescription, featureId, latitude, longitude, locationlable,
+      locationvalue, locationvaluetitle, apartmenttitle, apartmentlable,
+      apartmendescription, remotelocationtitle, remotelocationsubtitle,
+      Currency, tagtitle, nearbyPlaces, pincode, developer
+    } = req.body;
+
+    const newListing = new PropertyListing({
+      country, state, city, title, subtitle, fromamout, propertylabel, propertyvalue,
+      descriptiontitle, descriptionlabel, descriptionvalue, description, facilitieid,
+      facilitiedescription, featureId, latitude, longitude, locationlable,
+      locationvalue, locationvaluetitle, apartmenttitle, apartmentlable,
+      apartmendescription, remotelocationtitle, remotelocationsubtitle,
+      Currency, tagtitle, nearbyPlaces, pincode, developer,
+      createdAt: new Date()
+    });
+
+    if (req.files?.propertyimage) {
+      newListing.propertyimageblobs = req.files.propertyimage.map(img => ({
+        data: img.buffer,
+        contentType: img.mimetype
+      }));
+      newListing.propertyimage = req.files.propertyimage.map(img => img.originalname).join(',');
+    }
+
+    if (req.files?.remotelocationimage) {
+      newListing.remotelocationimageblobs = req.files.remotelocationimage.map(img => ({
+        data: img.buffer,
+        contentType: img.mimetype
+      }));
+      newListing.remotelocationimage = req.files.remotelocationimage.map(img => img.originalname).join(',');
+    }
+
+    const saved = await newListing.save();
+    res.status(201).json({ message: 'Property listing created', data: saved });
+
+  } catch (error) {
+    console.error('Error inserting property:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+
 // Property filter 
 const propertyfilter = async (req, res) => {
     try {
@@ -147,53 +196,6 @@ const propertyfilterBanner = async (req, res) => {
     }
 };
 
-
-// ========== INSERT PROPERTY ==========
-const PropertyListingInsert = async (req, res) => {
-  try {
-    const {
-      country, state, city, title, subtitle, fromamout, propertylabel, propertyvalue,
-      descriptiontitle, descriptionlabel, descriptionvalue, description, facilitieid,
-      facilitiedescription, featureId, latitude, longitude, locationlable,
-      locationvalue, locationvaluetitle, locationdescription, apartmenttitle, apartmentlable,
-      apartmendescription, remotelocationtitle, remotelocationsubtitle,
-      Currency, tagtitle, nearbyPlaces, pincode, developer, type
-    } = req.body;
-
-    const newListing = new PropertyListing({
-      country, state, city, title, subtitle, fromamout, propertylabel, propertyvalue,
-      descriptiontitle, descriptionlabel, descriptionvalue, description, facilitieid,
-      facilitiedescription, featureId, latitude, longitude, locationlable,
-      locationvalue, locationvaluetitle, apartmenttitle, locationdescription, apartmentlable,
-      apartmendescription, remotelocationtitle, remotelocationsubtitle,
-      Currency, tagtitle, nearbyPlaces, pincode, developer, type,
-      createdAt: new Date()
-    });
-
-    if (req.files?.propertyimage) {
-      newListing.propertyimageblobs = req.files.propertyimage.map(img => ({
-        data: img.buffer,
-        contentType: img.mimetype
-      }));
-      newListing.propertyimage = req.files.propertyimage.map(img => img.originalname).join(',');
-    }
-
-    if (req.files?.remotelocationimage) {
-      newListing.remotelocationimageblobs = req.files.remotelocationimage.map(img => ({
-        data: img.buffer,
-        contentType: img.mimetype
-      }));
-      newListing.remotelocationimage = req.files.remotelocationimage.map(img => img.originalname).join(',');
-    }
-
-    const saved = await newListing.save();
-    res.status(201).json({ message: 'Property listing created', data: saved });
-
-  } catch (error) {
-    console.error('Error inserting property:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
-  }
-};
 
 
 // ========== GET ALL ==========
