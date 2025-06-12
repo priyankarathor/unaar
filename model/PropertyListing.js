@@ -36,6 +36,7 @@ const propertyListing = new mongoose.Schema({
   Currency: String,
   nearbyPlaces: String,
   pincode: String,
+  growthrate : String,
    developer: String,
    type:String,
 

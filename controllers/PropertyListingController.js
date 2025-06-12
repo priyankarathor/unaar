@@ -10,7 +10,7 @@ const PropertyListingInsert = async (req, res) => {
     const {
       country, state, city, title, subtitle, fromamout, propertylabel, propertyvalue,
       descriptiontitle, descriptionlabel, descriptionvalue, description, facilitieid,
-      facilitiedescription, featureId, latitude, longitude, locationlable,
+      facilitiedescription, featureId, latitude, longitude, locationlable,growthrate,
       locationvalue, locationvaluetitle, locationdescription, apartmenttitle, apartmentlable,
       apartmendescription, remotelocationtitle, remotelocationsubtitle,
       Currency, tagtitle, nearbyPlaces, pincode, developer
@@ -19,7 +19,7 @@ const PropertyListingInsert = async (req, res) => {
     const newListing = new PropertyListing({
       country, state, city, title, subtitle, fromamout, propertylabel, propertyvalue,
       descriptiontitle, descriptionlabel, descriptionvalue, description, facilitieid,
-      facilitiedescription, featureId, latitude, longitude, locationlable,
+      facilitiedescription, featureId, latitude, longitude, locationlable,growthrate,
       locationvalue, locationvaluetitle, locationdescription, apartmenttitle, apartmentlable,
       apartmendescription, remotelocationtitle, remotelocationsubtitle,
       Currency, tagtitle, nearbyPlaces, pincode, developer,
