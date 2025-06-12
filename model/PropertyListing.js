@@ -37,6 +37,8 @@ const propertyListing = new mongoose.Schema({
   nearbyPlaces: String,
   pincode: String,
   growthrate : String,
+  loginId:String,
+  status:String,
    developer: String,
    type:String,
 
