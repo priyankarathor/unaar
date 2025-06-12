@@ -26,6 +26,7 @@ const propertyListing = new mongoose.Schema({
   locationlable: String,
   locationvalue: String,
   locationvaluetitle: String,
+  locationdescription:String,
   apartmenttitle: String,
   apartmentlable: String,
   apartmendescription: String,

@@ -11,7 +11,7 @@ const PropertyListingInsert = async (req, res) => {
       country, state, city, title, subtitle, fromamout, propertylabel, propertyvalue,
       descriptiontitle, descriptionlabel, descriptionvalue, description, facilitieid,
       facilitiedescription, featureId, latitude, longitude, locationlable,
-      locationvalue, locationvaluetitle, apartmenttitle, apartmentlable,
+      locationvalue, locationvaluetitle, locationdescription, apartmenttitle, apartmentlable,
       apartmendescription, remotelocationtitle, remotelocationsubtitle,
       Currency, tagtitle, nearbyPlaces, pincode, developer
     } = req.body;
@@ -20,7 +20,7 @@ const PropertyListingInsert = async (req, res) => {
       country, state, city, title, subtitle, fromamout, propertylabel, propertyvalue,
       descriptiontitle, descriptionlabel, descriptionvalue, description, facilitieid,
       facilitiedescription, featureId, latitude, longitude, locationlable,
-      locationvalue, locationvaluetitle, apartmenttitle, apartmentlable,
+      locationvalue, locationvaluetitle, locationdescription, apartmenttitle, apartmentlable,
       apartmendescription, remotelocationtitle, remotelocationsubtitle,
       Currency, tagtitle, nearbyPlaces, pincode, developer,
       createdAt: new Date()
@@ -254,78 +254,19 @@ const propertyfilterBanner = async (req, res) => {
 
 // Controller to fetch all property listings from the database
 const getAllPropertyListings = async (req, res) => {
-  try {
-    // Fetch all listings from the database, sorted by creation date (latest first)
-    const listings = await PropertyListing.find().sort({ createdAt: -1 });
+ try {
+    const latestProperty = await PropertyListing.find().sort({ createdAt: -1 });
 
-    // Format each listing for the response
-    const formattedListings = listings.map(listing => ({
-      _id: listing._id,
-      country: listing.country,
-      state: listing.state,
-      city: listing.city,
-      pincode: listing.pincode,
-      title: listing.title,
-      subtitle: listing.subtitle,
-      fromamount: listing.fromamount,
-      propertylabel: listing.propertylabel,
-      propertyvalue: listing.propertyvalue,
-      descriptiontitle: listing.descriptiontitle,
-      descriptionlabel: listing.descriptionlabel,
-      descriptionvalue: listing.descriptionvalue,
-      description: listing.description,
-      facilitieid: listing.facilitieid,
-      facilitiedescription: listing.facilitiedescription,
-      featureId: listing.featureId,
-      latitude: listing.latitude,
-      longitude: listing.longitude,
-      locationlable: listing.locationlable,
-      locationvalue: listing.locationvalue,
-      locationvaluetitle: listing.locationvaluetitle,
-      locationdescription: listing.locationdescription,
-      apartmenttitle: listing.apartmenttitle,
-      apartmentlable: listing.apartmentlable,
-      apartmendescription: listing.apartmendescription,
-      remotelocationtitle: listing.remotelocationtitle,
-      remotelocationsubtitle: listing.remotelocationsubtitle,
-      Currency: listing.Currency,
-      tagtitle: listing.tagtitle,
-      nearbyPlaces: listing.nearbyPlaces,
-      developer: listing.developer,
-      type: listing.type,
-
-      // Return image as a buffer and include its MIME type if present
-      image: listing.image
-        ? {
-            data: listing.image,
-            contentType: listing.imageType || "image/jpeg",
-          }
-        : null,
-
-      createdAt: listing.createdAt,
-      updatedAt: listing.updatedAt,
-    }));
-
-    // Send success response with all formatted listings
     res.status(200).json({
       status: true,
-      message: "Property listings fetched successfully",
-      data: formattedListings,
+      message: 'Latest property listing fetched',
+      data: latestProperty
     });
   } catch (error) {
-    // Log and return error if the fetch fails
-    console.error("Error fetching property listings:", error);
-    res.status(500).json({
-      status: false,
-      message: "Failed to fetch property listings",
-      error: error.message,
-    });
+    console.error('Error fetching latest property:', error);
+    res.status(500).json({ status: false, message: 'Failed to fetch', error: error.message });
   }
 };
-
-
-
-
 
 
 // only one id get 
