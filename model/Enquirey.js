@@ -40,6 +40,9 @@ const Enquirey = new mongoose.Schema({
     },
     inquireType:{
         type:String
+    },
+    inquireurl:{
+        type:String
     }
 })
 
