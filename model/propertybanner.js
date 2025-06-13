@@ -12,7 +12,7 @@ const propertybannerSchematab = new mongoose.Schema({
     state:String,
     loactionlabal: String,
     propertyId : String,
-    DeleoperId : String,
+    developerId : String,
     adverticesvalue : String,
     adverticestext : String,
     image: Buffer,

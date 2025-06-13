@@ -101,7 +101,7 @@ exports.propertyBannerEdit = async (req, res) => {
             state,
             loactionlabal,
             propertyId,
-            DeleoperId,
+            developerId,
             adverticesvalue,
             adverticestext
         } = req.body;
@@ -126,7 +126,7 @@ exports.propertyBannerEdit = async (req, res) => {
         if (state !== undefined) banner.state = state;
         if (loactionlabal !== undefined) banner.loactionlabal = loactionlabal;
         if (propertyId !== undefined) banner.propertyId = propertyId;
-        if (DeleoperId !== undefined) banner.DeleoperId = DeleoperId;
+        if (developerId !== undefined) banner.developerId = developerId;
         if (adverticesvalue !== undefined) banner.adverticesvalue = adverticesvalue;
         if (adverticestext !== undefined) banner.adverticestext = adverticestext;
 
