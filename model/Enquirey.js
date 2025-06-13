@@ -22,6 +22,24 @@ const Enquirey = new mongoose.Schema({
     },
     status:{
         type:String
+    },
+    propertyId:{
+        type:String
+    },
+    country:{
+        type:String
+    },
+    state:{
+        type:String
+    },
+    city:{
+        type:String
+    },
+    type:{
+        type:String
+    },
+    inquireType:{
+        type:String
     }
 })
 
