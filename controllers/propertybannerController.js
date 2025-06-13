@@ -1,6 +1,6 @@
-const PropertyBanner = require("../model/propertybanner"); // Ensure correct path
+const PropertyBanner = require("../model/propertybanner");
 
-// ADD PropertyBanner
+// ADD Property Banner
 exports.propertyBannerAdd = async (req, res) => {
     try {
         const { 
@@ -13,10 +13,23 @@ exports.propertyBannerAdd = async (req, res) => {
             country, 
             city, 
             state, 
-            loactionlabal 
-        } = req.body; 
+            loactionlabal,
+            propertyId,
+            DeleoperId,
+            adverticesvalue,
+            adverticestext
+        } = req.body;
+
+        if (!req.file) {
+            return res.status(400).json({
+                status: false,
+                message: "Image is required",
+            });
+        }
 
         const newBanner = new PropertyBanner({
+            image: req.file.buffer,
+            imageType: req.file.mimetype,
             tag,
             buttontag,
             categoryProperty,
@@ -26,7 +39,11 @@ exports.propertyBannerAdd = async (req, res) => {
             country,
             city,
             state,
-            loactionlabal
+            loactionlabal,
+            propertyId,
+            DeleoperId,
+            adverticesvalue,
+            adverticestext
         });
 
         await newBanner.save();
@@ -38,17 +55,16 @@ exports.propertyBannerAdd = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error inserting property banner:", error);
+        console.error("Error adding property banner:", error);
         res.status(500).json({
             status: false,
-            message: "Failed to insert property banner",
+            message: "Failed to add property banner",
             error: error.message,
         });
     }
 };
 
-
-// GET ALL PropertyBanners
+// GET All Property Banners
 exports.propertyBannerGet = async (req, res) => {
     try {
         const banners = await PropertyBanner.find().sort({ createdAt: -1 });
@@ -69,7 +85,7 @@ exports.propertyBannerGet = async (req, res) => {
     }
 };
 
-// EDIT PropertyBanner
+// EDIT Property Banner
 exports.propertyBannerEdit = async (req, res) => {
     try {
         const { id } = req.params;
@@ -83,7 +99,11 @@ exports.propertyBannerEdit = async (req, res) => {
             country,
             city,
             state,
-            loactionlabal
+            loactionlabal,
+            propertyId,
+            DeleoperId,
+            adverticesvalue,
+            adverticestext
         } = req.body;
 
         const banner = await PropertyBanner.findById(id);
@@ -94,8 +114,8 @@ exports.propertyBannerEdit = async (req, res) => {
             });
         }
 
-        // Update only if fields are provided
-    if (tag !== undefined) banner.tag = tag;
+        // Update fields only if they are provided
+        if (tag !== undefined) banner.tag = tag;
         if (buttontag !== undefined) banner.buttontag = buttontag;
         if (categoryProperty !== undefined) banner.categoryProperty = categoryProperty;
         if (location !== undefined) banner.location = location;
@@ -105,6 +125,16 @@ exports.propertyBannerEdit = async (req, res) => {
         if (city !== undefined) banner.city = city;
         if (state !== undefined) banner.state = state;
         if (loactionlabal !== undefined) banner.loactionlabal = loactionlabal;
+        if (propertyId !== undefined) banner.propertyId = propertyId;
+        if (DeleoperId !== undefined) banner.DeleoperId = DeleoperId;
+        if (adverticesvalue !== undefined) banner.adverticesvalue = adverticesvalue;
+        if (adverticestext !== undefined) banner.adverticestext = adverticestext;
+
+        // If new image is uploaded
+        if (req.file) {
+            banner.image = req.file.buffer;
+            banner.imageType = req.file.mimetype;
+        }
 
         const updatedBanner = await banner.save();
 
@@ -124,7 +154,7 @@ exports.propertyBannerEdit = async (req, res) => {
     }
 };
 
-// DELETE PropertyBanner
+// DELETE Property Banner
 exports.propertyBannerDelete = async (req, res) => {
     try {
         const { id } = req.params;
