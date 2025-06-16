@@ -256,3 +256,55 @@ exports.locationsGet = async (req, res) => {
     });
   }
 };
+
+//get country -> state -> city -> location (count)
+exports.locationsfilter = async (req, res) => {
+  try {
+    const { country, state, city } = req.query;
+
+    const matchQuery = {};
+    if (country) matchQuery.country = country;
+    if (state) matchQuery.state = state;
+    if (city) matchQuery.city = city;
+
+    let groupField = null;
+    let projectField = null;
+
+    if (country && state && city) {
+      groupField = "$locationlable";
+      projectField = "locationlable";
+    } else if (country && state) {
+      groupField = "$city";
+      projectField = "city";
+    } else if (country) {
+      groupField = "$state";
+      projectField = "state";
+    } else {
+      groupField = "$country";
+      projectField = "country";
+    }
+
+    const result = await Location.aggregate([
+      { $match: matchQuery },
+      {
+        $group: {
+          _id: groupField,
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } },
+      {
+        $project: {
+          _id: 0,
+          [projectField]: "$_id",
+          count: 1
+        }
+      }
+    ]);
+
+    res.status(200).json(result);
+  } catch (err) {
+    console.error("Error in toplocations API:", err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
