@@ -257,54 +257,99 @@ exports.locationsGet = async (req, res) => {
   }
 };
 
-//get country -> state -> city -> location (count)
+//get country(count) -> state(count) -> city(count) -> location (count)
 exports.locationsfilter = async (req, res) => {
   try {
     const { country, state, city } = req.query;
 
-    const matchQuery = {};
-    if (country) matchQuery.country = country;
-    if (state) matchQuery.state = state;
-    if (city) matchQuery.city = city;
+    const matchStage = {};
+    if (country) matchStage.Country = country;
+    if (state) matchStage.State = state;
+    if (city) matchStage.City = city;
 
-    let groupField = null;
-    let projectField = null;
+    const pipeline = [
+      { $match: matchStage },
 
-    if (country && state && city) {
-      groupField = "$locationlable";
-      projectField = "locationlable";
-    } else if (country && state) {
-      groupField = "$city";
-      projectField = "city";
-    } else if (country) {
-      groupField = "$state";
-      projectField = "state";
-    } else {
-      groupField = "$country";
-      projectField = "country";
-    }
-
-    const result = await Location.aggregate([
-      { $match: matchQuery },
       {
         $group: {
-          _id: groupField,
+          _id: {
+            country: "$Country",
+            state: "$State",
+            city: "$City",
+            location: "$locationlable"
+          },
           count: { $sum: 1 }
         }
       },
-      { $sort: { count: -1 } },
+
+      {
+        $group: {
+          _id: {
+            country: "$_id.country",
+            state: "$_id.state",
+            city: "$_id.city"
+          },
+          locations: {
+            $push: {
+              location: "$_id.location",
+              count: "$count"
+            }
+          },
+          cityCount: { $sum: "$count" }
+        }
+      },
+
+      {
+        $group: {
+          _id: {
+            country: "$_id.country",
+            state: "$_id.state"
+          },
+          cities: {
+            $push: {
+              city: "$_id.city",
+              count: "$cityCount",
+              locations: "$locations"
+            }
+          },
+          stateCount: { $sum: "$cityCount" }
+        }
+      },
+
+      {
+        $group: {
+          _id: {
+            country: "$_id.country"
+          },
+          states: {
+            $push: {
+              state: "$_id.state",
+              count: "$stateCount",
+              cities: "$cities"
+            }
+          },
+          countryCount: { $sum: "$stateCount" }
+        }
+      },
+
       {
         $project: {
           _id: 0,
-          [projectField]: "$_id",
-          count: 1
+          country: "$_id.country",
+          count: "$countryCount",
+          states: 1
         }
       }
-    ]);
+    ];
 
-    res.status(200).json(result);
-  } catch (err) {
-    console.error("Error in toplocations API:", err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    const result = await Location.aggregate(pipeline);
+
+    res.status(200).json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
