@@ -20,16 +20,7 @@ exports.propertyBannerAdd = async (req, res) => {
             adverticestext
         } = req.body;
 
-        if (!req.file) {
-            return res.status(400).json({
-                status: false,
-                message: "Image is required",
-            });
-        }
-
         const newBanner = new PropertyBanner({
-            image: req.file.buffer,
-            imageType: req.file.mimetype,
             tag,
             buttontag,
             categoryProperty,
@@ -45,6 +36,12 @@ exports.propertyBannerAdd = async (req, res) => {
             adverticesvalue,
             adverticestext
         });
+
+        // Only set image if file is uploaded
+        if (req.file) {
+            newBanner.image = req.file.buffer;
+            newBanner.imageType = req.file.mimetype;
+        }
 
         await newBanner.save();
 
@@ -114,7 +111,7 @@ exports.propertyBannerEdit = async (req, res) => {
             });
         }
 
-        // Update fields only if they are provided
+        // Update fields only if provided
         if (tag !== undefined) banner.tag = tag;
         if (buttontag !== undefined) banner.buttontag = buttontag;
         if (categoryProperty !== undefined) banner.categoryProperty = categoryProperty;
