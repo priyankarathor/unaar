@@ -43,6 +43,9 @@ const Enquirey = new mongoose.Schema({
     },
     inquireurl:{
         type:String
+    },
+    subject:{
+        type:String
     }
 })
 
