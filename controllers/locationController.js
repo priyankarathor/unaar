@@ -108,6 +108,12 @@ exports.toplocationsofcountry = async (req, res) => {
         }
       },
       {
+        // ✅ Step 1.5: Filter for United Arab Emirates only
+        $match: {
+          normalizedCountry: "united arab emirates"
+        }
+      },
+      {
         // Step 2: Group by normalized country and state
         $group: {
           _id: {
@@ -155,6 +161,7 @@ exports.toplocationsofcountry = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 
 //filter all
