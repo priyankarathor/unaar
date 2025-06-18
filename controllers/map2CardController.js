@@ -42,21 +42,31 @@ exports.addMap2Section = async (req, res) => {
 // GET - Get all Map2 Sections
 exports.getMap2Sections = async (req, res) => {
   try {
-    const sections = await Map2Section.find();
+    // Assuming documents have `createdAt` or rely on `_id`'s natural order
+    const section = await Map2Section.findOne().sort({ createdAt: -1 });
+
+    if (!section) {
+      return res.status(404).json({
+        status: false,
+        message: "No section found",
+        data: null,
+      });
+    }
 
     res.status(200).json({
       status: true,
-      message: "Map2 sections fetched successfully",
-      data: sections,
+      message: "Latest Map2 section fetched successfully",
+      data: section,
     });
   } catch (error) {
     res.status(500).json({
       status: false,
-      message: "Failed to fetch sections: " + error.message,
-      data: [],
+      message: "Failed to fetch section: " + error.message,
+      data: null,
     });
   }
 };
+
 
 // PUT - Update Map2 Section by ID
 exports.updateMap2Section = async (req, res) => {
