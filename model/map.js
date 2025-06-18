@@ -1,9 +1,14 @@
 const mongoose = require("mongoose");
 
-const map1Schematab = new mongoose.Schema({
-    image: Buffer,
-    imageType: String,
-    status: String
+const map1Schema = new mongoose.Schema({
+  image: {
+    data: Buffer,
+    contentType: String,
+  },
+  status: {
+    type: String,
+    default: "Active",
+  }
 }, { timestamps: true });
 
-module.exports = mongoose.model("Map1", map1Schematab);
+module.exports = mongoose.model("Map1", map1Schema);

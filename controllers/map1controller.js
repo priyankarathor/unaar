@@ -1,138 +1,64 @@
-const map1 = require("../model/map"); // Ensure the correct path to your Mongoose model
+const Map1 = require("../model/map");
 
-// ADD map
 exports.mapAdd = async (req, res) => {
-    try {
-        const { status } = req.body;
+  try {
+    if (!req.file) return res.status(400).json({ message: "No image uploaded" });
 
-        if (!req.file) {
-            return res.status(400).json({
-                status: false,
-                message: "Image is required",
-            });
-        }
+    const newEntry = new Map1({
+      image: {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      }
+    });
 
-        const newmap = new map({
-            image: req.file.buffer,        // Store image as Buffer
-            imageType: req.file.mimetype,  // Store MIME type
-            status
-        });
-
-        await newmap.save();
-
-        res.status(201).json({
-            status: true,
-            message: "map inserted successfully",
-            data: newmap
-        });
-
-    } catch (error) {
-        console.error("Error inserting map:", error);
-        res.status(500).json({
-            status: false,
-            message: "Failed to insert map",
-            error: error.message
-        });
-    }
+    await newEntry.save();
+    res.status(201).json({ message: "Inserted successfully", data: newEntry });
+  } catch (err) {
+    console.error("Add Error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
 };
 
-// GET ALL maps
 exports.mapGet = async (req, res) => {
-    try {
-        const maps = await map.find().sort({ createdAt: -1 });
-
-        const mapList = maps.map(ad => ({
-            _id: ad._id,
-            image: ad.image ? {
-                data: ad.image,
-                contentType: ad.imageType || 'image/png'
-            } : null,
-            status: ad.status,
-            createdAt: ad.createdAt
-        }));
-
-        res.status(200).json({
-            status: true,
-            message: "maps fetched successfully",
-            data: mapList
-        });
-
-    } catch (error) {
-        console.error("Error fetching maps:", error);
-        res.status(500).json({
-            status: false,
-            message: "Failed to fetch maps",
-            error: error.message
-        });
-    }
+  try {
+    const data = await Map1.find().sort({ createdAt: -1 });
+    res.status(200).json({ data });
+  } catch (err) {
+    res.status(500).json({ message: "Fetch failed" });
+  }
 };
 
-// EDIT map
 exports.mapEdit = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { status } = req.body;
-
-        const map = await map.findById(id);
-        if (!map) {
-            return res.status(404).json({
-                status: false,
-                message: "map not found"
-            });
-        }
-
-        // Update image if new file provided
-        if (req.file) {
-            map.image = req.file.buffer;
-            map.imageType = req.file.mimetype;
-        }
-
-        // Update fields if provided
-        map.status = status || map.status;
-
-        const updatedAd = await map.save();
-
-        res.status(200).json({
-            status: true,
-            message: "map updated successfully",
-            data: updatedAd
-        });
-
-    } catch (error) {
-        console.error("Error updating map:", error);
-        res.status(500).json({
-            status: false,
-            message: "Failed to update map",
-            error: error.message
-        });
+  try {
+    const updateData = {};
+    if (req.file) {
+      updateData.image = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      };
     }
+    const updated = await Map1.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    res.status(200).json({ message: "Updated", data: updated });
+  } catch (err) {
+    res.status(500).json({ message: "Update error", error: err.message });
+  }
 };
 
-// DELETE map
 exports.mapDelete = async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    await Map1.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Delete error" });
+  }
+};
 
-        const deletedAd = await map.findByIdAndDelete(id);
-        if (!deletedAd) {
-            return res.status(404).json({
-                status: false,
-                message: "map not found"
-            });
-        }
-
-        res.status(200).json({
-            status: true,
-            message: "map deleted successfully",
-            data: deletedAd
-        });
-
-    } catch (error) {
-        console.error("Error deleting map:", error);
-        res.status(500).json({
-            status: false,
-            message: "Failed to delete map",
-            error: error.message
-        });
-    }
+exports.updateStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const updated = await Map1.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    res.status(200).json({ message: "Status updated", data: updated });
+  } catch (err) {
+    res.status(500).json({ message: "Status update failed" });
+  }
 };
