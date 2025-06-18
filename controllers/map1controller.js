@@ -28,6 +28,16 @@ exports.mapGet = async (req, res) => {
   }
 };
 
+
+exports.mapGetActive = async (req, res) => {
+  try {
+    const data = await Map1.find({ status: 'Active' });
+    res.status(200).json({ data });
+  } catch (err) {
+    res.status(500).json({ message: "Fetch failed", error: err.message });
+  }
+};
+
 exports.mapEdit = async (req, res) => {
   try {
     const updateData = {};
