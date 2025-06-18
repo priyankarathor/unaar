@@ -8,7 +8,9 @@ exports.addMap2Section = async (req, res) => {
       value1, label1,
       value2, label2,
       value3, label3,
-      value4, label4
+      value4, label4,
+      buttontitle,
+      link
     } = req.body;
 
     const newSection = new Map2Section({
@@ -16,7 +18,9 @@ exports.addMap2Section = async (req, res) => {
       value1, label1,
       value2, label2,
       value3, label3,
-      value4, label4
+      value4, label4,
+      buttontitle,
+      link
     });
 
     await newSection.save();
@@ -63,7 +67,9 @@ exports.updateMap2Section = async (req, res) => {
       value1, label1,
       value2, label2,
       value3, label3,
-      value4, label4
+      value4, label4,
+      buttontitle,
+      link
     } = req.body;
 
     const updatedSection = await Map2Section.findByIdAndUpdate(
@@ -73,7 +79,9 @@ exports.updateMap2Section = async (req, res) => {
         value1, label1,
         value2, label2,
         value3, label3,
-        value4, label4
+        value4, label4,
+        buttontitle,
+        link
       },
       { new: true }
     );

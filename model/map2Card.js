@@ -29,6 +29,12 @@ const map2CardSchema = new mongoose.Schema({
   label4:{
     type : String
   },
+  buttontitle:{
+    type: String
+  },
+  link:{
+    type: String
+  }
 });
 
 // Model name: 'homelayout' will be the MongoDB collection name (lowercased + pluralized)
