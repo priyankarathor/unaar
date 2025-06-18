@@ -28,6 +28,7 @@ const homeRoutes = require("./routes/homeRoutes");
 const adverticement = require("./routes/adverticementRoutes");
 const propertybanner = require("./routes/propertybannerRoutes");
 const mapRoutes = require('./routes/map1Routes');
+const cardMapRoutes = require('./routes/map2CardRoutes');
 
 const app = express();
 
@@ -68,6 +69,7 @@ app.use("/api/home", homeRoutes);
 app.use("/api/adverticement", adverticement);
 app.use("/api/propertybanner",propertybanner);
 app.use("/api/mapRoutes",mapRoutes);
+app.use("/api/Map2Routes",cardMapRoutes);
 
 // Server Listener
 const PORT = process.env.PORT || 8001;
