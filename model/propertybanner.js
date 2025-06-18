@@ -16,7 +16,9 @@ const propertybannerSchematab = new mongoose.Schema({
     adverticesvalue : String,
     adverticestext : String,
     image: Buffer,
-    imageType : String 
+    imageType : String ,
+    bannertype :String
+
 }, { timestamps: true });
 
 module.exports = mongoose.model("propertybannerSchema", propertybannerSchematab);

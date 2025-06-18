@@ -17,7 +17,8 @@ exports.propertyBannerAdd = async (req, res) => {
             propertyId,
             DeleoperId,
             adverticesvalue,
-            adverticestext
+            adverticestext,
+            bannertype,
         } = req.body;
 
         const newBanner = new PropertyBanner({
@@ -34,7 +35,8 @@ exports.propertyBannerAdd = async (req, res) => {
             propertyId,
             DeleoperId,
             adverticesvalue,
-            adverticestext
+            adverticestext,
+            bannertype
         });
 
         // Only set image if file is uploaded
@@ -100,7 +102,8 @@ exports.propertyBannerEdit = async (req, res) => {
             propertyId,
             developerId,
             adverticesvalue,
-            adverticestext
+            adverticestext,
+            bannertype
         } = req.body;
 
         const banner = await PropertyBanner.findById(id);
@@ -126,7 +129,7 @@ exports.propertyBannerEdit = async (req, res) => {
         if (developerId !== undefined) banner.developerId = developerId;
         if (adverticesvalue !== undefined) banner.adverticesvalue = adverticesvalue;
         if (adverticestext !== undefined) banner.adverticestext = adverticestext;
-
+        if (bannertype !== undefined) banner.adverticestext = bannertype;
         // If new image is uploaded
         if (req.file) {
             banner.image = req.file.buffer;
