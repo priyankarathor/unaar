@@ -361,31 +361,32 @@ exports.locationsfilter = async (req, res) => {
   }
 };
 
-//delete 
+
+//delete
 exports.locationDelete = async (req, res) => {
-  try{
-    const{PropertyId} = req.params;
-    const locationDelete = await  Location.findByIdAndDelete(PropertyId);
+  try {
+    const { PropertyId } = req.params;
 
-           if (!locationDelete) {
-            return res.status(404).json({
-                status: false,
-                message: "Location section not found",
-                data: null,
-            });
-        }
+    const locationDelete = await Location.findOneAndDelete({ propertyId: PropertyId });
 
-        res.status(200).json({
-            status: true,
-            message: "Location section deleted successfully",
-            data: locationDelete,
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: false,
-            message: "Something went wrong: " + error.message,
-            data: null,
-        });
+    if (!locationDelete) {
+      return res.status(404).json({
+        status: false,
+        message: "Location section not found",
+        data: null,
+      });
     }
-  }
 
+    res.status(200).json({
+      status: true,
+      message: "Location section deleted successfully",
+      data: locationDelete,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Something went wrong: " + error.message,
+      data: null,
+    });
+  }
+};
