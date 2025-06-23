@@ -360,3 +360,32 @@ exports.locationsfilter = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
+//delete 
+exports.locationDelete = async (req, res) => {
+  try{
+    const{id} = req.params;
+    const locationDelete = await  Location.findByIdAndDelete(id);
+
+           if (!locationDelete) {
+            return res.status(404).json({
+                status: false,
+                message: "Location section not found",
+                data: null,
+            });
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "Location section deleted successfully",
+            data: locationDelete,
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            message: "Something went wrong: " + error.message,
+            data: null,
+        });
+    }
+  }
+

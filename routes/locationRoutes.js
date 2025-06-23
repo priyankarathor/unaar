@@ -11,4 +11,6 @@ router.get('/locationtop', locationController.toplocations);
 router.get('/countryTopLocation', locationController.toplocationsofcountry);
 router.get('/toplocationsalldata', locationController.toplocationsall);
 router.get('/alllocationfilter', locationController.locationsfilter);
+router.delete('/locationDeleteData', locationController.locationDelete);
+
 module.exports = router;
