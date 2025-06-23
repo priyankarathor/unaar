@@ -364,8 +364,8 @@ exports.locationsfilter = async (req, res) => {
 //delete 
 exports.locationDelete = async (req, res) => {
   try{
-    const{id} = req.params;
-    const locationDelete = await  Location.findByIdAndDelete(id);
+    const{PropertyId} = req.params;
+    const locationDelete = await  Location.findByIdAndDelete(PropertyId);
 
            if (!locationDelete) {
             return res.status(404).json({
