@@ -3,22 +3,22 @@ const PropertyBanner = require("../model/propertybanner");
 // ADD Property Banner
 exports.propertyBannerAdd = async (req, res) => {
     try {
-        const { 
+        const {
             tag,
-            buttontag, 
-            categoryProperty, 
-            location, 
-            latitude, 
-            longitude, 
-            country, 
-            city, 
-            state, 
-            loactionlabal,
+            buttontag,
+            categoryProperty,
+            location,
+            latitude,
+            longitude,
+            country,
+            city,
+            state,
+            locationlabel,
             propertyId,
-            DeleoperId,
+            developerId,
             adverticesvalue,
             adverticestext,
-            bannertype,
+            bannertype
         } = req.body;
 
         const newBanner = new PropertyBanner({
@@ -31,15 +31,14 @@ exports.propertyBannerAdd = async (req, res) => {
             country,
             city,
             state,
-            loactionlabal,
+            locationlabel,
             propertyId,
-            DeleoperId,
+            developerId,
             adverticesvalue,
             adverticestext,
             bannertype
         });
 
-        // Only set image if file is uploaded
         if (req.file) {
             newBanner.image = req.file.buffer;
             newBanner.imageType = req.file.mimetype;
@@ -50,7 +49,7 @@ exports.propertyBannerAdd = async (req, res) => {
         res.status(201).json({
             status: true,
             message: "Property banner added successfully",
-            data: newBanner,
+            data: newBanner
         });
 
     } catch (error) {
@@ -58,7 +57,7 @@ exports.propertyBannerAdd = async (req, res) => {
         res.status(500).json({
             status: false,
             message: "Failed to add property banner",
-            error: error.message,
+            error: error.message
         });
     }
 };
@@ -71,7 +70,7 @@ exports.propertyBannerGet = async (req, res) => {
         res.status(200).json({
             status: true,
             message: "Property banners fetched successfully",
-            data: banners,
+            data: banners
         });
 
     } catch (error) {
@@ -79,7 +78,7 @@ exports.propertyBannerGet = async (req, res) => {
         res.status(500).json({
             status: false,
             message: "Failed to fetch property banners",
-            error: error.message,
+            error: error.message
         });
     }
 };
@@ -98,7 +97,7 @@ exports.propertyBannerEdit = async (req, res) => {
             country,
             city,
             state,
-            loactionlabal,
+            locationlabel,
             propertyId,
             developerId,
             adverticesvalue,
@@ -110,11 +109,11 @@ exports.propertyBannerEdit = async (req, res) => {
         if (!banner) {
             return res.status(404).json({
                 status: false,
-                message: "Property banner not found",
+                message: "Property banner not found"
             });
         }
 
-        // Update fields only if provided
+        // Update fields if present
         if (tag !== undefined) banner.tag = tag;
         if (buttontag !== undefined) banner.buttontag = buttontag;
         if (categoryProperty !== undefined) banner.categoryProperty = categoryProperty;
@@ -124,13 +123,13 @@ exports.propertyBannerEdit = async (req, res) => {
         if (country !== undefined) banner.country = country;
         if (city !== undefined) banner.city = city;
         if (state !== undefined) banner.state = state;
-        if (loactionlabal !== undefined) banner.loactionlabal = loactionlabal;
+        if (locationlabel !== undefined) banner.locationlabel = locationlabel;
         if (propertyId !== undefined) banner.propertyId = propertyId;
         if (developerId !== undefined) banner.developerId = developerId;
         if (adverticesvalue !== undefined) banner.adverticesvalue = adverticesvalue;
         if (adverticestext !== undefined) banner.adverticestext = adverticestext;
-        if (bannertype !== undefined) banner.adverticestext = bannertype;
-        // If new image is uploaded
+        if (bannertype !== undefined) banner.bannertype = bannertype;
+
         if (req.file) {
             banner.image = req.file.buffer;
             banner.imageType = req.file.mimetype;
@@ -141,7 +140,7 @@ exports.propertyBannerEdit = async (req, res) => {
         res.status(200).json({
             status: true,
             message: "Property banner updated successfully",
-            data: updatedBanner,
+            data: updatedBanner
         });
 
     } catch (error) {
@@ -149,7 +148,7 @@ exports.propertyBannerEdit = async (req, res) => {
         res.status(500).json({
             status: false,
             message: "Failed to update property banner",
-            error: error.message,
+            error: error.message
         });
     }
 };
@@ -163,14 +162,14 @@ exports.propertyBannerDelete = async (req, res) => {
         if (!deletedBanner) {
             return res.status(404).json({
                 status: false,
-                message: "Property banner not found",
+                message: "Property banner not found"
             });
         }
 
         res.status(200).json({
             status: true,
             message: "Property banner deleted successfully",
-            data: deletedBanner,
+            data: deletedBanner
         });
 
     } catch (error) {
@@ -178,7 +177,7 @@ exports.propertyBannerDelete = async (req, res) => {
         res.status(500).json({
             status: false,
             message: "Failed to delete property banner",
-            error: error.message,
+            error: error.message
         });
     }
 };

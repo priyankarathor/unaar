@@ -1,24 +1,23 @@
 const mongoose = require("mongoose");
 
-const propertybannerSchematab = new mongoose.Schema({
-    tag:String,
+const propertyBannerSchema = new mongoose.Schema({
+    tag: String,
     buttontag: String,
-    categoryProperty:String,
+    categoryProperty: String,
     location: String,
     latitude: String,
     longitude: String,
     country: String,
-    city :String,
-    state:String,
-    loactionlabal: String,
-    propertyId : String,
-    developerId : String,
-    adverticesvalue : String,
-    adverticestext : String,
+    city: String,
+    state: String,
+    locationlabel: String, // fixed typo from "loactionlabal"
+    propertyId: String,
+    developerId: String, // fixed typo from "DeleoperId"
+    adverticesvalue: String,
+    adverticestext: String,
+    bannertype: String,
     image: Buffer,
-    imageType : String ,
-    bannertype :String
-
+    imageType: String
 }, { timestamps: true });
 
-module.exports = mongoose.model("propertybannerSchema", propertybannerSchematab);
+module.exports = mongoose.model("PropertyBanner", propertyBannerSchema);
