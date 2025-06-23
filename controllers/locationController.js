@@ -362,30 +362,29 @@ exports.locationsfilter = async (req, res) => {
 };
 
 
-//delete
+// Delete all locations by property ID
 exports.locationDelete = async (req, res) => {
   try {
-    const { PropertyId } = req.params;
+    const { id } = req.params; // this is the property ID
+    const deletedLocations = await Location.deleteMany({ propertyid: id });
 
-    const locationDelete = await Location.findOneAndDelete({ PropertyId: PropertyId });
-
-    if (!locationDelete) {
+    if (deletedLocations.deletedCount === 0) {
       return res.status(404).json({
         status: false,
-        message: "Location section not found",
+        message: 'No location found for this property ID',
         data: null,
       });
     }
 
     res.status(200).json({
       status: true,
-      message: "Location section deleted successfully",
-      data: locationDelete,
+      message: 'Location(s) deleted successfully',
+      data: deletedLocations,
     });
   } catch (error) {
     res.status(500).json({
       status: false,
-      message: "Something went wrong: " + error.message,
+      message: 'Something went wrong: ' + error.message,
       data: null,
     });
   }

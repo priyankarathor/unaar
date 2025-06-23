@@ -71,30 +71,30 @@ exports.homesectionedit = async (req, res) => {
     }
 };
 
-// Delete all locations by property ID
-exports.locationDelete = async (req, res) => {
-  try {
-    const { id } = req.params; // this is the property ID
-    const deletedLocations = await Location.deleteMany({ propertyid: id });
+// DELETE - Delete Home Section by ID
+exports.homesectiondelete = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedHero = await Homesection.findByIdAndDelete(id);
 
-    if (deletedLocations.deletedCount === 0) {
-      return res.status(404).json({
-        status: false,
-        message: 'No location found for this property ID',
-        data: null,
-      });
+        if (!deletedHero) {
+            return res.status(404).json({
+                status: false,
+                message: "Home section not found",
+                data: null,
+            });
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "Home section deleted successfully",
+            data: deletedHero,
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            message: "Something went wrong: " + error.message,
+            data: null,
+        });
     }
-
-    res.status(200).json({
-      status: true,
-      message: 'Location(s) deleted successfully',
-      data: deletedLocations,
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: false,
-      message: 'Something went wrong: ' + error.message,
-      data: null,
-    });
-  }
 };
