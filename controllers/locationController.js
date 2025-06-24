@@ -366,7 +366,7 @@ exports.locationsfilter = async (req, res) => {
 exports.locationDelete = async (req, res) => {
   try {
     const { id } = req.params; // this is the property ID
-    const deletedLocations = await Location.deleteMany({ propertyid: id });
+    const deletedLocations = await Location.deleteMany({ PropertyId: id });
 
     if (deletedLocations.deletedCount === 0) {
       return res.status(404).json({
