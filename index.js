@@ -4,7 +4,13 @@ const path = require('path');
 const cors = require("cors");
 const connectDB = require('./Server/Connection');
 
+const dotenv = require('dotenv');
+
+dotenv.config();
+
 // Route Imports
+const exchangeRoutes = require('./routes/exchangeRoutes');
+require('./cron/currencyJob');
 const userRoutes = require("./routes/userRoutes");
 const enquiryRoutes = require("./routes/enquireyRoutes");
 const agencyRoutes = require("./routes/agencieRoutes");
@@ -44,6 +50,7 @@ connectDB();
 app.get("/", (req, res) => {
   res.send("API is working");
 });
+require('./cron/currencyJob');
 
 // API Routes
 app.use("/api/users", userRoutes);
@@ -70,6 +77,7 @@ app.use("/api/adverticement", adverticement);
 app.use("/api/propertybanner",propertybanner);
 app.use("/api/mapRoutes",mapRoutes);
 app.use("/api/Map2Routes",cardMapRoutes);
+app.use('/api/exchange', exchangeRoutes);
 
 // Server Listener
 const PORT = process.env.PORT || 8001;
