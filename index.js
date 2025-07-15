@@ -4,6 +4,7 @@ const path = require('path');
 const cors = require("cors");
 const connectDB = require('./Server/Connection');
 
+
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -11,6 +12,9 @@ dotenv.config();
 // Route Imports
 const exchangeRoutes = require('./routes/exchangeRoutes');
 require('./cron/currencyJob');
+
+
+
 const userRoutes = require("./routes/userRoutes");
 const enquiryRoutes = require("./routes/enquireyRoutes");
 const agencyRoutes = require("./routes/agencieRoutes");
@@ -36,12 +40,15 @@ const propertybanner = require("./routes/propertybannerRoutes");
 const mapRoutes = require('./routes/map1Routes');
 const cardMapRoutes = require('./routes/map2CardRoutes');
 
+// const uploads = require("./uploads");
+
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(cors());
-// app.use('/uploads', express.static(path.join(__dirname, './uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Connect to Database
 connectDB();
@@ -78,6 +85,8 @@ app.use("/api/propertybanner",propertybanner);
 app.use("/api/mapRoutes",mapRoutes);
 app.use("/api/Map2Routes",cardMapRoutes);
 app.use('/api/exchange', exchangeRoutes);
+
+// app.use('/uploads', express.static('uploads'));
 
 // Server Listener
 const PORT = process.env.PORT || 8001;

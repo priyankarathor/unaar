@@ -1,12 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../middleware/multer");
-
 const {
-    Testimonialadd,
-    TestimonialGet,
-    TestimonialEdit,
-    TestimonialDelete
+  Testimonialadd,
+  TestimonialGet,
+  TestimonialEdit,
+  TestimonialDelete
 } = require("../controllers/testimonialController");
 
 router.post("/testimonialinsert", upload.single('image'), Testimonialadd);
