@@ -6,9 +6,14 @@ exports.Testimonialadd = async (req, res) => {
   try {
     const { Name, email, designation, message, star, date } = req.body;
 
-    const imageUrl = req.file
-      ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
-      : null;
+    // const imageUrl = req.file
+    //   ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
+    //   : null;
+      
+
+      const imageUrl = req.file
+  ? `http://localhost:8000/uploads/${req.file.filename}`
+  : null;
 
 
       console.log("THIS IMAGE WAS UPLOADED",imageUrl);
