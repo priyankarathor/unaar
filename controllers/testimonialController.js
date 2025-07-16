@@ -1,4 +1,5 @@
 const Testimonial = require('../model/Testimonial');
+const path = require('path');
 
 // INSERT
 exports.Testimonialadd = async (req, res) => {
@@ -27,12 +28,7 @@ exports.Testimonialadd = async (req, res) => {
       data: newTestimonial
     });
   } catch (error) {
-    console.error('Insert Error:', error);
-    res.status(500).json({
-      status: false,
-      message: "Failed to insert Testimonial",
-      error: error.message
-    });
+    res.status(500).json({ status: false, message: "Insert failed", error: error.message });
   }
 };
 
@@ -47,12 +43,7 @@ exports.TestimonialGet = async (req, res) => {
       data: testimonials
     });
   } catch (error) {
-    console.error('Fetch Error:', error);
-    res.status(500).json({
-      status: false,
-      message: "Failed to fetch Testimonials",
-      error: error.message
-    });
+    res.status(500).json({ status: false, message: "Fetch failed", error: error.message });
   }
 };
 
@@ -64,10 +55,7 @@ exports.TestimonialEdit = async (req, res) => {
 
     const testimonial = await Testimonial.findById(id);
     if (!testimonial) {
-      return res.status(404).json({
-        status: false,
-        message: "Testimonial not found"
-      });
+      return res.status(404).json({ status: false, message: "Testimonial not found" });
     }
 
     testimonial.Name = Name;
@@ -89,12 +77,7 @@ exports.TestimonialEdit = async (req, res) => {
       data: updated
     });
   } catch (error) {
-    console.error('Edit Error:', error);
-    res.status(500).json({
-      status: false,
-      message: "Failed to update Testimonial",
-      error: error.message
-    });
+    res.status(500).json({ status: false, message: "Edit failed", error: error.message });
   }
 };
 
@@ -105,10 +88,7 @@ exports.TestimonialDelete = async (req, res) => {
 
     const deleted = await Testimonial.findByIdAndDelete(id);
     if (!deleted) {
-      return res.status(404).json({
-        status: false,
-        message: "Testimonial not found"
-      });
+      return res.status(404).json({ status: false, message: "Testimonial not found" });
     }
 
     res.status(200).json({
@@ -117,11 +97,6 @@ exports.TestimonialDelete = async (req, res) => {
       data: deleted
     });
   } catch (error) {
-    console.error('Delete Error:', error);
-    res.status(500).json({
-      status: false,
-      message: "Failed to delete Testimonial",
-      error: error.message
-    });
+    res.status(500).json({ status: false, message: "Delete failed", error: error.message });
   }
 };
