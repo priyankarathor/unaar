@@ -10,7 +10,7 @@ exports.Testimonialadd = async (req, res) => {
   ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
   : null;
 
-    console.log("THIS IMAGE WAS UPLOADED", imageUrl);
+    console.log("THIS IMAGE WAS UPLOADED ON SERVER", imageUrl);
 
     const newTestimonial = new Testimonial({
       imageUrl,
