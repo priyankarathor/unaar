@@ -7,11 +7,13 @@ exports.Testimonialadd = async (req, res) => {
     const { Name, email, designation, message, star, date } = req.body;
 
     const imageUrl = req.file
-      ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+      ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
       : null;
+      
 
-    console.log("THIS IMAGE WAS UPLOADED", imageUrl);
 
+
+      console.log("THIS IMAGE WAS UPLOADED",imageUrl);
     const newTestimonial = new Testimonial({
       imageUrl,
       Name,
@@ -19,7 +21,7 @@ exports.Testimonialadd = async (req, res) => {
       designation,
       message,
       star,
-      date: date || Date.now(),
+      date: date || Date.now()
     });
 
     await newTestimonial.save();
@@ -27,7 +29,7 @@ exports.Testimonialadd = async (req, res) => {
     res.status(201).json({
       status: true,
       message: "Testimonial inserted successfully",
-      data: newTestimonial,
+      data: newTestimonial
     });
   } catch (error) {
     res.status(500).json({ status: false, message: "Insert failed", error: error.message });
