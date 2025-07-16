@@ -1,5 +1,5 @@
 const PropertyListing = require('../model/PropertyListing');
-const PropertyBanner = require('../model/propertybanner');
+const PropertyBanner = require("../model/propertybanner");
 
 // ========== INSERT PROPERTY ==========
 const PropertyListingInsert = async (req, res) => {
@@ -23,15 +23,23 @@ const PropertyListingInsert = async (req, res) => {
       createdAt: new Date()
     });
 
-    // ✅ Store property image URLs
+    // Handle Property Images
     if (req.files?.propertyimage) {
+      newListing.propertyimageblobs = req.files.propertyimage.map(img => ({
+        data: img.buffer,
+        contentType: img.mimetype
+      }));
       newListing.propertyimage = req.files.propertyimage.map(img =>
         `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
       ).join(',');
     }
 
-    // ✅ Store remote location image URLs
+    // Handle Remote Location Image
     if (req.files?.remotelocationimage) {
+      newListing.remotelocationimageblobs = req.files.remotelocationimage.map(img => ({
+        data: img.buffer,
+        contentType: img.mimetype
+      }));
       newListing.remotelocationimage = req.files.remotelocationimage.map(img =>
         `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
       ).join(',');
@@ -39,6 +47,7 @@ const PropertyListingInsert = async (req, res) => {
 
     const saved = await newListing.save();
     res.status(201).json({ message: 'Property listing created', data: saved });
+
   } catch (error) {
     console.error('Error inserting property:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -94,14 +103,21 @@ const updatePropertyListing = async (req, res) => {
   try {
     const updatedData = { ...req.body };
 
-    // ✅ Update image URLs
     if (req.files?.propertyimage) {
+      updatedData.propertyimageblobs = req.files.propertyimage.map(image => ({
+        data: image.buffer,
+        contentType: image.mimetype
+      }));
       updatedData.propertyimage = req.files.propertyimage.map(img =>
         `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
       ).join(',');
     }
 
     if (req.files?.remotelocationimage) {
+      updatedData.remotelocationimageblobs = req.files.remotelocationimage.map(image => ({
+        data: image.buffer,
+        contentType: image.mimetype
+      }));
       updatedData.remotelocationimage = req.files.remotelocationimage.map(img =>
         `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
       ).join(',');
@@ -109,11 +125,10 @@ const updatePropertyListing = async (req, res) => {
 
     const updated = await PropertyListing.findByIdAndUpdate(req.params.id, updatedData, { new: true });
 
-    if (!updated) {
-      return res.status(404).json({ message: 'Property not found' });
-    }
+    if (!updated) return res.status(404).json({ message: 'Property not found' });
 
     res.status(200).json({ message: 'Property updated successfully', data: updated });
+
   } catch (error) {
     console.error('Error updating listing:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -125,10 +140,12 @@ const deletePropertyListing = async (req, res) => {
   try {
     const deleted = await PropertyListing.findByIdAndDelete(req.params.id);
     if (!deleted) {
+      console.log('Property not found with ID:', req.params.id);
       return res.status(404).json({ status: false, message: 'Property not found' });
     }
 
     res.status(200).json({ status: true, message: 'Property deleted successfully' });
+
   } catch (error) {
     console.error('Error deleting property:', error);
     res.status(500).json({ status: false, message: 'Internal server error', error: error.message });
@@ -185,14 +202,14 @@ const propertyfilter = async (req, res) => {
 
     res.status(200).json({
       status: true,
-      message: 'Properties fetched successfully',
-      data: filteredProperties
+      message: "Properties fetched successfully",
+      data: filteredProperties,
     });
   } catch (error) {
     res.status(500).json({
       status: false,
-      message: 'Error fetching properties',
-      error: error.message
+      message: "Error fetching properties",
+      error: error.message,
     });
   }
 };
@@ -210,14 +227,14 @@ const propertyfilterBanner = async (req, res) => {
 
     res.status(200).json({
       status: true,
-      message: 'Banners fetched successfully',
+      message: "Banners fetched successfully based on filters",
       data: { banners }
     });
   } catch (error) {
     res.status(500).json({
       status: false,
-      message: 'Error fetching data',
-      error: error.message
+      message: "Error fetching data",
+      error: error.message,
     });
   }
 };
