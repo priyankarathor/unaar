@@ -9,9 +9,23 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+// const uploads = require("./uploads");
+
+const app = express();
+
+// Middleware
+app.use(express.json());
+app.use(cors());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
+// Connect to Database
+connectDB();
+
 // Route Imports
 const exchangeRoutes = require('./routes/exchangeRoutes');
 require('./cron/currencyJob');
+
 
 
 
@@ -40,18 +54,7 @@ const propertybanner = require("./routes/propertybannerRoutes");
 const mapRoutes = require('./routes/map1Routes');
 const cardMapRoutes = require('./routes/map2CardRoutes');
 
-// const uploads = require("./uploads");
 
-const app = express();
-
-// Middleware
-app.use(express.json());
-app.use(cors());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-
-// Connect to Database
-connectDB();
 
 // Root Route
 app.get("/", (req, res) => {
