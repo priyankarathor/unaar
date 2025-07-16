@@ -11,9 +11,9 @@ const {
 } = require('../controllers/testimonialController');
 
 // Routes
-router.post('/add', upload.single('image'), Testimonialadd);
-router.get('/get', TestimonialGet);
-router.put('/edit/:id', upload.single('image'), TestimonialEdit);
-router.delete('/delete/:id', TestimonialDelete);
+router.post('/testimonialinsert', upload.single('image'), Testimonialadd);
+router.get('/testimonialget', TestimonialGet);
+router.put('/testimonialedit/:id', upload.single('image'), TestimonialEdit);
+router.delete('/testimonialdelete/:id', TestimonialDelete);
 
 module.exports = router;
