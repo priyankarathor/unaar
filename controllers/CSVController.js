@@ -1,11 +1,18 @@
-// controllers/propertyController.js
 const PropertyListing = require('../model/PropertyListing');
 
-const axios = require('axios');
+const parseJSONField = (field) => {
+  if (!field) return [];
+  try {
+    const parsed = JSON.parse(field);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    return field.split(',').map(item => item.trim());
+  }
+};
 
 const bulkInsertProperties = async (req, res) => {
   try {
-    const rows = JSON.parse(req.body.rows); // frontend sends JSON stringified array of CSV rows
+    const rows = JSON.parse(req.body.rows);
 
     if (!Array.isArray(rows) || rows.length === 0) {
       return res.status(400).json({ message: "No valid CSV data provided." });
@@ -58,17 +65,11 @@ const bulkInsertProperties = async (req, res) => {
 
     const result = await PropertyListing.insertMany(documents);
 
-    res.status(200).json({
-      message: `${result.length} properties inserted successfully`,
-      data: result
-    });
+    res.status(200).json({ message: `${result.length} properties inserted successfully`, data: result });
   } catch (error) {
     console.error("Bulk Insert Error:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
 
-
-module.exports = {
-  bulkInsertProperties,
-};
+module.exports = { bulkInsertProperties };

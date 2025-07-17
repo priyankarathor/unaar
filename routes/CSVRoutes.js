@@ -1,11 +1,10 @@
-// routes/propertyRoutes.js
-
 const express = require('express');
-const router = express.Router();
 const multer = require('multer');
-const { insertProperty } = require('../controllers/CSVController');
+const { bulkInsertProperties } = require('../controllers/CSVController');
 
-const upload = multer(); // using memory storage (for form fields only)
-//CSV BULK
-router.post('/bulkpropertyinsert', upload.none(), propertylistingController.bulkInsertProperties);
+const router = express.Router();
+const upload = multer(); // for form-data without file
+
+router.post('/bulkpropertyinsert', upload.none(), bulkInsertProperties);
+
 module.exports = router;
