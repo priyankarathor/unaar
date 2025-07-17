@@ -24,18 +24,18 @@ const PropertyListingInsert = async (req, res) => {
     });
 
     // ✅ Store property image URLs
-    if (req.files?.propertyimage) {
-      newListing.propertyimage = req.files.propertyimage.map(img =>
-        `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
-      ).join(',');
-    }
+ if (req.files?.propertyimage) {
+  newListing.propertyimage = req.files.propertyimage.map(img =>
+    `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
+  ).join(',');
+}
 
-    // ✅ Store remote location image URLs
-    if (req.files?.remotelocationimage) {
-      newListing.remotelocationimage = req.files.remotelocationimage.map(img =>
-        `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
-      ).join(',');
-    }
+if (req.files?.remotelocationimage) {
+  newListing.remotelocationimage = req.files.remotelocationimage
+    .filter(img => img?.filename)
+    .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
+    .join(',');
+}
 
     const saved = await newListing.save();
     res.status(201).json({ message: 'Property listing created', data: saved });
