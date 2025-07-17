@@ -45,4 +45,7 @@ router.put(
 // Delete Property
 router.delete('/propertydelete/:id', propertylistingController.deletePropertyListing);
 
+//CSV BULK
+router.post('/bulkpropertyinsert', upload.none(), propertylistingController.bulkInsertProperties);
+
 module.exports = router;
