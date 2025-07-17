@@ -9,4 +9,5 @@ const upload = multer(); // using memory storage (for form fields only)
 
 router.post('/propertyinsert', upload.none(), insertProperty);
 
+
 module.exports = router;

@@ -37,6 +37,10 @@ const insertProperty = async (req, res) => {
       body.longitude = parseFloat(body.longitude);
     }
 
+    if (typeof body.features === 'string') {
+  body.features = body.features.split(',').map(item => item.trim());
+}
+
     // Now insert clean body into DB
     const property = new PropertyListing(body);
     const savedProperty = await property.save();
