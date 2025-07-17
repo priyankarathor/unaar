@@ -5,9 +5,11 @@ const axios = require('axios');
 
 const insertProperty = async (req, res) => {
   try {
+    console.log("REQ.BODY RECEIVED:", req.body);
+
     const body = { ...req.body };
 
-    // Fix comma-separated string fields into arrays
+    // Fix comma-separated fields
     if (typeof body.features === 'string') {
       body.features = body.features.split(',').map(item => item.trim());
     }
@@ -19,29 +21,18 @@ const insertProperty = async (req, res) => {
     if (typeof body.nearbyPlaces === 'string') {
       try {
         body.nearbyPlaces = JSON.parse(body.nearbyPlaces);
-      } catch {
+      } catch (e) {
         body.nearbyPlaces = body.nearbyPlaces.split(',').map(p => p.trim());
       }
     }
 
-    // Convert numbers if necessary
-    if (typeof body.price === 'string') {
-      body.price = Number(body.price);
-    }
+    // Convert numeric values
+    if (body.price) body.price = Number(body.price);
+    if (body.latitude) body.latitude = parseFloat(body.latitude);
+    if (body.longitude) body.longitude = parseFloat(body.longitude);
 
-    if (typeof body.latitude === 'string') {
-      body.latitude = parseFloat(body.latitude);
-    }
+    console.log("FINAL BODY TO INSERT:", body);
 
-    if (typeof body.longitude === 'string') {
-      body.longitude = parseFloat(body.longitude);
-    }
-
-    if (typeof body.features === 'string') {
-  body.features = body.features.split(',').map(item => item.trim());
-}
-
-    // Now insert clean body into DB
     const property = new PropertyListing(body);
     const savedProperty = await property.save();
 
