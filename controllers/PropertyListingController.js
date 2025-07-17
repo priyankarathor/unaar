@@ -249,7 +249,7 @@ const parseJSONField = (value) => {
   }
 };
 
-exports.bulkInsertProperties = async (req, res) => {
+const bulkInsertProperties = async (req, res) => {
   try {
     const rows = JSON.parse(req.body.rows); // frontend sends JSON stringified array of CSV rows
 
@@ -322,5 +322,6 @@ module.exports = {
   deletePropertyListing,
   getAllPropertyList,
   propertyfilter,
-  propertyfilterBanner
+  propertyfilterBanner,
+  bulkInsertProperties
 };
