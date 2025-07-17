@@ -59,20 +59,29 @@ const getAllPropertyListings = async (req, res) => {
 
     const formatted = listings.map(p => ({
       ...p._doc,
-      propertyimage: p.propertyimage?.split(',') || [],
-      remotelocationimage: p.remotelocationimage?.split(',') || []
+      propertyimage: Array.isArray(p.propertyimage)
+        ? p.propertyimage
+        : (p.propertyimage?.split(',') || []),
+      remotelocationimage: Array.isArray(p.remotelocationimage)
+        ? p.remotelocationimage
+        : (p.remotelocationimage?.split(',') || []),
     }));
 
     res.status(200).json({
       status: true,
       message: 'Latest property listings fetched',
-      data: formatted
+      data: formatted,
     });
   } catch (error) {
     console.error('Error fetching property:', error);
-    res.status(500).json({ status: false, message: 'Failed to fetch', error: error.message });
+    res.status(500).json({
+      status: false,
+      message: 'Failed to fetch',
+      error: error.message,
+    });
   }
 };
+
 
 // ========== GET ONE ==========
 const getAllPropertyList = async (req, res) => {
