@@ -6,7 +6,6 @@ const multer = require('multer');
 const { insertProperty } = require('../controllers/CSVController');
 
 const upload = multer(); // using memory storage (for form fields only)
-
-router.post('/propertyinsert', upload.none(), insertProperty);
-
+//CSV BULK
+router.post('/bulkpropertyinsert', upload.none(), propertylistingController.bulkInsertProperties);
 module.exports = router;

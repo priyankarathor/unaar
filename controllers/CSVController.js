@@ -3,59 +3,72 @@ const PropertyListing = require('../model/PropertyListing');
 
 const axios = require('axios');
 
-const insertProperty = async (req, res) => {
+const bulkInsertProperties = async (req, res) => {
   try {
-    const body = { ...req.body };
+    const rows = JSON.parse(req.body.rows); // frontend sends JSON stringified array of CSV rows
 
-    // Fix comma-separated string fields into arrays
-    if (typeof body.features === 'string') {
-      body.features = body.features.split(',').map(item => item.trim());
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return res.status(400).json({ message: "No valid CSV data provided." });
     }
 
-    if (typeof body.facilities === 'string') {
-      body.facilities = body.facilities.split(',').map(item => item.trim());
-    }
+    const documents = rows.map(row => ({
+      country: row.country,
+      state: row.state,
+      city: row.city,
+      title: row.title,
+      subtitle: row.subtitle || 'Residential',
+      developer: row.developer,
+      fromamout: row.fromamout,
+      type: row.type,
+      growthrate: row.growthrate,
+      loginId: row.loginId,
+      status: row.status || 'Pending',
 
-    if (typeof body.nearbyPlaces === 'string') {
-      try {
-        body.nearbyPlaces = JSON.parse(body.nearbyPlaces);
-      } catch {
-        body.nearbyPlaces = body.nearbyPlaces.split(',').map(p => p.trim());
-      }
-    }
+      propertylabel: parseJSONField(row.propertylabel),
+      propertyvalue: parseJSONField(row.propertyvalue),
 
-    // Convert numbers if necessary
-    if (typeof body.price === 'string') {
-      body.price = Number(body.price);
-    }
+      descriptiontitle: row.descriptiontitle,
+      descriptionlabel: parseJSONField(row.descriptionlabel),
+      descriptionvalue: parseJSONField(row.descriptionvalue),
+      description: row.description,
 
-    if (typeof body.latitude === 'string') {
-      body.latitude = parseFloat(body.latitude);
-    }
+      facilitieid: parseJSONField(row.facilitieid),
+      facilitiedescription: row.facilitiedescription,
+      featureId: parseJSONField(row.featureId),
 
-    if (typeof body.longitude === 'string') {
-      body.longitude = parseFloat(body.longitude);
-    }
+      latitude: parseJSONField(row.latitude),
+      longitude: parseJSONField(row.longitude),
+      locationlable: parseJSONField(row.locationlable),
+      locationvalue: parseJSONField(row.locationvalue),
+      locationvaluetitle: row.locationvaluetitle,
+      locationdescription: row.locationdescription,
 
-    // Now insert clean body into DB
-    const property = new PropertyListing(body);
-    const savedProperty = await property.save();
+      apartmenttitle: row.apartmenttitle,
+      apartmentlable: parseJSONField(row.apartmentlable),
+      apartmendescription: parseJSONField(row.apartmendescription),
 
-    res.status(201).json({
-      message: "Property listing created successfully",
-      data: savedProperty,
+      remotelocationtitle: parseJSONField(row.remotelocationtitle),
+      remotelocationsubtitle: parseJSONField(row.remotelocationsubtitle),
+
+      Currency: row.Currency,
+      tagtitle: row.tagtitle,
+      pincode: row.pincode,
+      nearbyPlaces: parseJSONField(row.nearbyPlaces),
+    }));
+
+    const result = await PropertyListing.insertMany(documents);
+
+    res.status(200).json({
+      message: `${result.length} properties inserted successfully`,
+      data: result
     });
-  } catch (err) {
-    console.error("Property insert error:", err);
-    res.status(500).json({
-      message: "Failed to insert property",
-      error: err.message,
-    });
+  } catch (error) {
+    console.error("Bulk Insert Error:", error);
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
 
-
 module.exports = {
-  insertProperty,
+  bulkInsertProperties,
 };
