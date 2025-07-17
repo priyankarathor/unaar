@@ -1,44 +1,28 @@
-const Property = require('../model/PropertyListing');
-const csv = require('csvtojson');
-const { Parser } = require('json2csv');
+// controllers/propertyController.js
+const PropertyListing = require('../model/PropertyListing');
 
-// List of fields for CSV
-const fields = [
-  'country', 'state', 'city', 'title', 'subtitle', 'fromamout', 'propertylabel', 'propertyvalue',
-  'descriptiontitle', 'descriptionlabel', 'descriptionvalue', 'description', 'facilitieid',
-  'facilitiedescription', 'featureId', 'latitude', 'longitude', 'locationlable', 'locationvalue',
-  'locationvaluetitle', 'locationdescription', 'apartmenttitle', 'apartmentlable',
-  'apartmendescription', 'remotelocationtitle', 'remotelocationsubtitle', 'tagtitle', 'Currency',
-  'pincode', 'growthrate', 'loginId', 'status', 'developer', 'type', 'propertyimage', 'remotelocationimage'
-];
-
-// ========== Download CSV Template ==========
-exports.downloadCsvTemplate = (req, res) => {
+const bulkInsertProperties = async (req, res) => {
   try {
-    const parser = new Parser({ fields });
-    const csvData = parser.parse([]);
+    let data = req.body;
 
-    res.header('Content-Type', 'text/csv');
-    res.attachment('property_template.csv');
-    res.send(csvData);
-  } catch (error) {
-    res.status(500).json({ message: 'CSV generation failed', error: error.message });
-  }
-};
-
-// ========== Bulk Insert from CSV ==========
-exports.bulkInsertFromCSV = async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+    if (!Array.isArray(data)) {
+      return res.status(400).json({ message: 'Invalid data format. Expected an array.' });
     }
 
-    const jsonArray = await csv().fromString(req.file.buffer.toString());
+    // Clean each object (remove nearbyPlaces)
+    const cleanedData = data.map(({ nearbyPlaces, ...rest }) => rest);
 
-    // Optional: validate fields here
-    const inserted = await Property.insertMany(jsonArray);
-    res.status(200).json({ message: 'Bulk insert successful', data: inserted });
+    const inserted = await PropertyListing.insertMany(cleanedData);
+    res.status(200).json({
+      message: 'Bulk insert successful',
+      insertedCount: inserted.length,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Bulk insert failed', error: error.message });
+    res.status(500).json({
+      message: 'Bulk insert failed',
+      error: error.message,
+    });
   }
 };
+
+module.exports = { bulkInsertProperties };
