@@ -1,53 +1,61 @@
-// routes/csvRoutes.js
+// controllers/propertyController.js
+const PropertyListing = require('../model/PropertyListing');
 
-const Property = require('../model/PropertyListing'); // Your Mongoose model
+const axios = require('axios');
 
-const bulkPropertyInsert = async (req, res) => {
+const insertProperty = async (req, res) => {
   try {
-    const data = req.body;
+    const body = { ...req.body };
 
-    if (!Array.isArray(data)) {
-      return res.status(400).json({ message: 'Data must be an array' });
+    // Fix comma-separated string fields into arrays
+    if (typeof body.features === 'string') {
+      body.features = body.features.split(',').map(item => item.trim());
     }
 
-    const formatted = data.map(item => ({
-        country: row.country,
-      state: row.state,
-      city: row.city,
-      title: row.title,
-      subtitle: row.subtitle || 'Residential',
-      developer: row.developer,
-      fromamout: row.fromamout,
-      type: row.type,
-      growthrate: row.growthrate,
-      loginId: row.loginId,
-      status: row.status || 'Pending',
-      propertylabel: item.propertylabel?.split(',') || [],
-      propertyvalue: item.propertyvalue?.split(',') || [],
-      descriptionlabel: item.descriptionlabel?.split(',') || [],
-      descriptionvalue: item.descriptionvalue?.split(',') || [],
-      facilitieid: item.facilitieid?.split(',') || [],
-      featureId: item.featureId?.split(',') || [],
-      latitude: item.latitude?.split(',') || [],
-      longitude: item.longitude?.split(',') || [],
-      locationlable: item.locationlable?.split(',') || [],
-      locationvalue: item.locationvalue?.split(',') || [],
-      apartmentlable: item.apartmentlable?.split(',') || [],
-      apartmendescription: item.apartmendescription?.split(',') || [],
-      remotelocationtitle: item.remotelocationtitle?.split(',') || [],
-      remotelocationsubtitle: item.remotelocationsubtitle?.split(',') || [],
-      nearbyPlaces: item.nearbyPlaces?.split(',') || [],
-    }));
+    if (typeof body.facilities === 'string') {
+      body.facilities = body.facilities.split(',').map(item => item.trim());
+    }
 
-    const inserted = await Property.insertMany(formatted);
+    if (typeof body.nearbyPlaces === 'string') {
+      try {
+        body.nearbyPlaces = JSON.parse(body.nearbyPlaces);
+      } catch {
+        body.nearbyPlaces = body.nearbyPlaces.split(',').map(p => p.trim());
+      }
+    }
+
+    // Convert numbers if necessary
+    if (typeof body.price === 'string') {
+      body.price = Number(body.price);
+    }
+
+    if (typeof body.latitude === 'string') {
+      body.latitude = parseFloat(body.latitude);
+    }
+
+    if (typeof body.longitude === 'string') {
+      body.longitude = parseFloat(body.longitude);
+    }
+
+    // Now insert clean body into DB
+    const property = new PropertyListing(body);
+    const savedProperty = await property.save();
+
     res.status(201).json({
-      message: 'Properties inserted successfully',
-      count: inserted.length,
+      message: "Property listing created successfully",
+      data: savedProperty,
     });
-  } catch (error) {
-    console.error('Bulk Insert Error:', error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  } catch (err) {
+    console.error("Property insert error:", err);
+    res.status(500).json({
+      message: "Failed to insert property",
+      error: err.message,
+    });
   }
 };
 
-module.exports = { bulkPropertyInsert };
+
+
+module.exports = {
+  insertProperty,
+};
