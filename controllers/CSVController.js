@@ -2,7 +2,6 @@
 
 const Property = require('../model/PropertyListing'); // Your Mongoose model
 
-
 const bulkPropertyInsert = async (req, res) => {
   try {
     const data = req.body;
@@ -12,7 +11,7 @@ const bulkPropertyInsert = async (req, res) => {
     }
 
     const formatted = data.map(item => ({
-          country: row.country,
+        country: row.country,
       state: row.state,
       city: row.city,
       title: row.title,
@@ -41,9 +40,12 @@ const bulkPropertyInsert = async (req, res) => {
     }));
 
     const inserted = await Property.insertMany(formatted);
-    res.status(201).json({ message: 'Data inserted successfully', insertedCount: inserted.length });
+    res.status(201).json({
+      message: 'Properties inserted successfully',
+      count: inserted.length,
+    });
   } catch (error) {
-    console.error('Insert Error:', error);
+    console.error('Bulk Insert Error:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
