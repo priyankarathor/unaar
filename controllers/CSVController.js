@@ -51,8 +51,7 @@ const bulkInsertProperties = async (req, res) => {
         remotelocationtitle: item.remotelocationtitle || '',
         remotelocationsubtitle: item.remotelocationsubtitle || '',
         Currency: item.Currency || '',
-        tagtitle: item.tagtitle || '',
-        nearbyPlaces: parseCSV(item.nearbyPlaces), // optional field
+        tagtitle: item.tagtitle || ''
       };
     });
 
