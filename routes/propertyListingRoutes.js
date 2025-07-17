@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
+const upload = require('../middleware/multer');
 const propertylistingController = require('../controllers/PropertyListingController');
 
-const storage = multer.memoryStorage();
+// const storage = multer.memoryStorage();
 
-const upload = multer({ storage: storage });
+// const upload = multer({ storage: storage });
 // CSV Import
 // router.post('/import-csv', upload.single('file'), propertylistingController.importCSV);
 
@@ -14,7 +14,7 @@ router.post(
   '/propertyinsert',
   upload.fields([
     { name: 'propertyimage', maxCount: 10 },
-    { name: 'remotelocationimage', maxCount: 10 }
+    { name: 'remotelocationimage', maxCount: 5 }
   ]),
   propertylistingController.PropertyListingInsert
 );

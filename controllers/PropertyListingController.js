@@ -1,7 +1,7 @@
 const PropertyListing = require('../model/PropertyListing');
 const PropertyBanner = require('../model/propertybanner');
 
-// ========== INSERT PROPERTY ==========
+
 const PropertyListingInsert = async (req, res) => {
   try {
     const {
@@ -23,27 +23,34 @@ const PropertyListingInsert = async (req, res) => {
       createdAt: new Date()
     });
 
-    // ✅ Store property image URLs
- if (req.files?.propertyimage) {
-  newListing.propertyimage = req.files.propertyimage.map(img =>
-    `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
-  ).join(',');
-}
+    // ✅ Ensure req.files exists and log it for debugging
+    console.log('Uploaded files:', req.files);
 
-if (req.files?.remotelocationimage) {
-  newListing.remotelocationimage = req.files.remotelocationimage
-    .filter(img => img?.filename)
-    .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
-    .join(',');
-}
+    // ✅ Save full URLs of uploaded property images
+    if (req.files?.propertyimage?.length > 0) {
+      newListing.propertyimage = req.files.propertyimage
+        .filter(img => img?.filename)
+        .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
+        .join(',');
+    }
+
+    // ✅ Save full URLs of uploaded remote location images
+    if (req.files?.remotelocationimage?.length > 0) {
+      newListing.remotelocationimage = req.files.remotelocationimage
+        .filter(img => img?.filename)
+        .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
+        .join(',');
+    }
 
     const saved = await newListing.save();
     res.status(201).json({ message: 'Property listing created', data: saved });
+
   } catch (error) {
     console.error('Error inserting property:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
 
 // ========== GET ALL ==========
 const getAllPropertyListings = async (req, res) => {
