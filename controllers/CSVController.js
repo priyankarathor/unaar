@@ -1,25 +1,18 @@
-const PropertyListing = require('../model/PropertyListing');
+// routes/csvRoutes.js
 
-const parseJSONField = (field) => {
-  if (!field) return [];
+const Property = require('../model/PropertyListing'); // Your Mongoose model
+
+
+const bulkPropertyInsert = async (req, res) => {
   try {
-    const parsed = JSON.parse(field);
-    return Array.isArray(parsed) ? parsed : [parsed];
-  } catch {
-    return field.split(',').map(item => item.trim());
-  }
-};
+    const data = req.body;
 
-const bulkInsertProperties = async (req, res) => {
-  try {
-    const rows = JSON.parse(req.body.rows);
-
-    if (!Array.isArray(rows) || rows.length === 0) {
-      return res.status(400).json({ message: "No valid CSV data provided." });
+    if (!Array.isArray(data)) {
+      return res.status(400).json({ message: 'Data must be an array' });
     }
 
-    const documents = rows.map(row => ({
-      country: row.country,
+    const formatted = data.map(item => ({
+          country: row.country,
       state: row.state,
       city: row.city,
       title: row.title,
@@ -30,46 +23,29 @@ const bulkInsertProperties = async (req, res) => {
       growthrate: row.growthrate,
       loginId: row.loginId,
       status: row.status || 'Pending',
-
-      propertylabel: parseJSONField(row.propertylabel),
-      propertyvalue: parseJSONField(row.propertyvalue),
-
-      descriptiontitle: row.descriptiontitle,
-      descriptionlabel: parseJSONField(row.descriptionlabel),
-      descriptionvalue: parseJSONField(row.descriptionvalue),
-      description: row.description,
-
-      facilitieid: parseJSONField(row.facilitieid),
-      facilitiedescription: row.facilitiedescription,
-      featureId: parseJSONField(row.featureId),
-
-      latitude: parseJSONField(row.latitude),
-      longitude: parseJSONField(row.longitude),
-      locationlable: parseJSONField(row.locationlable),
-      locationvalue: parseJSONField(row.locationvalue),
-      locationvaluetitle: row.locationvaluetitle,
-      locationdescription: row.locationdescription,
-
-      apartmenttitle: row.apartmenttitle,
-      apartmentlable: parseJSONField(row.apartmentlable),
-      apartmendescription: parseJSONField(row.apartmendescription),
-
-      remotelocationtitle: parseJSONField(row.remotelocationtitle),
-      remotelocationsubtitle: parseJSONField(row.remotelocationsubtitle),
-
-      Currency: row.Currency,
-      tagtitle: row.tagtitle,
-      pincode: row.pincode,
-      nearbyPlaces: parseJSONField(row.nearbyPlaces),
+      propertylabel: item.propertylabel?.split(',') || [],
+      propertyvalue: item.propertyvalue?.split(',') || [],
+      descriptionlabel: item.descriptionlabel?.split(',') || [],
+      descriptionvalue: item.descriptionvalue?.split(',') || [],
+      facilitieid: item.facilitieid?.split(',') || [],
+      featureId: item.featureId?.split(',') || [],
+      latitude: item.latitude?.split(',') || [],
+      longitude: item.longitude?.split(',') || [],
+      locationlable: item.locationlable?.split(',') || [],
+      locationvalue: item.locationvalue?.split(',') || [],
+      apartmentlable: item.apartmentlable?.split(',') || [],
+      apartmendescription: item.apartmendescription?.split(',') || [],
+      remotelocationtitle: item.remotelocationtitle?.split(',') || [],
+      remotelocationsubtitle: item.remotelocationsubtitle?.split(',') || [],
+      nearbyPlaces: item.nearbyPlaces?.split(',') || [],
     }));
 
-    const result = await PropertyListing.insertMany(documents);
-
-    res.status(200).json({ message: `${result.length} properties inserted successfully`, data: result });
+    const inserted = await Property.insertMany(formatted);
+    res.status(201).json({ message: 'Data inserted successfully', insertedCount: inserted.length });
   } catch (error) {
-    console.error("Bulk Insert Error:", error);
-    res.status(500).json({ message: "Server error", error });
+    console.error('Insert Error:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
 
-module.exports = { bulkInsertProperties };
+module.exports = { bulkPropertyInsert };
