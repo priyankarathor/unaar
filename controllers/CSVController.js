@@ -1,68 +1,44 @@
-// controllers/propertyController.js
-const PropertyListing = require('../model/PropertyListing');
+const Property = require('../model/PropertyListing');
+const csv = require('csvtojson');
+const { Parser } = require('json2csv');
 
-const bulkInsertProperties = async (req, res) => {
+// List of fields for CSV
+const fields = [
+  'country', 'state', 'city', 'title', 'subtitle', 'fromamout', 'propertylabel', 'propertyvalue',
+  'descriptiontitle', 'descriptionlabel', 'descriptionvalue', 'description', 'facilitieid',
+  'facilitiedescription', 'featureId', 'latitude', 'longitude', 'locationlable', 'locationvalue',
+  'locationvaluetitle', 'locationdescription', 'apartmenttitle', 'apartmentlable',
+  'apartmendescription', 'remotelocationtitle', 'remotelocationsubtitle', 'tagtitle', 'Currency',
+  'pincode', 'growthrate', 'loginId', 'status', 'developer', 'type', 'propertyimage', 'remotelocationimage'
+];
+
+// ========== Download CSV Template ==========
+exports.downloadCsvTemplate = (req, res) => {
   try {
-    const data = req.body;
+    const parser = new Parser({ fields });
+    const csvData = parser.parse([]);
 
-    if (!Array.isArray(data)) {
-      return res.status(400).json({ message: 'Invalid data format. Expected array.' });
-    }
-
-    // Normalize and parse fields
-    const propertiesToInsert = data.map(item => {
-      const parseCSV = (val) => {
-        return typeof val === 'string' ? val.split(',').map(i => i.trim()) : [];
-      };
-
-      return {
-        propertyName: item.propertyName || '',
-        description: item.description || '',
-        price: Number(item.price) || 0,
-        country: item.country || '',
-        state: item.state || '',
-        city: item.city || '',
-        pincode: item.pincode || '',
-        latitude: item.latitude || '',
-        longitude: item.longitude || '',
-        features: parseCSV(item.features),
-        facilities: parseCSV(item.facilities),
-        images: parseCSV(item.images),
-        title: item.title || '',
-        subtitle: item.subtitle || '',
-        developer: item.developer || '',
-        fromamout: item.fromamout || '',
-        propertylabel: item.propertylabel || '',
-        propertyvalue: item.propertyvalue || '',
-        descriptiontitle: item.descriptiontitle || '',
-        descriptionlabel: item.descriptionlabel || '',
-        descriptionvalue: item.descriptionvalue || '',
-        facilitieid: parseCSV(item.facilitieid),
-        facilitiedescription: parseCSV(item.facilitiedescription),
-        featureId: parseCSV(item.featureId),
-        latitude_list: parseCSV(item.latitude_list),
-        longitude_list: parseCSV(item.longitude_list),
-        locationlable: parseCSV(item.locationlable),
-        locationvalue: parseCSV(item.locationvalue),
-        locationvaluetitle: parseCSV(item.locationvaluetitle),
-        apartmenttitle: item.apartmenttitle || '',
-        apartmentlable: parseCSV(item.apartmentlable),
-        apartmendescription: parseCSV(item.apartmendescription),
-        remotelocationtitle: item.remotelocationtitle || '',
-        remotelocationsubtitle: item.remotelocationsubtitle || '',
-        Currency: item.Currency || '',
-        tagtitle: item.tagtitle || ''
-      };
-    });
-
-    const inserted = await Property.insertMany(propertiesToInsert);
-    res.status(200).json({ message: 'Bulk insert successful', insertedCount: inserted.length });
-  } catch (err) {
-    console.error('Error inserting properties:', err);
-    res.status(500).json({ message: 'Bulk insert failed', error: err.message });
+    res.header('Content-Type', 'text/csv');
+    res.attachment('property_template.csv');
+    res.send(csvData);
+  } catch (error) {
+    res.status(500).json({ message: 'CSV generation failed', error: error.message });
   }
 };
 
-module.exports = {
- bulkInsertProperties
+// ========== Bulk Insert from CSV ==========
+exports.bulkInsertFromCSV = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const jsonArray = await csv().fromString(req.file.buffer.toString());
+
+    // Optional: validate fields here
+    const inserted = await Property.insertMany(jsonArray);
+    res.status(200).json({ message: 'Bulk insert successful', data: inserted });
+  } catch (error) {
+    res.status(500).json({ message: 'Bulk insert failed', error: error.message });
+  }
 };
