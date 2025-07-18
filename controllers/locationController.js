@@ -21,6 +21,36 @@ try {
 };
 
 
+// Bulk Insert Locations
+exports.bulkLocationInsert = async (req, res) => {
+  try {
+    const locations = req.body; // expecting an array of location objects
+
+    if (!Array.isArray(locations) || locations.length === 0) {
+      return res.status(400).json({
+        status: false,
+        message: "Request body must be a non-empty array of locations.",
+        data: null,
+      });
+    }
+
+    const insertedLocations = await Location.insertMany(locations);
+
+    res.status(201).json({
+      status: true,
+      message: "Bulk location insert successful",
+      data: insertedLocations,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Bulk insert failed: " + error.message,
+      data: null,
+    });
+  }
+};
+
+
 //filter top 4 
 exports.toplocations = async (req, res) => {
   try {
