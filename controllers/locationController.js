@@ -21,10 +21,11 @@ try {
 };
 
 
-// Bulk Insert Locations
 exports.bulkLocationInsert = async (req, res) => {
   try {
-    const locations = req.body; // expecting an array of location objects
+    console.log('Incoming location data:', req.body); // 👈 log this
+
+    const locations = req.body;
 
     if (!Array.isArray(locations) || locations.length === 0) {
       return res.status(400).json({
@@ -49,6 +50,7 @@ exports.bulkLocationInsert = async (req, res) => {
     });
   }
 };
+
 
 
 //filter top 4 
