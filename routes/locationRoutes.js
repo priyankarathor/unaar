@@ -14,7 +14,7 @@ router.get('/alllocationfilter', locationController.locationsfilter);
 router.delete('/locationDeleteData/:id', locationController.locationDelete);
 
 //bulkfy
-router.post('/bulkLocationInsertbulk', upload.none(), locationController.bulkLocationInsert); 
+router.post('/bulkLocationInsertbulk', locationController.bulkLocationInsert);
 
 
 module.exports = router;
