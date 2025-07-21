@@ -223,7 +223,7 @@ const parseJSONField = (value) => {
 
 
 
-// ✅ GET property by ID
+// ✅ GET Property by ID
 const getPropertyById = async (req, res) => {
   try {
     const property = await PropertyListing.findById(req.params.id);
@@ -239,6 +239,7 @@ const getPropertyById = async (req, res) => {
   }
 };
 
+// ✅ PUT Update Property Listing
 const updatePropertyListing = async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -259,7 +260,7 @@ const updatePropertyListing = async (req, res) => {
       'status', 'type'
     ];
 
-    // ✅ Safe parse JSON only if looks like JSON
+    // ✅ Parse fields that are valid JSON
     jsonFields.forEach(field => {
       if (
         updatedData[field] &&
@@ -269,12 +270,12 @@ const updatePropertyListing = async (req, res) => {
         try {
           updatedData[field] = JSON.parse(updatedData[field]);
         } catch (e) {
-          console.warn(`Failed to parse field "${field}" as JSON:`, updatedData[field]);
+          console.warn(`⚠️ Failed to parse field "${field}" as JSON:`, updatedData[field]);
         }
       }
     });
 
-    // ✅ Image handling
+    // ✅ Handle image uploads
     if (req.files?.propertyimage) {
       updatedData.propertyimage = req.files.propertyimage
         .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
@@ -288,7 +289,7 @@ const updatePropertyListing = async (req, res) => {
     }
 
     console.log("Updating Property ID:", req.params.id);
-    console.log("Payload:", updatedData);
+    console.log("Payload to update:", updatedData);
 
     const updated = await PropertyListing.findByIdAndUpdate(
       req.params.id,
@@ -303,11 +304,10 @@ const updatePropertyListing = async (req, res) => {
     res.status(200).json({ message: 'Property updated successfully', data: updated });
 
   } catch (error) {
-    console.error('Error updating listing:', error);
+    console.error('❌ Error updating listing:', error.stack || error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
-
 
 
 // ========== EXPORT ==========
