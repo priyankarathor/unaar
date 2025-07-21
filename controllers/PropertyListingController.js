@@ -105,36 +105,7 @@ const getAllPropertyList = async (req, res) => {
   }
 };
 
-// ========== UPDATE ==========
-const updatePropertyListing = async (req, res) => {
-  try {
-    const updatedData = { ...req.body };
 
-    // ✅ Update image URLs
-    if (req.files?.propertyimage) {
-      updatedData.propertyimage = req.files.propertyimage.map(img =>
-        `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
-      ).join(',');
-    }
-
-    if (req.files?.remotelocationimage) {
-      updatedData.remotelocationimage = req.files.remotelocationimage.map(img =>
-        `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
-      ).join(',');
-    }
-
-    const updated = await PropertyListing.findByIdAndUpdate(req.params.id, updatedData, { new: true });
-
-    if (!updated) {
-      return res.status(404).json({ message: 'Property not found' });
-    }
-
-    res.status(200).json({ message: 'Property updated successfully', data: updated });
-  } catch (error) {
-    console.error('Error updating listing:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
-  }
-};
 
 // ========== DELETE ==========
 const deletePropertyListing = async (req, res) => {
@@ -251,13 +222,78 @@ const parseJSONField = (value) => {
 
 
 
+
+// ✅ GET property by ID
+const getPropertyById = async (req, res) => {
+  try {
+    const property = await PropertyListing.findById(req.params.id);
+
+    if (!property) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+
+    res.status(200).json(property);
+  } catch (error) {
+    console.error('Error fetching property:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+// ✅ UPDATE property
+const updatePropertyListing = async (req, res) => {
+  try {
+    const updatedData = { ...req.body };
+
+    // Parse JSON fields
+    [
+     'country', 'state', 'city', 'title', 'subtitle', 'fromamout', 'propertylabel', 'propertyvalue', 'descriptiontitle', 'descriptionlabel', 'descriptionvalue', 'description', 'facilitieid', 'facilitiedescription', 'featureId', 'latitude', 'longitude', 'locationlable', 'growthrate', 'locationvalue', 'locationvaluetitle', 'locationdescription', 'apartmenttitle', 'apartmentlable', 'apartmendescription', 'remotelocationtitle', 'remotelocationsubtitle', 'Currency', 'tagtitle', 'nearbyPlaces', 'pincode', 'developer', 'loginId', 'status', 'type'
+
+    ].forEach(field => {
+      if (updatedData[field]) {
+        try {
+          updatedData[field] = JSON.parse(updatedData[field]);
+        } catch (e) {
+          console.warn(`Field "${field}" was not parsed as JSON.`);
+        }
+      }
+    });
+
+    // ✅ Handle image uploads
+    if (req.files?.propertyimage) {
+      updatedData.propertyimage = req.files.propertyimage.map(img =>
+        `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
+      ).join(',');
+    }
+
+    if (req.files?.remotelocationimage) {
+      updatedData.remotelocationimage = req.files.remotelocationimage.map(img =>
+        `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
+      ).join(',');
+    }
+
+    const updated = await PropertyListing.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+
+    if (!updated) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+
+    res.status(200).json({ message: 'Property updated successfully', data: updated });
+  } catch (error) {
+    console.error('Error updating listing:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+
+
 // ========== EXPORT ==========
 module.exports = {
   PropertyListingInsert,
   getAllPropertyListings,
-  updatePropertyListing,
   deletePropertyListing,
   getAllPropertyList,
   propertyfilter,
-  propertyfilterBanner
+  propertyfilterBanner,
+  updatePropertyListing,
+  getPropertyById
 };

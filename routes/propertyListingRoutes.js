@@ -31,13 +31,18 @@ router.get('/propertybannerdata', propertylistingController.propertyfilterBanner
 //property 
 router.get('/propertyfilter', propertylistingController.propertyfilter);
 
-// Get Property by ID
-// Update Property
+
+
+
+// ✅ GET Property by ID
+router.get('/propertyedit/:id', propertylistingController.getPropertyById);
+
+// ✅ PUT (Update) Property by ID
 router.put(
   '/propertyedit/:id',
   upload.fields([
     { name: 'propertyimage', maxCount: 5 },
-    { name: 'remotelocationimage', maxCount: 1 }
+    { name: 'remotelocationimage', maxCount: 1 },
   ]),
   propertylistingController.updatePropertyListing
 );
