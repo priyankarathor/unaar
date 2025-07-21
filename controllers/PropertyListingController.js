@@ -239,45 +239,69 @@ const getPropertyById = async (req, res) => {
   }
 };
 
-// ✅ UPDATE property
 const updatePropertyListing = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid property ID' });
+    }
+
     const updatedData = { ...req.body };
 
-    // Parse JSON fields
-    [
-     'country', 'state', 'city', 'title', 'subtitle', 'fromamout', 'propertylabel', 'propertyvalue', 'descriptiontitle', 'descriptionlabel', 'descriptionvalue', 'description', 'facilitieid', 'facilitiedescription', 'featureId', 'latitude', 'longitude', 'locationlable', 'growthrate', 'locationvalue', 'locationvaluetitle', 'locationdescription', 'apartmenttitle', 'apartmentlable', 'apartmendescription', 'remotelocationtitle', 'remotelocationsubtitle', 'Currency', 'tagtitle', 'nearbyPlaces', 'pincode', 'developer', 'loginId', 'status', 'type'
+    const jsonFields = [
+      'country', 'state', 'city', 'title', 'subtitle', 'fromamout',
+      'propertylabel', 'propertyvalue', 'descriptiontitle', 'descriptionlabel',
+      'descriptionvalue', 'description', 'facilitieid', 'facilitiedescription',
+      'featureId', 'latitude', 'longitude', 'locationlable', 'growthrate',
+      'locationvalue', 'locationvaluetitle', 'locationdescription',
+      'apartmenttitle', 'apartmentlable', 'apartmendescription',
+      'remotelocationtitle', 'remotelocationsubtitle', 'Currency',
+      'tagtitle', 'nearbyPlaces', 'pincode', 'developer', 'loginId',
+      'status', 'type'
+    ];
 
-    ].forEach(field => {
-      if (updatedData[field]) {
+    // ✅ Safe parse JSON only if looks like JSON
+    jsonFields.forEach(field => {
+      if (
+        updatedData[field] &&
+        typeof updatedData[field] === 'string' &&
+        (updatedData[field].startsWith('{') || updatedData[field].startsWith('['))
+      ) {
         try {
           updatedData[field] = JSON.parse(updatedData[field]);
         } catch (e) {
-          console.warn(`Field "${field}" was not parsed as JSON.`);
+          console.warn(`Failed to parse field "${field}" as JSON:`, updatedData[field]);
         }
       }
     });
 
-    // ✅ Handle image uploads
+    // ✅ Image handling
     if (req.files?.propertyimage) {
-      updatedData.propertyimage = req.files.propertyimage.map(img =>
-        `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
-      ).join(',');
+      updatedData.propertyimage = req.files.propertyimage
+        .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
+        .join(',');
     }
 
     if (req.files?.remotelocationimage) {
-      updatedData.remotelocationimage = req.files.remotelocationimage.map(img =>
-        `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
-      ).join(',');
+      updatedData.remotelocationimage = req.files.remotelocationimage
+        .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
+        .join(',');
     }
 
-    const updated = await PropertyListing.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+    console.log("Updating Property ID:", req.params.id);
+    console.log("Payload:", updatedData);
+
+    const updated = await PropertyListing.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      { new: true }
+    );
 
     if (!updated) {
       return res.status(404).json({ message: 'Property not found' });
     }
 
     res.status(200).json({ message: 'Property updated successfully', data: updated });
+
   } catch (error) {
     console.error('Error updating listing:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });

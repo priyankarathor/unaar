@@ -42,7 +42,7 @@ router.put(
   '/propertyedit/:id',
   upload.fields([
     { name: 'propertyimage', maxCount: 5 },
-    { name: 'remotelocationimage', maxCount: 1 },
+    { name: 'remotelocationimage', maxCount: 1 }
   ]),
   propertylistingController.updatePropertyListing
 );
