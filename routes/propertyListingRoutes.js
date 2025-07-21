@@ -34,6 +34,9 @@ router.get('/propertyfilter', propertylistingController.propertyfilter);
 
 
 
+// ✅ GET Property by ID
+router.get('/propertyedit/:id', propertylistingController.getPropertyById);
+
 // ✅ PUT (Update) Property by ID
 router.put(
   '/propertyedit/:id',
@@ -43,10 +46,6 @@ router.put(
   ]),
   propertylistingController.updatePropertyListing
 );
-
-// ✅ GET property by ID
-router.get('/propertyedit/:id', propertylistingController.getPropertyById);
-
 
 // Delete Property
 router.delete('/propertydelete/:id', propertylistingController.deletePropertyListing);
