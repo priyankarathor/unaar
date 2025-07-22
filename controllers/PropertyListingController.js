@@ -244,31 +244,37 @@ const updatePropertyListing = async (req, res) => {
   try {
     const updatedData = { ...req.body };
 
-    // Parse JSON fields
-    [
-     'country', 'state', 'city', 'title', 'subtitle', 'fromamout', 'propertylabel', 'propertyvalue', 'descriptiontitle', 'descriptionlabel', 'descriptionvalue', 'description', 'facilitieid', 'facilitiedescription', 'featureId', 'latitude', 'longitude', 'locationlable', 'growthrate', 'locationvalue', 'locationvaluetitle', 'locationdescription', 'apartmenttitle', 'apartmentlable', 'apartmendescription', 'remotelocationtitle', 'remotelocationsubtitle', 'Currency', 'tagtitle', 'nearbyPlaces', 'pincode', 'developer', 'loginId', 'status', 'type'
+    const fieldsToParse = [
+      'country', 'state', 'city', 'title', 'subtitle', 'fromamout',
+      'propertylabel', 'propertyvalue', 'descriptiontitle', 'descriptionlabel',
+      'descriptionvalue', 'description', 'facilitieid', 'facilitiedescription',
+      'featureId', 'latitude', 'longitude', 'locationlable', 'growthrate',
+      'locationvalue', 'locationvaluetitle', 'locationdescription',
+      'apartmenttitle', 'apartmentlable', 'apartmendescription',
+      'remotelocationtitle', 'remotelocationsubtitle', 'Currency', 'tagtitle',
+      'nearbyPlaces', 'pincode', 'developer', 'loginId', 'status', 'type'
+    ];
 
-    ].forEach(field => {
+    fieldsToParse.forEach(field => {
       if (updatedData[field]) {
         try {
           updatedData[field] = JSON.parse(updatedData[field]);
-        } catch (e) {
-          console.warn(`Field "${field}" was not parsed as JSON.`);
+        } catch {
+          // Ignore fields that are not JSON
         }
       }
     });
 
-    // ✅ Handle image uploads
     if (req.files?.propertyimage) {
-      updatedData.propertyimage = req.files.propertyimage.map(img =>
-        `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
-      ).join(',');
+      updatedData.propertyimage = req.files.propertyimage
+        .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
+        .join(',');
     }
 
     if (req.files?.remotelocationimage) {
-      updatedData.remotelocationimage = req.files.remotelocationimage.map(img =>
-        `${req.protocol}://${req.get('host')}/uploads/${img.filename}`
-      ).join(',');
+      updatedData.remotelocationimage = req.files.remotelocationimage
+        .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
+        .join(',');
     }
 
     const updated = await PropertyListing.findByIdAndUpdate(req.params.id, updatedData, { new: true });
@@ -283,7 +289,6 @@ const updatePropertyListing = async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
-
 
 
 // ========== EXPORT ==========
