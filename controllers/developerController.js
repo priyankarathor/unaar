@@ -3,9 +3,10 @@ const Developer = require("../model/Developer");
 // ADD Developer
 exports.developerAdd = async (req, res) => {
   try {
+    console.log('req.file:', req.file); // 🔍 Check this
+
     const { farmname, title, About, year, otherdetails, History } = req.body;
 
-    // Construct image URL if file is uploaded
     const imageUrl = req.file
       ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
       : null;
@@ -17,7 +18,7 @@ exports.developerAdd = async (req, res) => {
       year,
       otherdetails,
       History,
-      image: imageUrl, // Save image URL instead of buffer
+      image: imageUrl,
     });
 
     await newDeveloper.save();
