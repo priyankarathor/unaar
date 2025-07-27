@@ -7,7 +7,7 @@ const DeveloperSchema = new mongoose.Schema({
   year: { type: String },
   otherdetails: { type: String },
   History: { type: String },
-  image: { type: Buffer },
+  image: { type: String },
   imagetype: { type: String },
 }, { timestamps: true });
 
