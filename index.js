@@ -4,7 +4,6 @@ const path = require('path');
 const cors = require("cors");
 const connectDB = require('./Server/Connection');
 
-
 const dotenv = require('dotenv');
 
 dotenv.config();

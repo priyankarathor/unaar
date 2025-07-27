@@ -5,6 +5,11 @@ exports.developerAdd = async (req, res) => {
   try {
     const { farmname, title, About, year, otherdetails, History } = req.body;
 
+    // Construct image URL if file is uploaded
+    const imageUrl = req.file
+      ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
+      : null;
+
     const newDeveloper = new Developer({
       farmname,
       title,
@@ -12,8 +17,7 @@ exports.developerAdd = async (req, res) => {
       year,
       otherdetails,
       History,
-      image: req.file?.buffer || null,
-      imagetype: req.file?.mimetype || null,
+      image: imageUrl, // Save image URL instead of buffer
     });
 
     await newDeveloper.save();
@@ -32,6 +36,7 @@ exports.developerAdd = async (req, res) => {
   }
 };
 
+
 // GET All Developers
 exports.developerGet = async (req, res) => {
   try {
@@ -45,12 +50,7 @@ exports.developerGet = async (req, res) => {
       year: dev.year,
       otherdetails: dev.otherdetails,
       History: dev.History,
-      image: dev.image
-        ? {
-            data: dev.image,
-            contentType: dev.imagetype || "image/png",
-          }
-        : null,
+      image: dev.image || null, // now it's a URL string
     }));
 
     res.status(200).json({
@@ -90,8 +90,8 @@ exports.developerEdit = async (req, res) => {
     developer.History = History;
 
     if (req.file) {
-      developer.image = req.file.buffer;
-      developer.imagetype = req.file.mimetype;
+      // Construct new image URL
+      developer.image = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
     }
 
     const updatedDeveloper = await developer.save();
@@ -109,6 +109,7 @@ exports.developerEdit = async (req, res) => {
     });
   }
 };
+
 
 // DELETE Developer
 exports.developerDelete = async (req, res) => {
