@@ -240,6 +240,8 @@ const getPropertyById = async (req, res) => {
 };
 
 // ✅ UPDATE property
+// controllers/propertyController.js
+
 const updatePropertyListing = async (req, res) => {
   try {
     const updatedData = { ...req.body };
@@ -259,8 +261,8 @@ const updatePropertyListing = async (req, res) => {
       if (updatedData[field]) {
         try {
           updatedData[field] = JSON.parse(updatedData[field]);
-        } catch {
-          // Ignore fields that are not JSON
+        } catch (e) {
+          // Not JSON, keep as-is
         }
       }
     });
