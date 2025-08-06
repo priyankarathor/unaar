@@ -1,24 +1,13 @@
 const mongoose = require('mongoose');
 
-const testimonialSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  position: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  image: {
-    type: String, // S3 image URL
-    required: true,
-  },
-}, {
-  timestamps: true,
-});
+const TestimonialSchema = new mongoose.Schema({
+  imageUrl: String,
+  Name: String,
+  email: String,
+  designation: String,
+  message: String,
+  star: Number,
+  date: { type: Date, default: Date.now }
+}, { timestamps: true });
 
-module.exports = mongoose.model('Testimonial', testimonialSchema);
+module.exports = mongoose.model('Testimonial', TestimonialSchema);
