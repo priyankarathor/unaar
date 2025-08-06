@@ -23,22 +23,19 @@ const PropertyListingInsert = async (req, res) => {
       createdAt: new Date()
     });
 
-    // ✅ Ensure req.files exists and log it for debugging
-    console.log('Uploaded files:', req.files);
+    console.log('Uploaded S3 files:', req.files);
 
-    // ✅ Save full URLs of uploaded property images
     if (req.files?.propertyimage?.length > 0) {
       newListing.propertyimage = req.files.propertyimage
-        .filter(img => img?.filename)
-        .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
+        .filter(img => img?.location)
+        .map(img => img.location) // ⬅️ Use S3 public URL
         .join(',');
     }
 
-    // ✅ Save full URLs of uploaded remote location images
     if (req.files?.remotelocationimage?.length > 0) {
       newListing.remotelocationimage = req.files.remotelocationimage
-        .filter(img => img?.filename)
-        .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
+        .filter(img => img?.location)
+        .map(img => img.location)
         .join(',');
     }
 
@@ -50,6 +47,10 @@ const PropertyListingInsert = async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
+
+
+
 
 
 // ========== GET ALL ==========

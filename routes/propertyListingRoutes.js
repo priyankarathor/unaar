@@ -10,6 +10,15 @@ const propertylistingController = require('../controllers/PropertyListingControl
 // router.post('/import-csv', upload.single('file'), propertylistingController.importCSV);
 
 // Insert Property
+// router.post(
+//   '/propertyinsert',
+//   upload.fields([
+//     { name: 'propertyimage', maxCount: 10 },
+//     { name: 'remotelocationimage', maxCount: 5 }
+//   ]),
+//   propertylistingController.PropertyListingInsert
+// );
+
 router.post(
   '/propertyinsert',
   upload.fields([
@@ -18,6 +27,8 @@ router.post(
   ]),
   propertylistingController.PropertyListingInsert
 );
+
+
 
 // Get All Properties
 router.get('/properties', propertylistingController.getAllPropertyListings);
