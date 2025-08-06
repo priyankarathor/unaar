@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const testimonialController = require('../controllers/testimonialController');
-const upload = require('../middleware/multer'); // multer config
+const upload = require('../middleware/multer'); // path to your multer config
+const { insertTestimonial } = require('../controllers/testimonialController');
 
-router.post('/testimonialinsert', upload.single('image'), testimonialController.createTestimonial);
+// Route to handle testimonial submission with image
+router.post('/testimonialinsert', upload.single('image'), insertTestimonial);
 
 module.exports = router;

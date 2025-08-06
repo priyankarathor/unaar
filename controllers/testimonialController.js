@@ -1,47 +1,30 @@
-const AWS = require('aws-sdk');
-const Testimonial = require('../model/Testimonial');
-const { v4: uuidv4 } = require('uuid');
-const path = require('path');
+const Testimonial = require('../model/Testimonial'); // your Mongoose model
 
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION,
-});
-
-exports.createTestimonial = async (req, res) => {
+const insertTestimonial = async (req, res) => {
   try {
-    const { name, title, description } = req.body;
-    let imageUrl = '';
+    const { name, position, description } = req.body;
 
-    if (req.file) {
-      const fileContent = req.file.buffer;
-      const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
-
-      const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: fileName,
-        Body: fileContent,
-        ContentType: req.file.mimetype,
-        ACL: 'public-read',
-      };
-
-      const uploadResult = await s3.upload(params).promise();
-      imageUrl = uploadResult.Location;
+    // Ensure file was uploaded
+    if (!req.file || !req.file.location) {
+      return res.status(400).json({ error: 'Image upload failed or missing' });
     }
 
     const newTestimonial = new Testimonial({
       name,
-      title,
+      position,
       description,
-      imageurl: imageUrl,
+      image: req.file.location, // S3 URL
     });
 
     await newTestimonial.save();
 
-    res.status(201).json({ success: true, message: 'Testimonial created', data: newTestimonial });
+    res.status(201).json({ message: 'Testimonial added successfully', testimonial: newTestimonial });
   } catch (error) {
-    console.error('Error creating testimonial:', error);
-    res.status(500).json({ success: false, error: 'Server Error' });
+    console.error('Insert Testimonial Error:', error);
+    res.status(500).json({ error: 'Server Error while adding testimonial' });
   }
+};
+
+module.exports = {
+  insertTestimonial,
 };
