@@ -4,10 +4,12 @@ const path = require('path');
 // INSERT controller
 exports.Testimonialadd = async (req, res) => {
   try {
-    const { Name, email, designation, message, star, date } = req.body;
+    console.log("req.file:", req.file);
+    console.log("req.body:", req.body);
 
-    // Check for uploaded file and get public S3 URL
-    const imageUrl = req.file ? req.file.location : null; // multer-s3 provides `.location`
+    const imageUrl = req.file ? req.file.location : null;
+
+    const { Name, email, designation, message, star, date } = req.body;
 
     const newTestimonial = new Testimonial({
       imageUrl,
@@ -27,11 +29,10 @@ exports.Testimonialadd = async (req, res) => {
       data: newTestimonial
     });
   } catch (error) {
-    console.error('Insert Error:', error);
+    console.error("Insert Error:", error);
     res.status(500).json({ status: false, message: "Insert failed", error: error.message });
   }
 };
-
 // GET
 exports.TestimonialGet = async (req, res) => {
   try {
