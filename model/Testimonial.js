@@ -1,13 +1,12 @@
 const mongoose = require('mongoose');
 
-const TestimonialSchema = new mongoose.Schema({
-  imageUrl: String,
-  Name: String,
-  email: String,
-  designation: String,
-  message: String,
-  star: Number,
-  date: { type: Date, default: Date.now }
-}, { timestamps: true });
+const testimonialSchema = new mongoose.Schema({
+  name: String,
+  title: String,
+  description: String,
+  imageurl: String,
+}, {
+  timestamps: true,
+});
 
-module.exports = mongoose.model('Testimonial', TestimonialSchema);
+module.exports = mongoose.model('Testimonial', testimonialSchema);

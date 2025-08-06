@@ -1,103 +1,47 @@
+const AWS = require('aws-sdk');
 const Testimonial = require('../model/Testimonial');
+const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 
-// INSERT controller
-exports.Testimonialadd = async (req, res) => {
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
+
+exports.createTestimonial = async (req, res) => {
   try {
-    console.log("req.file:", req.file);
-    console.log("req.body:", req.body);
+    const { name, title, description } = req.body;
+    let imageUrl = '';
 
-    const imageUrl = req.file ? req.file.location : null;
+    if (req.file) {
+      const fileContent = req.file.buffer;
+      const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
 
-    const { Name, email, designation, message, star, date } = req.body;
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileName,
+        Body: fileContent,
+        ContentType: req.file.mimetype,
+        ACL: 'public-read',
+      };
+
+      const uploadResult = await s3.upload(params).promise();
+      imageUrl = uploadResult.Location;
+    }
 
     const newTestimonial = new Testimonial({
-      imageUrl,
-      Name,
-      email,
-      designation,
-      message,
-      star,
-      date: date || Date.now(),
+      name,
+      title,
+      description,
+      imageurl: imageUrl,
     });
 
     await newTestimonial.save();
 
-    res.status(201).json({
-      status: true,
-      message: "Testimonial inserted successfully",
-      data: newTestimonial
-    });
+    res.status(201).json({ success: true, message: 'Testimonial created', data: newTestimonial });
   } catch (error) {
-    console.error("Insert Error:", error);
-    res.status(500).json({ status: false, message: "Insert failed", error: error.message });
-  }
-};
-// GET
-exports.TestimonialGet = async (req, res) => {
-  try {
-    const testimonials = await Testimonial.find().sort({ createdAt: -1 });
-
-    res.status(200).json({
-      status: true,
-      message: "Testimonials fetched successfully",
-      data: testimonials
-    });
-  } catch (error) {
-    res.status(500).json({ status: false, message: "Fetch failed", error: error.message });
-  }
-};
-
-// EDIT
-exports.TestimonialEdit = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { Name, email, designation, message, star, date } = req.body;
-
-    const testimonial = await Testimonial.findById(id);
-    if (!testimonial) {
-      return res.status(404).json({ status: false, message: "Testimonial not found" });
-    }
-
-    testimonial.Name = Name;
-    testimonial.email = email;
-    testimonial.designation = designation;
-    testimonial.message = message;
-    testimonial.star = star;
-    testimonial.date = date;
-
-    if (req.file) {
-      testimonial.imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-    }
-
-    const updated = await testimonial.save();
-
-    res.status(200).json({
-      status: true,
-      message: "Testimonial updated successfully",
-      data: updated
-    });
-  } catch (error) {
-    res.status(500).json({ status: false, message: "Edit failed", error: error.message });
-  }
-};
-
-// DELETE
-exports.TestimonialDelete = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const deleted = await Testimonial.findByIdAndDelete(id);
-    if (!deleted) {
-      return res.status(404).json({ status: false, message: "Testimonial not found" });
-    }
-
-    res.status(200).json({
-      status: true,
-      message: "Testimonial deleted successfully",
-      data: deleted
-    });
-  } catch (error) {
-    res.status(500).json({ status: false, message: "Delete failed", error: error.message });
+    console.error('Error creating testimonial:', error);
+    res.status(500).json({ success: false, error: 'Server Error' });
   }
 };
