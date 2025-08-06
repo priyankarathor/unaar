@@ -2,8 +2,10 @@ const Testimonial = require('../model/Testimonial');
 const path = require('path');
 
 // INSERT
+
 exports.Testimonialadd = async (req, res) => {
   try {
+    console.log("ok testimonial");
     const { Name, email, designation, message, star, date } = req.body;
 
     const imageUrl = req.file ? req.file.location : null; // S3 file URL
