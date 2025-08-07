@@ -15,7 +15,7 @@ const s3 = new AWS.S3({
 const upload = multer({
   storage: multerS3({
     s3: s3,
-    bucket: process.env.AWS_BUCKET_NAME,
+    bucket: 'getstarting-s3-unaar-demostration01',
     metadata: function (req, file, cb) {
       cb(null, { fieldName: file.fieldname });
     },
