@@ -12,7 +12,6 @@ const {
 
 // Routes
 router.post('/testimonialinsert', upload.single('image'), Testimonialadd);
-
 router.get('/testimonialget', TestimonialGet);
 router.put('/testimonialedit/:id', upload.single('image'), TestimonialEdit);
 router.delete('/testimonialdelete/:id', TestimonialDelete);

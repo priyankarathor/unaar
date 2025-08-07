@@ -4,9 +4,13 @@ const path = require('path');
 const cors = require("cors");
 const connectDB = require('./Server/Connection');
 
+//server data 
+
 const dotenv = require('dotenv');
 
 dotenv.config();
+// all the data are  insert in aws copy int data 
+// for all developer user api not insert ed and the data are intered in aws
 
 // const uploads = require("./uploads");
 
@@ -53,7 +57,7 @@ const propertybanner = require("./routes/propertybannerRoutes");
 const mapRoutes = require('./routes/map1Routes');
 const cardMapRoutes = require('./routes/map2CardRoutes');
 
-
+const awsRoutes = require('./routes/awsRoutes');
 
 // Root Route
 app.get("/", (req, res) => {
@@ -87,6 +91,8 @@ app.use("/api/propertybanner",propertybanner);
 app.use("/api/mapRoutes",mapRoutes);
 app.use("/api/Map2Routes",cardMapRoutes);
 app.use('/api/exchange', exchangeRoutes);
+
+app.use('/api/s3', awsRoutes);
 
 // app.use('/uploads', express.static('uploads'));
 

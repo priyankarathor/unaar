@@ -2,12 +2,13 @@ const Testimonial = require('../model/Testimonial');
 const path = require('path');
 
 // INSERT
-
 exports.Testimonialadd = async (req, res) => {
   try {
     const { Name, email, designation, message, star, date } = req.body;
-    
-    const imageUrl = req.file ? req.file.location : null;
+
+    const imageUrl = req.file
+  ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
+  : null;
 
     const newTestimonial = new Testimonial({
       imageUrl,
@@ -24,17 +25,14 @@ exports.Testimonialadd = async (req, res) => {
     res.status(201).json({
       status: true,
       message: "Testimonial inserted successfully",
-      data: newTestimonial,
+      data: newTestimonial
     });
   } catch (error) {
-    console.error('❌ Insert Error:', error);
-    res.status(500).json({
-      status: false,
-      message: "Insert failed",
-      error: error.message,
-    });
+    console.error('Insert Error:', error);
+    res.status(500).json({ status: false, message: "Insert failed", error: error.message });
   }
 };
+
 
 // GET
 exports.TestimonialGet = async (req, res) => {
