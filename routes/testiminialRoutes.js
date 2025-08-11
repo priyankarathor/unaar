@@ -1,14 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../middleware/multer");
+
 const {
-  Testimonialadd,
+  TestimonialAdd,
   TestimonialGet,
   TestimonialEdit,
   TestimonialDelete
 } = require("../controllers/testimonialController");
-//post adta init
-router.post("/testimonialinsert", upload.single("image"), Testimonialadd);
+
+// Routes
+router.post("/testimonialinsert", upload.single("image"), TestimonialAdd);
 router.get("/testimonialget", TestimonialGet);
 router.put("/testimonialedit/:id", upload.single("image"), TestimonialEdit);
 router.delete("/testimonialdelete/:id", TestimonialDelete);

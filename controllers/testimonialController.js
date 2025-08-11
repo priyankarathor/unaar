@@ -10,11 +10,10 @@ AWS.config.update({
   region: process.env.AWS_REGION.trim(),
 });
 
-//this download s3
 const s3 = new AWS.S3();
 
 // Add Testimonial
-exports.Testimonialadd = async (req, res) => {
+exports.TestimonialAdd = async (req, res) => {
   try {
     let imageUrl = null;
 
@@ -36,14 +35,14 @@ exports.Testimonialadd = async (req, res) => {
       email: req.body.email,
       designation: req.body.designation,
       message: req.body.message,
-      star: req.body.star
+      star: req.body.star,
     });
 
     await testimonial.save();
-    res.status(201).json({ message: "✅ Testimonial added", testimonial });
+    res.status(201).json({ status: true, message: "✅ Testimonial added", data: testimonial });
   } catch (error) {
     console.error("❌ Add Error:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
@@ -51,9 +50,9 @@ exports.Testimonialadd = async (req, res) => {
 exports.TestimonialGet = async (req, res) => {
   try {
     const testimonials = await Testimonial.find().sort({ createdAt: -1 });
-    res.status(200).json(testimonials);
+    res.status(200).json({ status: true, data: testimonials });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
@@ -65,7 +64,7 @@ exports.TestimonialEdit = async (req, res) => {
       email: req.body.email,
       designation: req.body.designation,
       message: req.body.message,
-      star: req.body.star
+      star: req.body.star,
     };
 
     if (req.file) {
@@ -81,9 +80,9 @@ exports.TestimonialEdit = async (req, res) => {
     }
 
     const testimonial = await Testimonial.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    res.status(200).json({ message: "✅ Testimonial updated", testimonial });
+    res.status(200).json({ status: true, message: "✅ Testimonial updated", data: testimonial });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
@@ -91,8 +90,8 @@ exports.TestimonialEdit = async (req, res) => {
 exports.TestimonialDelete = async (req, res) => {
   try {
     await Testimonial.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "✅ Testimonial deleted" });
+    res.status(200).json({ status: true, message: "✅ Testimonial deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ status: false, message: error.message });
   }
 };
