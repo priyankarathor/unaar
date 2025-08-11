@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const TestimonialSchema = new mongoose.Schema({
   imageUrl: String,
-  Name: String,
+  name: String,
   email: String,
   designation: String,
   message: String,
@@ -10,4 +10,4 @@ const TestimonialSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Testimonial', TestimonialSchema);
+module.exports = mongoose.model("Testimonial", TestimonialSchema);

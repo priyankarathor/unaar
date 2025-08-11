@@ -1,28 +1,19 @@
-// awsMulter.js
-const multer = require('multer');
-const multerS3 = require('multer-s3');
-const AWS = require('aws-sdk');
-require('dotenv').config();
+require("dotenv").config();
+const multer = require("multer");
 
-const s3 = new AWS.S3({
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-  },
-  region: process.env.AWS_REGION
-});
+// Store file in memory (not on disk) for manual S3 upload in controller
+const storage = multer.memoryStorage();
 
 const upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: 'getstarting-s3-unaar-demostration01',
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req, file, cb) {
-      cb(null, Date.now() + '-' + file.originalname);
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // limit file size to 5MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error("Only JPEG, PNG, JPG, and WEBP formats are allowed"), false);
     }
-  })
+    cb(null, true);
+  }
 });
 
 module.exports = upload;
