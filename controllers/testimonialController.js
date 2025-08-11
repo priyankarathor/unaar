@@ -10,7 +10,7 @@ AWS.config.update({
   region: process.env.AWS_REGION.trim(),
 });
 
-//this download s3 server
+//this download s3
 const s3 = new AWS.S3();
 
 // Add Testimonial
