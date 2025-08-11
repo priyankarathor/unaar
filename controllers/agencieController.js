@@ -1,7 +1,9 @@
 const Agencies = require("../model/Agencie");
 const AWS = require("aws-sdk");
+const { v4: uuidv4 } = require("uuid");
+const path = require("path");
 
-// AWS config (only if needed for S3 usage later)
+// AWS config
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID?.trim(),
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY?.trim(),
@@ -22,9 +24,23 @@ exports.agenciesadd = async (req, res) => {
       });
     }
 
+    // Generate unique file name
+    const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
+
+    // S3 upload parameters
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileName,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+    };
+
+    // Upload to S3
+    const data = await s3.upload(params).promise();
+    const imageUrl = data.Location; // Public URL from S3
+
     const newAgency = new Agencies({
-      image: req.file.buffer, // Store image as buffer
-      imageType: req.file.mimetype,
+      image: imageUrl, // Save S3 URL
       link,
       agenciename,
       status,
@@ -52,20 +68,10 @@ exports.agenciesget = async (req, res) => {
   try {
     const agenciesList = await Agencies.find().sort({ createdAt: -1 });
 
-    const agenciesListWithImage = agenciesList.map((agency) => ({
-      _id: agency._id,
-      image: agency.image
-        ? `data:${agency.imageType || "image/png"};base64,${agency.image.toString("base64")}`
-        : null,
-      link: agency.link,
-      agenciename: agency.agenciename,
-      status: agency.status,
-    }));
-
     res.status(200).json({
       status: true,
       message: "Agencies fetched successfully",
-      data: agenciesListWithImage,
+      data: agenciesList,
     });
   } catch (error) {
     console.error("Fetch error:", error);
@@ -91,9 +97,17 @@ exports.agenciesedit = async (req, res) => {
       });
     }
 
+    // If new image is uploaded, send to S3
     if (req.file) {
-      agency.image = req.file.buffer;
-      agency.imageType = req.file.mimetype;
+      const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileName,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      };
+      const data = await s3.upload(params).promise();
+      agency.image = data.Location;
     }
 
     if (link) agency.link = link;
