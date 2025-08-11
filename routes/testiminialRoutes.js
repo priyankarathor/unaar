@@ -7,7 +7,7 @@ const {
   TestimonialEdit,
   TestimonialDelete
 } = require("../controllers/testimonialController");
-
+//post adta init
 router.post("/testimonialinsert", upload.single("image"), Testimonialadd);
 router.get("/testimonialget", TestimonialGet);
 router.put("/testimonialedit/:id", upload.single("image"), TestimonialEdit);
