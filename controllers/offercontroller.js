@@ -1,37 +1,19 @@
-// controllers/offercontroller.js
 const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
-const mongoose = require("mongoose");
 const Offers = require("../model/Offersection");
 
-// AWS S3 config
+// AWS S3 Config
 AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID?.trim(),
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY?.trim(),
-  region: process.env.AWS_REGION?.trim(),
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID.trim(),
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY.trim(),
+  region: process.env.AWS_REGION.trim(),
 });
-
 const s3 = new AWS.S3();
 
-// Upload file to AWS S3
-const uploadImageToS3 = async (file) => {
-  const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
-  const params = {
-    Bucket: process.env.AWS_BUCKET_NAME,
-    Key: fileName,
-    Body: file.buffer,
-    ContentType: file.mimetype,
-    ACL: "public-read", // Make file publicly accessible
-  };
-
-  const result = await s3.upload(params).promise();
-  return result.Location; // Return file URL
-};
-
-// =========================
-// Insert Offer
-// =========================
+/**
+ * Add a new offer
+ */
 exports.offerInsert = async (req, res) => {
   try {
     const { startdate, enddate, title, subtitle, buttonfirst, buttonseconed, link } = req.body;
@@ -40,10 +22,19 @@ exports.offerInsert = async (req, res) => {
       return res.status(400).json({ status: false, message: "Image is required" });
     }
 
-    const imageUrl = await uploadImageToS3(req.file);
+    // Upload image to S3
+    const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileName,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+    };
+    const uploadData = await s3.upload(params).promise();
 
     const newOffer = new Offers({
-      image: imageUrl,
+      image: uploadData.Location, // S3 URL
+      imageType: req.file.mimetype,
       startdate,
       enddate,
       title,
@@ -54,84 +45,103 @@ exports.offerInsert = async (req, res) => {
     });
 
     await newOffer.save();
-    return res.status(201).json({ status: true, message: "✅ Offer inserted successfully", data: newOffer });
+
+    res.status(201).json({
+      status: true,
+      message: "✅ Offer inserted successfully",
+      data: newOffer,
+    });
   } catch (error) {
-    console.error("❌ Error inserting offer:", error);
-    return res.status(500).json({ status: false, message: "Failed to insert offer", error: error.message });
+    console.error("❌ Insert Error:", error);
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
-// =========================
-// Get All Offers
-// =========================
+/**
+ * Get all offers
+ */
 exports.offersGet = async (req, res) => {
   try {
     const offers = await Offers.find().sort({ createdAt: -1 });
-    return res.status(200).json({ status: true, message: "✅ Offers fetched successfully", data: offers });
+    res.status(200).json({
+      status: true,
+      message: "✅ Offers fetched successfully",
+      data: offers,
+    });
   } catch (error) {
-    console.error("❌ Fetch error:", error);
-    return res.status(500).json({ status: false, message: "Failed to fetch offers", error: error.message });
+    console.error("❌ Fetch Error:", error);
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
-// =========================
-// Edit Offer
-// =========================
+/**
+ * Edit an offer
+ */
 exports.offerEdit = async (req, res) => {
   try {
     const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ status: false, message: "Invalid Offer ID" });
-    }
+    const { startdate, enddate, title, subtitle, buttonfirst, buttonseconed, link } = req.body;
 
     const offer = await Offers.findById(id);
     if (!offer) {
       return res.status(404).json({ status: false, message: "Offer not found" });
     }
 
-    // Update image only if new file is provided
     if (req.file) {
-      offer.image = await uploadImageToS3(req.file);
+      // Upload new image to S3
+      const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileName,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      };
+      const uploadData = await s3.upload(params).promise();
+
+      offer.image = uploadData.Location;
+      offer.imageType = req.file.mimetype;
     }
 
-    // Update other fields
-    offer.startdate = req.body.startdate || offer.startdate;
-    offer.enddate = req.body.enddate || offer.enddate;
-    offer.title = req.body.title || offer.title;
-    offer.subtitle = req.body.subtitle || offer.subtitle;
-    offer.buttonfirst = req.body.buttonfirst || offer.buttonfirst;
-    offer.buttonseconed = req.body.buttonseconed || offer.buttonseconed;
-    offer.link = req.body.link || offer.link;
+    offer.startdate = startdate;
+    offer.enddate = enddate;
+    offer.title = title;
+    offer.subtitle = subtitle;
+    offer.buttonfirst = buttonfirst;
+    offer.buttonseconed = buttonseconed;
+    offer.link = link;
 
-    await offer.save();
+    const updatedOffer = await offer.save();
 
-    return res.status(200).json({ status: true, message: "✅ Offer updated successfully", data: offer });
+    res.status(200).json({
+      status: true,
+      message: "✅ Offer updated successfully",
+      data: updatedOffer,
+    });
   } catch (error) {
-    console.error("❌ Update error:", error);
-    return res.status(500).json({ status: false, message: "Failed to update offer", error: error.message });
+    console.error("❌ Update Error:", error);
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
-// =========================
-// Delete Offer
-// =========================
+/**
+ * Delete an offer
+ */
 exports.offerDelete = async (req, res) => {
   try {
     const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ status: false, message: "Invalid Offer ID" });
-    }
 
     const offer = await Offers.findByIdAndDelete(id);
     if (!offer) {
       return res.status(404).json({ status: false, message: "Offer not found" });
     }
 
-    return res.status(200).json({ status: true, message: "✅ Offer deleted successfully", data: offer });
+    res.status(200).json({
+      status: true,
+      message: "✅ Offer deleted successfully",
+      data: offer,
+    });
   } catch (error) {
-    console.error("❌ Delete error:", error);
-    return res.status(500).json({ status: false, message: "Failed to delete offer", error: error.message });
+    console.error("❌ Delete Error:", error);
+    res.status(500).json({ status: false, message: error.message });
   }
 };
