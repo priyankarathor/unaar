@@ -1,6 +1,17 @@
-const Blog = require("../model/Blog");  // Use uppercase 'Blog' as convention for models
+const Blog = require("../model/Blog");
+const AWS = require("aws-sdk");
+const { v4: uuidv4 } = require("uuid");
+const path = require("path");
 
-// ADD a new blog
+// AWS S3 Config
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID.trim(),
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY.trim(),
+  region: process.env.AWS_REGION.trim(),
+});
+const s3 = new AWS.S3();
+
+// ===================== ADD Blog =====================
 exports.blogadd = async (req, res) => {
   try {
     const {
@@ -10,9 +21,22 @@ exports.blogadd = async (req, res) => {
       metatitle, metadescription, metakeyword
     } = req.body;
 
+    if (!req.file) {
+      return res.status(400).json({ status: false, message: "Image is required" });
+    }
+
+    // Upload image to S3
+    const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileName,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+    };
+    const uploadResult = await s3.upload(params).promise();
+
     const newBlog = new Blog({
-      image: req.file?.buffer,
-      imageType: req.file?.mimetype,
+      image: uploadResult.Location, // S3 URL
       title,
       subtitle,
       description,
@@ -39,68 +63,39 @@ exports.blogadd = async (req, res) => {
     console.error("Blog add error:", error);
     res.status(500).json({
       status: false,
-      message: "Something went wrong: " + error.message,
-      data: null
+      message: "Something went wrong: " + error.message
     });
   }
 };
 
-// GET all blogs
+// ===================== GET all blogs =====================
 exports.blogget = async (req, res) => {
   try {
     const blogData = await Blog.find().sort({ createdAt: -1 });
-
-    const blogWithImage = blogData.map(item => ({
-      _id: item._id,
-      title: item.title,
-      subtitle: item.subtitle,
-      description: item.description,
-      categorylable: item.categorylable,
-      categoryValue: item.categoryValue,
-      categoryType: item.categoryType,
-      action: item.action,
-      date: item.date,
-      categorytitle: item.categorytitle,
-      authername: item.authername,
-      metatitle: item.metatitle,
-      metadescription: item.metadescription,
-      metakeyword: item.metakeyword,
-      image: item.image ? {
-        data: item.image,
-        contentType: item.imageType || 'image/png'
-      } : null
-    }));
-
     res.status(200).json({
       status: true,
       message: "Blogs fetched successfully",
-      data: blogWithImage
+      data: blogData
     });
   } catch (error) {
     console.error('Fetch blogs error:', error);
     res.status(500).json({
       status: false,
-      message: "Failed to fetch blogs",
-      error: error.message
+      message: "Failed to fetch blogs: " + error.message
     });
   }
 };
 
-// EDIT a blog by ID
+// ===================== EDIT Blog =====================
 exports.blogedit = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Find blog by id
     const blogData = await Blog.findById(id);
     if (!blogData) {
-      return res.status(404).json({
-        status: false,
-        message: "Blog not found",
-      });
+      return res.status(404).json({ status: false, message: "Blog not found" });
     }
 
-    // Update allowed fields if present
     const fieldsToUpdate = [
       "title", "subtitle", "description",
       "categorylable", "categoryValue", "categoryType",
@@ -114,13 +109,19 @@ exports.blogedit = async (req, res) => {
       }
     });
 
-    // Update image if new file provided
+    // If new image uploaded, send to S3
     if (req.file) {
-      blogData.image = req.file.buffer;
-      blogData.imageType = req.file.mimetype;
+      const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileName,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      };
+      const uploadResult = await s3.upload(params).promise();
+      blogData.image = uploadResult.Location;
     }
 
-    // Save updated blog
     const updatedBlog = await blogData.save();
 
     res.status(200).json({
@@ -132,24 +133,19 @@ exports.blogedit = async (req, res) => {
     console.error("Blog edit error:", error);
     res.status(500).json({
       status: false,
-      message: "Something went wrong",
-      error: error.message
+      message: "Something went wrong: " + error.message
     });
   }
 };
 
-// DELETE a blog by ID
+// ===================== DELETE Blog =====================
 exports.blogdelete = async (req, res) => {
   try {
     const { id } = req.params;
 
     const blogData = await Blog.findByIdAndDelete(id);
-
     if (!blogData) {
-      return res.status(404).json({
-        status: false,
-        message: "Blog not found"
-      });
+      return res.status(404).json({ status: false, message: "Blog not found" });
     }
 
     res.status(200).json({
@@ -161,7 +157,7 @@ exports.blogdelete = async (req, res) => {
     console.error("Blog delete error:", error);
     res.status(500).json({
       status: false,
-      message: "Something went wrong: " + error.message,
+      message: "Something went wrong: " + error.message
     });
   }
 };
