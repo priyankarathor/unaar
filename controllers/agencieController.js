@@ -1,9 +1,9 @@
-const Agencies = require("../model/Agencie");
 const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
+const Agencies = require("../model/Agencie");
 
-// AWS config
+// AWS Config
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID?.trim(),
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY?.trim(),
@@ -12,7 +12,7 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
-// Helper to upload image to S3
+// Upload helper
 const uploadToS3 = async (file) => {
   const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
   const params = {
@@ -22,74 +22,63 @@ const uploadToS3 = async (file) => {
     ContentType: file.mimetype,
   };
   const data = await s3.upload(params).promise();
-  return data.Location; // Public URL
+  return data.Location;
 };
 
 // ADD AGENCY
-exports.agenciesadd = async (req, res) => {
+exports.agenciesAdd = async (req, res) => {
   try {
-    const { link, agenciename, status } = req.body;
+    let imageUrl = null;
 
-    if (!req.file) {
+    if (req.file) {
+      imageUrl = await uploadToS3(req.file);
+    } else {
       return res.status(400).json({
         status: false,
         message: "Image is required",
       });
     }
 
-    const imageUrl = await uploadToS3(req.file);
-
-    const newAgency = new Agencies({
+    const agency = new Agencies({
       image: imageUrl,
-      link,
-      agenciename,
-      status,
+      link: req.body.link,
+      agenciename: req.body.agenciename,
+      status: req.body.status,
     });
 
-    await newAgency.save();
-
+    await agency.save();
     res.status(201).json({
       status: true,
-      message: "Agency inserted successfully",
-      data: newAgency,
+      message: "✅ Agency added successfully",
+      data: agency,
     });
   } catch (error) {
-    console.error("Error inserting agency:", error);
-    res.status(500).json({
-      status: false,
-      message: "Failed to insert agency",
-      error: error.message,
-    });
+    console.error("❌ Add Error:", error);
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
 // GET ALL AGENCIES
-exports.agenciesget = async (req, res) => {
+exports.agenciesGet = async (req, res) => {
   try {
     const agenciesList = await Agencies.find().sort({ createdAt: -1 });
-
     res.status(200).json({
       status: true,
       message: "Agencies fetched successfully",
       data: agenciesList,
     });
   } catch (error) {
-    console.error("Fetch error:", error);
-    res.status(500).json({
-      status: false,
-      message: "Failed to fetch Agencies",
-      error: error.message,
-    });
+    console.error("❌ Fetch Error:", error);
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
 // EDIT AGENCY
-exports.agenciesedit = async (req, res) => {
+exports.agenciesEdit = async (req, res) => {
   try {
     const { id } = req.params;
-    const { link, agenciename, status } = req.body;
-
     const agency = await Agencies.findById(id);
+
     if (!agency) {
       return res.status(404).json({
         status: false,
@@ -98,37 +87,30 @@ exports.agenciesedit = async (req, res) => {
     }
 
     if (req.file) {
-      const imageUrl = await uploadToS3(req.file);
-      agency.image = imageUrl;
+      agency.image = await uploadToS3(req.file);
     }
+    if (req.body.link) agency.link = req.body.link;
+    if (req.body.agenciename) agency.agenciename = req.body.agenciename;
+    if (req.body.status) agency.status = req.body.status;
 
-    if (link) agency.link = link;
-    if (agenciename) agency.agenciename = agenciename;
-    if (status) agency.status = status;
-
-    const updatedAgency = await agency.save();
-
+    await agency.save();
     res.status(200).json({
       status: true,
-      message: "Agency updated successfully",
-      data: updatedAgency,
+      message: "✅ Agency updated successfully",
+      data: agency,
     });
   } catch (error) {
-    console.error("Error updating agency:", error);
-    res.status(500).json({
-      status: false,
-      message: "Failed to update agency",
-      error: error.message,
-    });
+    console.error("❌ Update Error:", error);
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
 // DELETE AGENCY
-exports.agenciesdelete = async (req, res) => {
+exports.agenciesDelete = async (req, res) => {
   try {
     const { id } = req.params;
-
     const agency = await Agencies.findByIdAndDelete(id);
+
     if (!agency) {
       return res.status(404).json({
         status: false,
@@ -138,15 +120,11 @@ exports.agenciesdelete = async (req, res) => {
 
     res.status(200).json({
       status: true,
-      message: "Agency deleted successfully",
+      message: "✅ Agency deleted successfully",
       data: agency,
     });
   } catch (error) {
-    console.error("Error deleting agency:", error);
-    res.status(500).json({
-      status: false,
-      message: "Failed to delete agency",
-      error: error.message,
-    });
+    console.error("❌ Delete Error:", error);
+    res.status(500).json({ status: false, message: error.message });
   }
 };
