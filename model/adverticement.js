@@ -1,10 +1,15 @@
 const mongoose = require("mongoose");
 
-const advertisementSchematab = new mongoose.Schema({
-    image: Buffer,
+const advertisementSchema = new mongoose.Schema(
+  {
+    image: {
+      type: String, // S3 URL
+    },
     imageType: String,
     description: String,
-    status: String
-}, { timestamps: true });
+    status: String,
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model("Advertisement", advertisementSchematab);
+module.exports = mongoose.model("Advertisement", advertisementSchema);
