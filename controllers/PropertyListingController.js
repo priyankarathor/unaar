@@ -3,6 +3,7 @@ const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 const PropertyListing = require("../model/PropertyListing");
+const PropertyBanner = require("../model/propertybanner");
 
 // configure AWS SDK
 AWS.config.update({
@@ -275,29 +276,25 @@ const parseJSONField = (value) => {
 
 
 
-// ✅ GET property by ID
+
+// GET property by ID
 const getPropertyById = async (req, res) => {
   try {
     const property = await PropertyListing.findById(req.params.id);
-
-    if (!property) {
-      return res.status(404).json({ message: 'Property not found' });
-    }
-
+    if (!property) return res.status(404).json({ message: "Property not found" });
     res.status(200).json(property);
   } catch (error) {
-    console.error('Error fetching property:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    console.error("Error fetching property:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
-// ✅ UPDATE property
-// controllers/propertyController.js
-
+// UPDATE property by ID
 const updatePropertyListing = async (req, res) => {
   try {
     const updatedData = { ...req.body };
 
+    // List of fields that may be JSON stringified in req.body and should be parsed
     const fieldsToParse = [
       'country', 'state', 'city', 'title', 'subtitle', 'fromamout',
       'propertylabel', 'propertyvalue', 'descriptiontitle', 'descriptionlabel',
@@ -314,33 +311,33 @@ const updatePropertyListing = async (req, res) => {
         try {
           updatedData[field] = JSON.parse(updatedData[field]);
         } catch (e) {
-          // Not JSON, keep as-is
+          // If not JSON, leave it as is
         }
       }
     });
 
+    // Handle images uploaded via multerS3
+    // req.files.propertyimage and req.files.remotelocationimage will be arrays of files on S3
     if (req.files?.propertyimage) {
-      updatedData.propertyimage = req.files.propertyimage
-        .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
-        .join(',');
+      // Map to S3 URLs
+      updatedData.propertyimage = req.files.propertyimage.map(file => file.location);
     }
 
     if (req.files?.remotelocationimage) {
-      updatedData.remotelocationimage = req.files.remotelocationimage
-        .map(img => `${req.protocol}://${req.get('host')}/uploads/${img.filename}`)
-        .join(',');
+      updatedData.remotelocationimage = req.files.remotelocationimage.map(file => file.location);
     }
 
+    // Update document
     const updated = await PropertyListing.findByIdAndUpdate(req.params.id, updatedData, { new: true });
 
     if (!updated) {
-      return res.status(404).json({ message: 'Property not found' });
+      return res.status(404).json({ message: "Property not found" });
     }
 
-    res.status(200).json({ message: 'Property updated successfully', data: updated });
+    res.status(200).json({ message: "Property updated successfully", data: updated });
   } catch (error) {
-    console.error('Error updating listing:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    console.error("Error updating listing:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
