@@ -12,6 +12,19 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
+// Helper to upload image to S3
+const uploadToS3 = async (file) => {
+  const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: fileName,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+  };
+  const data = await s3.upload(params).promise();
+  return data.Location; // Public URL
+};
+
 // ADD AGENCY
 exports.agenciesadd = async (req, res) => {
   try {
@@ -24,23 +37,10 @@ exports.agenciesadd = async (req, res) => {
       });
     }
 
-    // Generate unique file name
-    const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
-
-    // S3 upload parameters
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: fileName,
-      Body: req.file.buffer,
-      ContentType: req.file.mimetype,
-    };
-
-    // Upload to S3
-    const data = await s3.upload(params).promise();
-    const imageUrl = data.Location; // Public URL from S3
+    const imageUrl = await uploadToS3(req.file);
 
     const newAgency = new Agencies({
-      image: imageUrl, // Save S3 URL
+      image: imageUrl,
       link,
       agenciename,
       status,
@@ -97,17 +97,9 @@ exports.agenciesedit = async (req, res) => {
       });
     }
 
-    // If new image is uploaded, send to S3
     if (req.file) {
-      const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
-      const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: fileName,
-        Body: req.file.buffer,
-        ContentType: req.file.mimetype,
-      };
-      const data = await s3.upload(params).promise();
-      agency.image = data.Location;
+      const imageUrl = await uploadToS3(req.file);
+      agency.image = imageUrl;
     }
 
     if (link) agency.link = link;
