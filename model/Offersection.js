@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const offerSchema = new mongoose.Schema({
-    image: Buffer,         
+    image: String,         
     imageType: String,     
     startdate: String,
     enddate: String,
