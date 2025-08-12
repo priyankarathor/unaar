@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const upload = require("../middleware/multer");
-const ctrl = require("../controllers/PropertyListingController");
+const propertylistingController = require("../controllers/PropertyListingController");
 
 // helper routes for testing single/multiple
 router.post("/upload-single", upload.single("image"), (req, res) => {
@@ -20,32 +20,39 @@ router.post(
     { name: "propertyimage", maxCount: 5 },
     { name: "remotelocationimage", maxCount: 5 },
   ]),
-  ctrl.propertyListingInsert
+  propertylistingController.propertyListingInsert
 );
+// Get All Properties
+router.get('/properties', propertylistingController.getAllPropertyListings);
 
-// get all
-router.get("/properties", ctrl.getAllPropertyListings);
+//get one data
+router.get('/propertiesdata', propertylistingController.getAllPropertyList);
 
-// get latest (single)
-router.get("/propertiesdata", ctrl.getLatestPropertyListing);
+//property banner filter
+router.get('/propertybannerdata', propertylistingController.propertyfilterBanner);
 
-// filter
-router.get("/propertyfilter", ctrl.propertyfilter);
+//property 
+router.get('/propertyfilter', propertylistingController.propertyfilter);
 
-// get by id
-router.get("/property/:id", ctrl.getPropertyById);
 
-// update - uploads optional images
+
+
+// ✅ GET Property by ID
+router.get('/propertyedit/:id', propertylistingController.getPropertyById);
+
+// ✅ PUT (Update) Property by ID
 router.put(
-  "/propertyedit/:id",
+  '/propertyedit/:id',
   upload.fields([
-    { name: "propertyimage", maxCount: 5 },
-    { name: "remotelocationimage", maxCount: 5 },
+    { name: 'propertyimage', maxCount: 5 },
+    { name: 'remotelocationimage', maxCount: 1 }
   ]),
-  ctrl.updatePropertyListing
+  propertylistingController.updatePropertyListing
 );
 
-// delete
-router.delete("/propertydelete/:id", ctrl.deletePropertyListing);
+// Delete Property
+router.delete('/propertydelete/:id', propertylistingController.deletePropertyListing);
+
+
 
 module.exports = router;
