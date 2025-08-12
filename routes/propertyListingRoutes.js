@@ -1,66 +1,51 @@
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
 const router = express.Router();
-const upload = require('../middleware/multer');
-const propertylistingController = require('../controllers/PropertyListingController');
 
-// const storage = multer.memoryStorage();
+const upload = require("../middleware/multer");
+const ctrl = require("../controllers/PropertyListingController");
 
-// const upload = multer({ storage: storage });
-// CSV Import
-// router.post('/import-csv', upload.single('file'), propertylistingController.importCSV);
+// helper routes for testing single/multiple
+router.post("/upload-single", upload.single("image"), (req, res) => {
+  res.json({ file: req.file });
+});
+router.post("/upload-multiple", upload.array("images", 10), (req, res) => {
+  res.json({ files: req.files });
+});
 
-// Insert Property
-// router.post(
-//   '/propertyinsert',
-//   upload.fields([
-//     { name: 'propertyimage', maxCount: 10 },
-//     { name: 'remotelocationimage', maxCount: 5 }
-//   ]),
-//   propertylistingController.PropertyListingInsert
-// );
-
+// create with two fields (each max 5)
 router.post(
-  '/propertyinsert',
+  "/propertyinsert",
   upload.fields([
-    { name: 'propertyimage', maxCount: 10 },
-    { name: 'remotelocationimage', maxCount: 5 }
+    { name: "propertyimage", maxCount: 5 },
+    { name: "remotelocationimage", maxCount: 5 },
   ]),
-  propertylistingController.PropertyListingInsert
+  ctrl.propertyListingInsert
 );
 
+// get all
+router.get("/properties", ctrl.getAllPropertyListings);
 
+// get latest (single)
+router.get("/propertiesdata", ctrl.getLatestPropertyListing);
 
-// Get All Properties
-router.get('/properties', propertylistingController.getAllPropertyListings);
+// filter
+router.get("/propertyfilter", ctrl.propertyfilter);
 
-//get one data
-router.get('/propertiesdata', propertylistingController.getAllPropertyList);
+// get by id
+router.get("/property/:id", ctrl.getPropertyById);
 
-//property banner filter
-router.get('/propertybannerdata', propertylistingController.propertyfilterBanner);
-
-//property 
-router.get('/propertyfilter', propertylistingController.propertyfilter);
-
-
-
-
-// ✅ GET Property by ID
-router.get('/propertyedit/:id', propertylistingController.getPropertyById);
-
-// ✅ PUT (Update) Property by ID
+// update - uploads optional images
 router.put(
-  '/propertyedit/:id',
+  "/propertyedit/:id",
   upload.fields([
-    { name: 'propertyimage', maxCount: 5 },
-    { name: 'remotelocationimage', maxCount: 1 }
+    { name: "propertyimage", maxCount: 5 },
+    { name: "remotelocationimage", maxCount: 5 },
   ]),
-  propertylistingController.updatePropertyListing
+  ctrl.updatePropertyListing
 );
 
-// Delete Property
-router.delete('/propertydelete/:id', propertylistingController.deletePropertyListing);
-
-
+// delete
+router.delete("/propertydelete/:id", ctrl.deletePropertyListing);
 
 module.exports = router;

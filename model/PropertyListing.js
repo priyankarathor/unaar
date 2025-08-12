@@ -1,11 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const imageSchema = new mongoose.Schema({
-  data: Buffer,
-  contentType: String
-}, { _id: false });
-
-const propertyListing = new mongoose.Schema({
+const propertyListingSchema = new mongoose.Schema({
   country: String,
   state: String,
   city: String,
@@ -26,7 +21,7 @@ const propertyListing = new mongoose.Schema({
   locationlable: String,
   locationvalue: String,
   locationvaluetitle: String,
-  locationdescription:String,
+  locationdescription: String,
   apartmenttitle: String,
   apartmentlable: String,
   apartmendescription: String,
@@ -36,28 +31,17 @@ const propertyListing = new mongoose.Schema({
   Currency: String,
   nearbyPlaces: String,
   pincode: String,
-  growthrate : String,
-  loginId:String,
-  status:String,
-   developer: String,
-   type:String,
+  growthrate: String,
+  loginId: String,
+  status: String,
+  developer: String,
+  type: String,
 
-  // Property images
-  propertyimageblobs: [imageSchema],  // array of image BLOBs
-  propertyimage: String,              // CSV filenames
+  // images stored as arrays of S3 URLs
+  propertyimage: { type: [String], default: [] },
+  remotelocationimage: { type: [String], default: [] },
 
-  // Remote location images
-  remotelocationimageblobs: [imageSchema],  // changed from single to array
-  remotelocationimage: String,              // new: CSV filenames
-
-  remotelocationimagetype: {
-    type: String // optional: MIME type for the image set
-  },
-
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+  createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('PropertyListingschma', propertyListing);
+module.exports = mongoose.model("PropertyListing", propertyListingSchema);
