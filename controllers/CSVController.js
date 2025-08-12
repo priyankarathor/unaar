@@ -1,5 +1,5 @@
 // controllers/propertyController.js
-const PropertyListing = require('../model/PropertyListing');
+const PropertyListing = require("../model/PropertyListing");
 
 const bulkInsertProperties = async (req, res) => {
   try {
