@@ -1,30 +1,26 @@
 const mongoose = require('mongoose');
 
-const Goldenvisa =  new mongoose.Schema({
-    title:{
-        type : String,
-        require : true
+const GoldenvisaSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true
     },
-    subtitle:{
-        type:String
+    subtitle: {
+        type: String
     },
-    description:{
-        type:String
+    description: {
+        type: String
     },
-    image:{
-        type:Buffer
+    image: { // Will store AWS S3 image URL here
+        type: String
     },
-    imageType: {
-        type : String 
+    buttontitle: {
+        type: String,
+        required: true
     },
-    buttontitle:{
-        type:String,
-        require:true
-    },
-    link:{
-        type:String
+    link: {
+        type: String
     }
-})
+}, { timestamps: true });
 
-const goldenvisa = mongoose.model('goldenvisa',Goldenvisa);
-module.exports = goldenvisa;
+module.exports = mongoose.model('Goldenvisa', GoldenvisaSchema);

@@ -9,7 +9,6 @@ const {
     goldenvisadelete
 } = require("../controllers/goldenvisa");
 
-//post api
 router.post("/goldenvisainsert", upload.single('image'), goldenvisaadd);
 router.get("/goldenvisaget", goldenvisaget);
 router.put("/goldenvisaedit/:id", upload.single('image'), goldenvisaedit);

@@ -42,10 +42,10 @@ exports.goldenvisaadd = async (req, res) => {
     }
 
     const newGoldenVisa = new GoldenVisa({
-      imageUrl,
       title: req.body.title,
       subtitle: req.body.subtitle,
       description: req.body.description,
+      image: imageUrl, // Store S3 URL here
       buttontitle: req.body.buttontitle,
       link: req.body.link,
     });
@@ -93,7 +93,7 @@ exports.goldenvisaedit = async (req, res) => {
     }
 
     if (req.file) {
-      goldenVisa.imageUrl = await uploadImageToS3(req.file);
+      goldenVisa.image = await uploadImageToS3(req.file);
     }
 
     goldenVisa.title = req.body.title || goldenVisa.title;
