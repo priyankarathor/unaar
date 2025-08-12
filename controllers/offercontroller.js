@@ -69,31 +69,30 @@ exports.offersGet = async (req, res) => {
 
 exports.offerEdit = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { startdate, enddate, title, subtitle, buttonfirst, buttonseconed, link } = req.body;
-
-    const offer = await Offers.findById(id);
-    if (!offer) return res.status(404).json({ status: false, message: "Offer not found" });
-
-    if (req.file) {
-      // upload new image and replace URL
-      offer.image = await uploadImageToS3(req.file);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid Offer ID' });
     }
 
-    offer.startdate = startdate ?? offer.startdate;
-    offer.enddate = enddate ?? offer.enddate;
-    offer.title = title ?? offer.title;
-    offer.subtitle = subtitle ?? offer.subtitle;
-    offer.buttonfirst = buttonfirst ?? offer.buttonfirst;
-    offer.buttonseconed = buttonseconed ?? offer.buttonseconed;
-    offer.link = link ?? offer.link;
+    const offer = await Offer.findById(req.params.id);
+    if (!offer) {
+      return res.status(404).json({ error: 'Offer not found' });
+    }
 
-    const updatedOffer = await offer.save();
+    // Update fields
+    if (req.body.title) offer.title = req.body.title;
+    if (req.body.description) offer.description = req.body.description;
 
-    return res.status(200).json({ status: true, message: "✅ Offer updated successfully", data: updatedOffer });
+    // Update image only if provided
+    if (req.file) {
+      offer.image.data = req.file.buffer;
+      offer.image.contentType = req.file.mimetype;
+    }
+
+    await offer.save();
+    res.status(200).json({ message: 'Offer updated successfully', offer });
   } catch (error) {
-    console.error("❌ Update error:", error);
-    return res.status(500).json({ status: false, message: "Failed to update offer", error: error.message });
+    console.error('Error updating offer:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
