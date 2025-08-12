@@ -19,6 +19,7 @@ exports.goldenvisaadd = async (req, res) => {
   try {
     let imageUrl = null;
 
+    //golden visa upload
     // Upload image if provided
     if (req.file) {
       const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
