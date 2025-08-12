@@ -1,14 +1,16 @@
 const mongoose = require("mongoose");
 
-const map1Schema = new mongoose.Schema({
-  image: {
-    data: Buffer,
-    contentType: String,
+const map1Schema = new mongoose.Schema(
+  {
+    image: { type: String, required: true }, // AWS S3 URL
+    imageType: { type: String },
+    status: {
+      type: String,
+      enum: ["Active", "Inactive"],
+      default: "Active",
+    },
   },
-  status: {
-    type: String,
-    default: "Active",
-  }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("Map1", map1Schema);
