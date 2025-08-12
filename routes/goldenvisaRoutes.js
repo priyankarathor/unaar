@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const upload = multer()
+
+const upload = require("../middleware/multer");
 const {
     goldenvisaadd,
     goldenvisaget,
@@ -14,4 +14,4 @@ router.get("/goldenvisaget", goldenvisaget);
 router.put("/goldenvisaedit/:id", upload.single('image'), goldenvisaedit);
 router.delete("/goldenvisadelete/:id", goldenvisadelete);
 
-module.exports = router;  // <-- Move this to the end
+module.exports = router;
