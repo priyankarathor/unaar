@@ -1,18 +1,13 @@
+// routes/offer.js
 const express = require('express');
 const router = express.Router();
 
-const upload = require("../middleware/multer"); // Use same multer middleware as goldenvisa
-const {
-    offerInsert,
-    offersGet,
-    offerEdit,
-    offerDelete
-} = require("../controllers/offercontroller");
+const upload = require("../middleware/multer");
+const offerController = require("../controllers/offercontroller");
 
-// Routes
-router.post("/offerinsert", upload.single('image'), offerInsert);
-router.get("/offerget", offersGet);
-router.put("/offeredit/:id", upload.single('image'), offerEdit);
-router.delete("/offerdelete/:id", offerDelete);
+router.post('/offerinsert', upload.single('image'), offerController.offerInsert);
+router.get('/offerget', offerController.offersGet);
+router.put('/offeredit/:id', upload.single('image'), offerController.offerEdit);
+router.delete('/offerdelete/:id', offerController.offerDelete);
 
-module.exports = router; // Always at the end
+module.exports = router;
