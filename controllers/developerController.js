@@ -1,15 +1,34 @@
 const Developer = require("../model/Developer");
+const AWS = require("aws-sdk");
+const { v4: uuidv4 } = require("uuid");
+const path = require("path");
 
-// ADD Developer
+// AWS S3 Config
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID.trim(),
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY.trim(),
+  region: process.env.AWS_REGION.trim(),
+});
+const s3 = new AWS.S3();
+
+// ===================== ADD Developer =====================
 exports.developerAdd = async (req, res) => {
   try {
-    console.log('req.file:', req.file); // 🔍 Check this
-
     const { farmname, title, About, year, otherdetails, History } = req.body;
 
-    const imageUrl = req.file
-      ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
-      : null;
+    if (!req.file) {
+      return res.status(400).json({ status: false, message: "Image is required" });
+    }
+
+    // Upload image to S3
+    const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileName,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+    };
+    const uploadResult = await s3.upload(params).promise();
 
     const newDeveloper = new Developer({
       farmname,
@@ -18,7 +37,7 @@ exports.developerAdd = async (req, res) => {
       year,
       otherdetails,
       History,
-      image: imageUrl,
+      image: uploadResult.Location // Store S3 URL
     });
 
     await newDeveloper.save();
@@ -37,27 +56,14 @@ exports.developerAdd = async (req, res) => {
   }
 };
 
-
-// GET All Developers
+// ===================== GET All Developers =====================
 exports.developerGet = async (req, res) => {
   try {
     const developers = await Developer.find().sort({ createdAt: -1 });
-
-    const developerList = developers.map((dev) => ({
-      _id: dev._id,
-      farmname: dev.farmname,
-      title: dev.title,
-      About: dev.About,
-      year: dev.year,
-      otherdetails: dev.otherdetails,
-      History: dev.History,
-      image: dev.image || null, // now it's a URL string
-    }));
-
     res.status(200).json({
       status: true,
       message: "Developers fetched successfully",
-      data: developerList,
+      data: developers,
     });
   } catch (error) {
     console.error("Fetch error:", error);
@@ -68,19 +74,15 @@ exports.developerGet = async (req, res) => {
   }
 };
 
-// EDIT Developer
+// ===================== EDIT Developer =====================
 exports.developerEdit = async (req, res) => {
   try {
     const { farmname, title, About, year, otherdetails, History } = req.body;
     const { id } = req.params;
 
     const developer = await Developer.findById(id);
-
     if (!developer) {
-      return res.status(404).json({
-        status: false,
-        message: "Developer not found",
-      });
+      return res.status(404).json({ status: false, message: "Developer not found" });
     }
 
     developer.farmname = farmname;
@@ -90,9 +92,17 @@ exports.developerEdit = async (req, res) => {
     developer.otherdetails = otherdetails;
     developer.History = History;
 
+    // If new image uploaded, upload to S3
     if (req.file) {
-      // Construct new image URL
-      developer.image = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileName,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      };
+      const uploadResult = await s3.upload(params).promise();
+      developer.image = uploadResult.Location;
     }
 
     const updatedDeveloper = await developer.save();
@@ -111,14 +121,12 @@ exports.developerEdit = async (req, res) => {
   }
 };
 
-
-// DELETE Developer
+// ===================== DELETE Developer =====================
 exports.developerDelete = async (req, res) => {
   try {
     const { id } = req.params;
 
     const developer = await Developer.findByIdAndDelete(id);
-
     if (!developer) {
       return res.status(404).json({
         status: false,
