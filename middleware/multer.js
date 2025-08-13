@@ -21,7 +21,7 @@ const fileFilter = (req, file, cb) => {
     cb(null, true);
   }
 };
-
+//ok
 const upload = multer({
   fileFilter,
   storage: multerS3({
