@@ -289,6 +289,8 @@ const getPropertyById = async (req, res) => {
   }
 };
 
+
+
 const updatePropertyListing = async (req, res) => {
   try {
     const updatedData = { ...req.body };
@@ -301,7 +303,7 @@ const updatePropertyListing = async (req, res) => {
       'locationvalue', 'locationvaluetitle', 'locationdescription',
       'apartmenttitle', 'apartmentlable', 'apartmendescription',
       'remotelocationtitle', 'remotelocationsubtitle', 'Currency', 'tagtitle',
-      'nearbyPlaces', 'pincode', 'developer', 'loginId', 'status', 'type'
+      'pincode', 'developer', 'loginId', 'status', 'type'
     ];
 
     const safeJsonParse = (value) => {
@@ -361,6 +363,7 @@ const updatePropertyListing = async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
 
 
 // ========== EXPORT ==========
