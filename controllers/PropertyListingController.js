@@ -289,12 +289,10 @@ const getPropertyById = async (req, res) => {
   }
 };
 
-// UPDATE property by ID
 const updatePropertyListing = async (req, res) => {
   try {
     const updatedData = { ...req.body };
 
-    // List of fields that may be JSON stringified in req.body and should be parsed
     const fieldsToParse = [
       'country', 'state', 'city', 'title', 'subtitle', 'fromamout',
       'propertylabel', 'propertyvalue', 'descriptiontitle', 'descriptionlabel',
@@ -306,20 +304,31 @@ const updatePropertyListing = async (req, res) => {
       'nearbyPlaces', 'pincode', 'developer', 'loginId', 'status', 'type'
     ];
 
+    const safeJsonParse = (value) => {
+      if (!value) return undefined;
+      if (typeof value === 'object') return value;
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    };
+
     fieldsToParse.forEach(field => {
-      if (updatedData[field]) {
-        try {
-          updatedData[field] = JSON.parse(updatedData[field]);
-        } catch (e) {
-          // If not JSON, leave it as is
-        }
+      if (updatedData[field] !== undefined) {
+        updatedData[field] = safeJsonParse(updatedData[field]);
       }
     });
 
-    // Handle images uploaded via multerS3
-    // req.files.propertyimage and req.files.remotelocationimage will be arrays of files on S3
+    // Convert comma-separated strings to arrays for these fields if needed
+    ['propertylabel', 'propertyvalue'].forEach(field => {
+      if (updatedData[field] && !Array.isArray(updatedData[field])) {
+        updatedData[field] = updatedData[field].toString().split(',').map(s => s.trim());
+      }
+    });
+
+    // If files uploaded, override images with new S3 URLs
     if (req.files?.propertyimage) {
-      // Map to S3 URLs
       updatedData.propertyimage = req.files.propertyimage.map(file => file.location);
     }
 
@@ -327,17 +336,29 @@ const updatePropertyListing = async (req, res) => {
       updatedData.remotelocationimage = req.files.remotelocationimage.map(file => file.location);
     }
 
-    // Update document
+    // Otherwise, keep existing image arrays from req.body as arrays (parse if string)
+    if (!updatedData.propertyimage) {
+      if (req.body.propertyimage && typeof req.body.propertyimage === 'string') {
+        updatedData.propertyimage = req.body.propertyimage.split(',').map(s => s.trim());
+      }
+    }
+
+    if (!updatedData.remotelocationimage) {
+      if (req.body.remotelocationimage && typeof req.body.remotelocationimage === 'string') {
+        updatedData.remotelocationimage = req.body.remotelocationimage.split(',').map(s => s.trim());
+      }
+    }
+
     const updated = await PropertyListing.findByIdAndUpdate(req.params.id, updatedData, { new: true });
 
     if (!updated) {
-      return res.status(404).json({ message: "Property not found" });
+      return res.status(404).json({ message: 'Property not found' });
     }
 
-    res.status(200).json({ message: "Property updated successfully", data: updated });
+    res.status(200).json({ message: 'Property updated successfully', data: updated });
   } catch (error) {
-    console.error("Error updating listing:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    console.error('Error updating listing:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
