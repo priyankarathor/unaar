@@ -2,7 +2,7 @@ const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 const mongoose = require("mongoose");
-const Category = require("../models/Category");
+const Category = require("../model/category");
 
 // AWS Config
 AWS.config.update({
