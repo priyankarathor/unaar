@@ -293,76 +293,66 @@ const getPropertyById = async (req, res) => {
 
 const updatePropertyListing = async (req, res) => {
   try {
-    const updatedData = { ...req.body };
+    const id = req.params.id;
+    let updatedData = { ...req.body };
 
-    const fieldsToParse = [
-      'country', 'state', 'city', 'title', 'subtitle', 'fromamout',
-      'propertylabel', 'propertyvalue', 'descriptiontitle', 'descriptionlabel',
-      'descriptionvalue', 'description', 'facilitieid', 'facilitiedescription',
-      'featureId', 'latitude', 'longitude', 'locationlable', 'growthrate',
-      'locationvalue', 'locationvaluetitle', 'locationdescription',
-      'apartmenttitle', 'apartmentlable', 'apartmendescription',
-      'remotelocationtitle', 'remotelocationsubtitle', 'Currency', 'tagtitle',
-      'pincode', 'developer', 'loginId', 'status', 'type'
-    ];
+    // Fields that are expected as JSON arrays or objects
+    const jsonArrayFields = ['propertylabel', 'propertyvalue', 'featureId', 'facilitieid'];
 
-    const safeJsonParse = (value) => {
-      if (!value) return undefined;
-      if (typeof value === 'object') return value;
-      try {
-        return JSON.parse(value);
-      } catch {
-        return value;
-      }
-    };
-
-    fieldsToParse.forEach(field => {
-      if (updatedData[field] !== undefined) {
-        updatedData[field] = safeJsonParse(updatedData[field]);
+    // Safely parse JSON strings or comma separated strings into arrays
+    jsonArrayFields.forEach(field => {
+      if (updatedData[field]) {
+        if (typeof updatedData[field] === 'string') {
+          try {
+            updatedData[field] = JSON.parse(updatedData[field]);
+          } catch {
+            // fallback: treat as comma separated string
+            updatedData[field] = updatedData[field].split(',').map(s => s.trim());
+          }
+        }
+      } else {
+        // If field is missing or empty, make it empty array to avoid casting errors
+        updatedData[field] = [];
       }
     });
 
-    // Convert comma-separated strings to arrays for these fields if needed
-    ['propertylabel', 'propertyvalue'].forEach(field => {
-      if (updatedData[field] && !Array.isArray(updatedData[field])) {
-        updatedData[field] = updatedData[field].toString().split(',').map(s => s.trim());
-      }
-    });
-
-    // If files uploaded, override images with new S3 URLs
-    if (req.files?.propertyimage) {
+    // Handle images: if files uploaded, use those; else keep existing images from req.body
+    if (req.files?.propertyimage && req.files.propertyimage.length > 0) {
       updatedData.propertyimage = req.files.propertyimage.map(file => file.location);
+    } else if (typeof updatedData.propertyimage === 'string') {
+      // If string, convert to array (comma separated)
+      updatedData.propertyimage = updatedData.propertyimage.split(',').map(s => s.trim());
+    } else if (!updatedData.propertyimage) {
+      // If no images sent, keep existing or empty
+      updatedData.propertyimage = [];
     }
 
-    if (req.files?.remotelocationimage) {
+    if (req.files?.remotelocationimage && req.files.remotelocationimage.length > 0) {
       updatedData.remotelocationimage = req.files.remotelocationimage.map(file => file.location);
+    } else if (typeof updatedData.remotelocationimage === 'string') {
+      updatedData.remotelocationimage = updatedData.remotelocationimage.split(',').map(s => s.trim());
+    } else if (!updatedData.remotelocationimage) {
+      updatedData.remotelocationimage = [];
     }
 
-    // Otherwise, keep existing image arrays from req.body as arrays (parse if string)
-    if (!updatedData.propertyimage) {
-      if (req.body.propertyimage && typeof req.body.propertyimage === 'string') {
-        updatedData.propertyimage = req.body.propertyimage.split(',').map(s => s.trim());
-      }
-    }
+    // Remove nearbyPlaces from update to avoid cast error (or handle separately if you want)
+    delete updatedData.nearbyPlaces;
 
-    if (!updatedData.remotelocationimage) {
-      if (req.body.remotelocationimage && typeof req.body.remotelocationimage === 'string') {
-        updatedData.remotelocationimage = req.body.remotelocationimage.split(',').map(s => s.trim());
-      }
-    }
+    // Now update the property in DB
+    const updatedProperty = await PropertyListing.findByIdAndUpdate(id, updatedData, { new: true });
 
-    const updated = await PropertyListing.findByIdAndUpdate(req.params.id, updatedData, { new: true });
-
-    if (!updated) {
+    if (!updatedProperty) {
       return res.status(404).json({ message: 'Property not found' });
     }
 
-    res.status(200).json({ message: 'Property updated successfully', data: updated });
+    res.status(200).json({ message: 'Property updated successfully', data: updatedProperty });
+
   } catch (error) {
-    console.error('Error updating listing:', error);
+    console.error('Error updating property:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
 
 
 
