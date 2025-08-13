@@ -291,76 +291,51 @@ const getPropertyById = async (req, res) => {
 
 
 
-const updatePropertyListing = async (req, res) => {
+const handleSubmit = async (e) => {
+  e.preventDefault();
   try {
-    const updatedData = { ...req.body };
+    const submissionData = new FormData();
 
-    const fieldsToParse = [
-      'country', 'state', 'city', 'title', 'subtitle', 'fromamout',
-      'propertylabel', 'propertyvalue', 'descriptiontitle', 'descriptionlabel',
-      'descriptionvalue', 'description', 'facilitieid', 'facilitiedescription',
-      'featureId', 'latitude', 'longitude', 'locationlable', 'growthrate',
-      'locationvalue', 'locationvaluetitle', 'locationdescription',
-      'apartmenttitle', 'apartmentlable', 'apartmendescription',
-      'remotelocationtitle', 'remotelocationsubtitle', 'Currency', 'tagtitle',
-      'pincode', 'developer', 'loginId', 'status', 'type'
-    ];
+    // Append all normal fields except images
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === 'propertyimage' || key === 'remotelocationimage') return; // skip images here
 
-    const safeJsonParse = (value) => {
-      if (!value) return undefined;
-      if (typeof value === 'object') return value;
-      try {
-        return JSON.parse(value);
-      } catch {
-        return value;
-      }
-    };
-
-    fieldsToParse.forEach(field => {
-      if (updatedData[field] !== undefined) {
-        updatedData[field] = safeJsonParse(updatedData[field]);
+      if (Array.isArray(value)) {
+        submissionData.append(key, value.join(','));
+      } else {
+        submissionData.append(key, value);
       }
     });
 
-    // Convert comma-separated strings to arrays for these fields if needed
-    ['propertylabel', 'propertyvalue'].forEach(field => {
-      if (updatedData[field] && !Array.isArray(updatedData[field])) {
-        updatedData[field] = updatedData[field].toString().split(',').map(s => s.trim());
+    // Property Images
+    if (propertyimage.length > 0) {
+      // User selected new images - append files
+      propertyimage.forEach(file => submissionData.append('propertyimage', file));
+    } else {
+      // No new images selected - send existing image URLs as comma separated string
+      if (formData.propertyimage && formData.propertyimage.length > 0) {
+        submissionData.append('propertyimage', formData.propertyimage.join(','));
       }
+    }
+
+    // Remote Location Images
+    if (remotelocationimage.length > 0) {
+      remotelocationimage.forEach(file => submissionData.append('remotelocationimage', file));
+    } else {
+      if (formData.remotelocationimage && formData.remotelocationimage.length > 0) {
+        submissionData.append('remotelocationimage', formData.remotelocationimage.join(','));
+      }
+    }
+
+    const res = await axios.put(`${BASE_URL}/property/propertyedit/${id}`, submissionData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
 
-    // If files uploaded, override images with new S3 URLs
-    if (req.files?.propertyimage) {
-      updatedData.propertyimage = req.files.propertyimage.map(file => file.location);
-    }
-
-    if (req.files?.remotelocationimage) {
-      updatedData.remotelocationimage = req.files.remotelocationimage.map(file => file.location);
-    }
-
-    // Otherwise, keep existing image arrays from req.body as arrays (parse if string)
-    if (!updatedData.propertyimage) {
-      if (req.body.propertyimage && typeof req.body.propertyimage === 'string') {
-        updatedData.propertyimage = req.body.propertyimage.split(',').map(s => s.trim());
-      }
-    }
-
-    if (!updatedData.remotelocationimage) {
-      if (req.body.remotelocationimage && typeof req.body.remotelocationimage === 'string') {
-        updatedData.remotelocationimage = req.body.remotelocationimage.split(',').map(s => s.trim());
-      }
-    }
-
-    const updated = await PropertyListing.findByIdAndUpdate(req.params.id, updatedData, { new: true });
-
-    if (!updated) {
-      return res.status(404).json({ message: 'Property not found' });
-    }
-
-    res.status(200).json({ message: 'Property updated successfully', data: updated });
+    alert('Property updated successfully');
+    navigate('/CSVTable');
   } catch (error) {
-    console.error('Error updating listing:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    console.error('Update failed:', error.response || error.message);
+    alert('Update failed. Check console for details.');
   }
 };
 
