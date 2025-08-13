@@ -2,9 +2,9 @@ const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 const mongoose = require("mongoose");
-const Category = require("../model/category");
+const Category = require("../models/Category");
 
-// AWS S3 Config
+// AWS Config
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID?.trim(),
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY?.trim(),
@@ -13,49 +13,44 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
-// Upload to S3 function
-const uploadImageToS3 = async (file) => {
+// Upload to S3 helper
+const uploadToS3 = async (file) => {
   const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: fileName,
     Body: file.buffer,
     ContentType: file.mimetype,
-    ACL: "public-read",
   };
-
-  const result = await s3.upload(params).promise();
-  return result.Location;
+  const data = await s3.upload(params).promise();
+  return data.Location;
 };
 
 // INSERT CATEGORY
 exports.categoryInsert = async (req, res) => {
   try {
-    const { categorytype, categoryvalue, action } = req.body;
-
     if (!req.file) {
       return res.status(400).json({ status: false, message: "Image is required" });
     }
 
-    const imageUrl = await uploadImageToS3(req.file);
+    const imageUrl = await uploadToS3(req.file);
 
     const newCategory = new Category({
-      categorytype,
-      categoryvalue,
-      action,
+      categorytype: req.body.categorytype,
+      categoryvalue: req.body.categoryvalue,
+      action: req.body.action,
       image: imageUrl,
     });
 
     await newCategory.save();
-
     res.status(201).json({
       status: true,
       message: "✅ Category inserted successfully",
-      data: newCategory
+      data: newCategory,
     });
   } catch (error) {
-    console.error("❌ Error inserting category:", error);
-    res.status(500).json({ status: false, message: "Failed to insert category", error: error.message });
+    console.error("❌ Insert Error:", error);
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
@@ -66,11 +61,11 @@ exports.categoryGet = async (req, res) => {
     res.status(200).json({
       status: true,
       message: "✅ Categories fetched successfully",
-      data: categories
+      data: categories,
     });
   } catch (error) {
-    console.error("❌ Fetch error:", error);
-    res.status(500).json({ status: false, message: "Failed to fetch categories", error: error.message });
+    console.error("❌ Fetch Error:", error);
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
@@ -89,23 +84,22 @@ exports.categoryEdit = async (req, res) => {
     }
 
     if (req.file) {
-      category.image = await uploadImageToS3(req.file);
+      category.image = await uploadToS3(req.file);
     }
 
     category.categorytype = req.body.categorytype || category.categorytype;
     category.categoryvalue = req.body.categoryvalue || category.categoryvalue;
     category.action = req.body.action || category.action;
 
-    const updatedCategory = await category.save();
-
+    await category.save();
     res.status(200).json({
       status: true,
       message: "✅ Category updated successfully",
-      data: updatedCategory
+      data: category,
     });
   } catch (error) {
-    console.error("❌ Error updating category:", error);
-    res.status(500).json({ status: false, message: "Failed to update category", error: error.message });
+    console.error("❌ Update Error:", error);
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
@@ -126,10 +120,10 @@ exports.categoryDelete = async (req, res) => {
     res.status(200).json({
       status: true,
       message: "✅ Category deleted successfully",
-      data: category
+      data: category,
     });
   } catch (error) {
-    console.error("❌ Error deleting category:", error);
-    res.status(500).json({ status: false, message: "Failed to delete category", error: error.message });
+    console.error("❌ Delete Error:", error);
+    res.status(500).json({ status: false, message: error.message });
   }
 };

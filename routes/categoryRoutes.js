@@ -1,5 +1,4 @@
 const express = require('express');
-const router = express.Router();
 const multer = require('multer');
 const {
   categoryInsert,
@@ -8,10 +7,13 @@ const {
   categoryDelete
 } = require("../controllers/CategoryController");
 
-// Multer config (memory storage for S3 upload)
+const router = express.Router();
+
+// Multer memory storage for S3
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// Routes
 router.post('/insertcategory', upload.single('image'), categoryInsert);
 router.get('/getcategory', categoryGet);
 router.put('/editcategory/:id', upload.single('image'), categoryEdit);
