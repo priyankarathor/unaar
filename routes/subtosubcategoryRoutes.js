@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-
 const { 
     subtosubcategoryInsert, 
     subtosubcategoryGet, 
@@ -9,7 +8,7 @@ const {
     subtosubcategoryDelete 
 } = require("../controllers/subtosubcategoryController");
 
-// Multer storage in memory (for AWS S3 upload)
+// Use multer for parsing multipart/form-data
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
