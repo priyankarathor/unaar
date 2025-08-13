@@ -1,20 +1,15 @@
-// models/Sub Category.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const SubCategorySchema = new mongoose.Schema({
-    masterId :{
-        type:String
-    },
-    mastertitle:{
-        type:String,
-    },
+const subCategorySchema = new mongoose.Schema(
+  {
+    masterId: { type: String },
+    mastertitle: { type: String },
     categorytype: { type: String, required: true },
     categoryvalue: { type: String, required: true },
-    image: { type: Buffer },
-    imageType: {
-        type : String 
-    },
-    action: { type: String }
-}, { timestamps: true });
+    action: { type: String },
+    image: { type: String }, // Store S3 URL instead of Buffer
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('SubCategory', SubCategorySchema);
+module.exports = mongoose.model("subCategory", subCategorySchema);
