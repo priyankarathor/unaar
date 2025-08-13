@@ -141,10 +141,26 @@ const getAllPropertyList = async (req, res) => {
   try {
     const latestProperty = await PropertyListing.findOne().sort({ createdAt: -1 });
 
+    if (!latestProperty) {
+      return res.status(404).json({
+        status: false,
+        message: 'No property listings found',
+        data: null
+      });
+    }
+
     const formatted = {
       ...latestProperty._doc,
-      propertyimage: latestProperty.propertyimage?.split(',') || [],
-      remotelocationimage: latestProperty.remotelocationimage?.split(',') || []
+      propertyimage: Array.isArray(latestProperty.propertyimage)
+        ? latestProperty.propertyimage
+        : typeof latestProperty.propertyimage === 'string'
+          ? latestProperty.propertyimage.split(',')
+          : [],
+      remotelocationimage: Array.isArray(latestProperty.remotelocationimage)
+        ? latestProperty.remotelocationimage
+        : typeof latestProperty.remotelocationimage === 'string'
+          ? latestProperty.remotelocationimage.split(',')
+          : []
     };
 
     res.status(200).json({
@@ -157,6 +173,7 @@ const getAllPropertyList = async (req, res) => {
     res.status(500).json({ status: false, message: 'Failed to fetch', error: error.message });
   }
 };
+
 
 
 
