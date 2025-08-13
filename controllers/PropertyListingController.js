@@ -296,60 +296,75 @@ const updatePropertyListing = async (req, res) => {
     const id = req.params.id;
     let updatedData = { ...req.body };
 
-    // Fields that are expected as JSON arrays or objects
+    // Fields expected to be JSON arrays or comma-separated strings
     const jsonArrayFields = ['propertylabel', 'propertyvalue', 'featureId', 'facilitieid'];
 
-    // Safely parse JSON strings or comma separated strings into arrays
+    // Parse these fields safely
     jsonArrayFields.forEach(field => {
       if (updatedData[field]) {
         if (typeof updatedData[field] === 'string') {
           try {
             updatedData[field] = JSON.parse(updatedData[field]);
           } catch {
-            // fallback: treat as comma separated string
             updatedData[field] = updatedData[field].split(',').map(s => s.trim());
           }
         }
       } else {
-        // If field is missing or empty, make it empty array to avoid casting errors
         updatedData[field] = [];
       }
     });
 
-    // Handle images: if files uploaded, use those; else keep existing images from req.body
+    // Helper function to upload files to S3 (reuse your existing uploadToS3)
+    const uploadToS3 = async (file) => {
+      const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileName,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+      const result = await s3.upload(params).promise();
+      return result.Location;
+    };
+
+    // Upload new property images if present
     if (req.files?.propertyimage && req.files.propertyimage.length > 0) {
-      updatedData.propertyimage = req.files.propertyimage.map(file => file.location);
+      const uploadedPropertyImages = await Promise.all(req.files.propertyimage.map(uploadToS3));
+      updatedData.propertyimage = uploadedPropertyImages;
     } else if (typeof updatedData.propertyimage === 'string') {
-      // If string, convert to array (comma separated)
+      // If existing images sent as comma-separated string
       updatedData.propertyimage = updatedData.propertyimage.split(',').map(s => s.trim());
     } else if (!updatedData.propertyimage) {
-      // If no images sent, keep existing or empty
       updatedData.propertyimage = [];
     }
 
+    // Upload new remote location images if present
     if (req.files?.remotelocationimage && req.files.remotelocationimage.length > 0) {
-      updatedData.remotelocationimage = req.files.remotelocationimage.map(file => file.location);
+      const uploadedRemoteLocationImages = await Promise.all(req.files.remotelocationimage.map(uploadToS3));
+      updatedData.remotelocationimage = uploadedRemoteLocationImages;
     } else if (typeof updatedData.remotelocationimage === 'string') {
       updatedData.remotelocationimage = updatedData.remotelocationimage.split(',').map(s => s.trim());
     } else if (!updatedData.remotelocationimage) {
       updatedData.remotelocationimage = [];
     }
 
-    // Remove nearbyPlaces from update to avoid cast error (or handle separately if you want)
-    delete updatedData.nearbyPlaces;
+    // Remove nearbyPlaces from update if not handled properly
+    if ('nearbyPlaces' in updatedData) {
+      delete updatedData.nearbyPlaces;
+    }
 
-    // Now update the property in DB
+    // Update property document
     const updatedProperty = await PropertyListing.findByIdAndUpdate(id, updatedData, { new: true });
 
     if (!updatedProperty) {
       return res.status(404).json({ message: 'Property not found' });
     }
 
-    res.status(200).json({ message: 'Property updated successfully', data: updatedProperty });
+    return res.status(200).json({ message: 'Property updated successfully', data: updatedProperty });
 
   } catch (error) {
     console.error('Error updating property:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
