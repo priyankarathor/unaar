@@ -16,5 +16,8 @@ router.delete('/locationDeleteData/:id', locationController.locationDelete);
 //bulkfy
 router.post('/bulkLocationInsertbulk', locationController.bulkLocationInsert);
 
+// PUT /api/location/edit/:PropertyId
+router.put('/location/edit/:PropertyId', locationController.locationEditByPropertyId);
+
 
 module.exports = router;
