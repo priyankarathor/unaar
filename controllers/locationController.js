@@ -422,39 +422,38 @@ exports.locationDelete = async (req, res) => {
   }
 };
 
-//edit by propertyid 
+
+// edit by PropertyId
 exports.locationEditByPropertyId = async (req, res) => {
-    try {
-        const { PropertyId } = req.params; // PropertyId from route param
-        const { Country, State, City, locationlable } = req.body;
+  try {
+    const { PropertyId } = req.params; // PropertyId from route param
+    const { Country, State, City, locationlable } = req.body;
 
-        // Find and update the location by PropertyId
-        const updatedLocation = await Location.findOneAndUpdate(
-            { PropertyId }, // Search condition
-            { Country, State, City, locationlable }, // Fields to update
-            { new: true, runValidators: true } // Return updated doc + run validators
-        );
+    // Ensure PropertyId matches in your Location collection
+    const updatedLocation = await Location.findOneAndUpdate(
+      { PropertyId: PropertyId }, // <-- match by PropertyId field
+      { Country, State, City, locationlable },
+      { new: true, runValidators: true }
+    );
 
-        if (!updatedLocation) {
-            return res.status(404).json({
-                status: false,
-                message: `Location not found for PropertyId: ${PropertyId}`,
-                data: null
-            });
-        }
-
-        res.status(200).json({
-            status: true,
-            message: "Location updated successfully",
-            data: updatedLocation
-        });
-
-    } catch (error) {
-        res.status(400).json({
-            status: false,
-            message: "Something went wrong: " + error.message,
-            data: null
-        });
+    if (!updatedLocation) {
+      return res.status(404).json({
+        status: false,
+        message: `Location not found for PropertyId: ${PropertyId}`,
+        data: null,
+      });
     }
-};
 
+    res.status(200).json({
+      status: true,
+      message: "Location updated successfully",
+      data: updatedLocation,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: false,
+      message: "Something went wrong: " + error.message,
+      data: null,
+    });
+  }
+};
